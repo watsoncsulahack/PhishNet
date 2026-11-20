@@ -5,6 +5,7 @@ node_modules/
 **/local.properties
 *.jks
 *.keystore
+tools/demo/output/
 .pnpm-store/
 
 # Environment and secrets

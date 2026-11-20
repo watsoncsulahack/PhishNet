@@ -1,0 +1,32 @@
+[
+  {
+    "id": "intro",
+    "title": "Confidence is not authorization.",
+    "caption": "An assistant repeats a wallet update. Who verified the source?",
+    "narration": "Meet PhishNet, from team Data Operators. A payment can look routine and still be unsafe. A scammer sends a new vendor wallet address. One assistant summarizes it. Another repeats it. By the time you see the payment request, repetition looks like verification. PhishNet asks a different question: where did that claim actually come from?"
+  },
+  {
+    "id": "lineage",
+    "title": "Trace the claim, not the confidence.",
+    "caption": "Two agents repeat one unverified source. That is not independent evidence.",
+    "narration": "Here is our running research prototype, using a synthetic vendor-change scenario. The inspector follows the claim through the interaction history. Multiple agents repeat the same replacement address, but those repetitions trace back to one unverified source. The local rule-based analyzer flags that pattern and the changed payment details. Its warning is advisory, not permission to spend."
+  },
+  {
+    "id": "blocked",
+    "title": "Right amount. Wrong recipient. Blocked.",
+    "caption": "A $250 request cannot bypass the approved recipient rule.",
+    "narration": "Now we try the substituted recipient. The two hundred fifty dollar amount is within the example limit, but the recipient is not the approved vendor. The deterministic gate returns deny, with recipient mismatch. The prototype does not execute this request. A confident message, or an analyzer saying everything is safe, cannot change that recipient check."
+  },
+  {
+    "id": "allowed",
+    "title": "Useful payments, within clear limits.",
+    "caption": "Approved recipient + example approval + budget → ALLOW. Settlement is simulated.",
+    "narration": "For comparison, we submit the original approved recipient, within the example budget, with the demo approval flag. The same gate allows it. This is a policy demonstration: the balance and receipt are simulated, and the approval flag is not production authentication. No blockchain transaction is broadcast. The point is selective protection, not blocking every payment."
+  },
+  {
+    "id": "outro",
+    "title": "Your money. Your say.",
+    "caption": "Working policy prototype today. Receive-only Android preview. Secure spending is the next milestone.",
+    "narration": "Our native Android preview adds an empty encrypted test wallet, real Arc Testnet balance checks, and a Circle faucet handoff. It is receive-only, with a local help guide, not an autonomous earning agent. Recovery, authenticated payment approval, durable spending limits, and verified settlement remain release gates. PhishNet's goal is simple: make the evidence understandable, keep authorization independent, and put people in control before money moves."
+  }
+]
