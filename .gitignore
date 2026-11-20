@@ -1,5 +1,10 @@
 # Dependencies
 node_modules/
+**/.gradle/
+**/build/
+**/local.properties
+*.jks
+*.keystore
 .pnpm-store/
 
 # Environment and secrets

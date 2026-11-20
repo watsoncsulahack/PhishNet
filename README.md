@@ -1,5 +1,16 @@
 # PhishNet — Provenance-Aware Security Platform for Agentic Payments
 
+## Android preview (new)
+
+A native, phone-first app now lives in [`apps/android`](apps/android). It creates an empty, encrypted device-held **test wallet**, reads the real Arc Testnet balance, links to Circle's faucet, and includes a private built-in help assistant. No backend or Termux server is needed.
+
+**Install:** Open the repository's **Actions → Android preview → successful run → Artifacts → PhishNet-Android-preview**, download and unzip it, then install `app-debug.apk` on Android 9+. This is a debug-signed preview, not a production release. Future preview builds may require uninstalling; uninstalling destroys this wallet.
+
+**Important:** Sending payments and autonomous agent spending are intentionally disabled. The assistant is a local guide, not an LLM or an earning bot. There is no wallet recovery yet; never send real funds. Read the [Android guide](apps/android/README.md) and [security review](docs/android-security-review.md).
+
+The sections below describe the original prototype and its intended architecture, **not audited production guarantees**. In particular, the Node/PowerShell wallet APIs use in-memory simulated money and do not provide authenticated signing or verified AP2/x402 compliance. The old live adapter now fails closed rather than fabricating settlement.
+
+
 > **Trace the claims behind AI payment recommendations before money moves.**
 
 PhishNet is an open-source, provenance-aware security and financial authorization platform designed to defend human–AI and agent-to-agent workflows against multi-stage social engineering, context laundering, and unauthorized payments.
