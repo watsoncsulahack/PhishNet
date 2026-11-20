@@ -49,28 +49,8 @@ export class ArcTestnetAdapter implements PaymentAdapter {
       return await this.simulator.executePayment(proposal, preflight);
     }
 
-    // Live Arc Testnet JSON-RPC Transaction Broadcast
-    try {
-      // In live environment with funded dev key, performs eth_sendRawTransaction
-      // If RPC fails or is unreachable, fail closed and do not claim settlement
-      const txHash = '0x' + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
-      return {
-        receiptId: `rcpt-${Date.now()}`,
-        requestId: proposal.requestId,
-        chainId: this.chainId,
-        txHash,
-        blockNumber: 1245089,
-        status: 'SETTLED',
-        asset: 'USDC',
-        recipient: proposal.recipient,
-        amountBaseUnits: proposal.amountBaseUnits,
-        executedAt: new Date().toISOString(),
-        explorerUrl: `${this.explorerUrl}/tx/${txHash}`,
-        isSimulated: false
-      };
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      throw new Error(`Arc Testnet broadcast failed: ${errorMessage}`);
-    }
+    // Fail closed: the former placeholder fabricated a SETTLED receipt without
+    // signing, broadcasting, or checking a receipt. Never claim settlement here.
+    throw new Error('Live Arc payments are not implemented. No transaction was signed or broadcast.');
   }
 }
