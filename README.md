@@ -67,10 +67,21 @@ Arc Testnet Signer   Awaiting Human /        Execution Strictly
 
 ---
 
-## 3. Product Modes
+## 3. Product Modes & Dual System Architecture
 
-- **Consumer Advisory Mode:** Provides clear, explainable warnings, highlights verified vs unverified claims, and maps source convergence for human users reviewing agent recommendations.
-- **Enterprise Enforcement Mode:** Integrates into automated agentic pipelines via `POST /v1/preflight`. Strictly blocks transaction execution when policies, budgets, recipients, or nonces are violated.
+PhishNet is packaged as a unified mobile-first application with two integrated surfaces:
+
+1. **On-Device Agentic Wallet & Policy Gate:**
+   - **Circle Arc Testnet Rails:** Real-time testnet balance and execution on Chain ID `5042002` with native USDC settlement.
+   - **Google AP2 (Agent Payments Protocol):** Issues and validates Intent Mandates, Cart Mandates, and Payment Mandates.
+   - **x402 Micropayments Protocol:** Handles HTTP 402 Payment Required challenges for pay-per-request agent queries with automatic budget deductions and replay protection.
+   - **Deterministic Policy Enforcement:** Independent, non-LLM policy verification that strictly enforces recipient normalization, budget caps, nonces, and human approval.
+
+2. **Agent Behavior Inspector & Provenance Dashboard:**
+   - **Agent Activity Track:** Chronological timeline tracing agent actions, tool calls, and claims across sessions over time.
+   - **Interactive Claim Lineage DAG:** Visual SVG graph mapping claim origins and flagging echo chambers / source convergence.
+   - **Google Antigravity Behavioral Inference:** Runs deep linguistic and context-laundering analysis to surface urgency manipulation, uncredentialed authority claims, and mutated payment details.
+   - **RFC 9162 Merkle Audit Trail:** Canonical SHA-256 event digests and live cryptographic tamper-detection.
 
 ---
 
@@ -93,7 +104,17 @@ Arc Testnet Signer   Awaiting Human /        Execution Strictly
 
 PhishNet includes a self-contained, native zero-dependency Windows engine as well as standard Node.js scripts.
 
-### Option A: Native Zero-Dependency Windows Engine (Recommended)
+### Option A: Node.js (Mobile, Linux, macOS, Android Termux)
+```bash
+# 1. Run the comprehensive automated verification suite:
+node tests/run-all.js
+
+# 2. Start the PhishNet Mobile Server & Web App:
+node apps/api/src/server.js
+```
+Open browser to: `http://127.0.0.1:3000`
+
+### Option B: Native Zero-Dependency Windows Engine
 Runs immediately in PowerShell without installing Node or Python:
 
 ```powershell

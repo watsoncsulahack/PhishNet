@@ -7,7 +7,7 @@
  * - Node digest:  SHA256("phishnet.node.v1:" || leftHash || rightHash)
  */
 
-import { EventEnvelope } from '../../core/src/schemas';
+import type { EventEnvelope } from '../../core/src/schemas.ts';
 
 // Stable key-sorted canonical JSON serialization
 export function canonicalJsonStringify(obj: unknown): string {

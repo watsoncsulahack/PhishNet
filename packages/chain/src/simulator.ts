@@ -5,8 +5,8 @@
  * Explicitly marks all receipts as `isSimulated: true` and status `SIMULATED`.
  */
 
-import { ExecutionReceipt, PaymentProposal, PreflightDecision } from '../../core/src/schemas';
-import { PaymentAdapter } from './payment-adapter';
+import type { ExecutionReceipt, PaymentProposal, PreflightDecision } from '../../core/src/schemas.ts';
+import type { PaymentAdapter } from './payment-adapter.ts';
 
 export class SimulatedPaymentAdapter implements PaymentAdapter {
   public chainId: string;

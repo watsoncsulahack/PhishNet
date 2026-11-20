@@ -7,7 +7,7 @@
  * - Source convergence analysis: Distinguish multi-agent echo chamber from genuine independent corroboration!
  */
 
-import { EventEnvelope, Actor, Claim } from '../../core/src/schemas';
+import type { EventEnvelope, Actor, Claim } from '../../core/src/schemas.ts';
 
 export interface GraphNode {
   event: EventEnvelope;

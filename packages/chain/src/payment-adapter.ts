@@ -2,7 +2,7 @@
  * PhishNet Payment Adapter Interface and Execution Controller
  */
 
-import { ExecutionReceipt, PaymentProposal, PreflightDecision } from '../../core/src/schemas';
+import type { ExecutionReceipt, PaymentProposal, PreflightDecision } from '../../core/src/schemas.ts';
 
 export interface PaymentAdapter {
   chainId: string;

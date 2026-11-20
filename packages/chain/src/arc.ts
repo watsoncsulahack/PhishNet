@@ -8,9 +8,9 @@
  * - Block Explorer: https://explorer.testnet.arc.io
  */
 
-import { ExecutionReceipt, PaymentProposal, PreflightDecision } from '../../core/src/schemas';
-import { PaymentAdapter } from './payment-adapter';
-import { SimulatedPaymentAdapter } from './simulator';
+import type { ExecutionReceipt, PaymentProposal, PreflightDecision } from '../../core/src/schemas.ts';
+import type { PaymentAdapter } from './payment-adapter.ts';
+import { SimulatedPaymentAdapter } from './simulator.ts';
 
 export class ArcTestnetAdapter implements PaymentAdapter {
   public chainId = '5042002';

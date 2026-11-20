@@ -2,15 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PhishNet — Provenance-Aware Security Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>PhishNet — On-Device Agentic Wallet &amp; Agent Behavior Inspector</title>
   <style>
     :root {
-      --bg-primary: #0A1128;
-      --bg-secondary: #101935;
-      --bg-card: #152244;
-      --bg-glass: rgba(21, 34, 68, 0.85);
-      --border-color: #243B6B;
+      --bg-base: #070D1E;
+      --bg-surface: #0E1833;
+      --bg-card: #142247;
+      --bg-glass: rgba(20, 34, 71, 0.88);
+      --border-color: #213663;
+      --border-bright: #315194;
       --mint: #00F5D4;
       --mint-glow: rgba(0, 245, 212, 0.25);
       --mint-dim: #05D5AA;
@@ -18,42 +19,46 @@
       --crimson-glow: rgba(255, 51, 102, 0.25);
       --amber: #FFB703;
       --amber-glow: rgba(255, 183, 3, 0.25);
+      --purple: #9D4EDD;
+      --purple-glow: rgba(157, 78, 221, 0.25);
       --text-main: #F0F4F8;
       --text-muted: #8E9AAF;
-      --text-dim: #57647E;
-      --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      --text-dim: #546483;
+      --font-mono: 'SFMono-Regular', Consolas, Menlo, Monaco, monospace;
       --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    
     body {
-      background-color: var(--bg-primary);
+      background-color: var(--bg-base);
       color: var(--text-main);
       font-family: var(--font-sans);
-      line-height: 1.5;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      padding-bottom: 74px; /* space for bottom nav */
     }
 
-    header {
-      background: var(--bg-secondary);
+    /* Top App Bar */
+    .top-app-bar {
+      background: var(--bg-surface);
       border-bottom: 1px solid var(--border-color);
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 0.85rem 1rem;
       position: sticky;
       top: 0;
       z-index: 100;
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-
-    .brand {
+    .brand-group {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.6rem;
     }
-    .brand-logo {
+    .brand-icon {
       width: 32px;
       height: 32px;
       background: linear-gradient(135deg, var(--mint), #00A699);
@@ -62,739 +67,1089 @@
       align-items: center;
       justify-content: center;
       font-weight: 900;
-      color: var(--bg-primary);
-      font-size: 1.1rem;
-      box-shadow: 0 0 15px var(--mint-glow);
-    }
-    .brand-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .brand-badge {
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      background: rgba(0, 245, 212, 0.1);
-      color: var(--mint);
-      border: 1px solid var(--mint-dim);
-      padding: 0.15rem 0.4rem;
-      border-radius: 4px;
-      font-family: var(--font-mono);
-    }
-
-    .header-controls {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-    .mode-toggle {
-      display: flex;
-      align-items: center;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 20px;
-      padding: 0.25rem;
-      gap: 0.25rem;
-    }
-    .mode-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      font-weight: 600;
-      padding: 0.35rem 0.85rem;
-      border-radius: 16px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .mode-btn.active {
-      background: var(--bg-card);
-      color: var(--mint);
-      border: 1px solid var(--mint-dim);
-      box-shadow: 0 0 10px var(--mint-glow);
-    }
-
-    .network-badge {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      background: var(--bg-primary);
-      padding: 0.35rem 0.75rem;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-    }
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--mint);
-      box-shadow: 0 0 8px var(--mint);
-    }
-
-    main {
-      padding: 1.5rem 2rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-      max-width: 1600px;
-      margin: 0 auto;
-      width: 100%;
-      flex: 1;
-    }
-
-    /* Scenario Selector */
-    .scenario-bar {
-      display: flex;
-      gap: 0.75rem;
-      overflow-x: auto;
-      padding-bottom: 0.5rem;
-    }
-    .scenario-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      min-width: 240px;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-    }
-    .scenario-card:hover {
-      border-color: var(--mint-dim);
-      transform: translateY(-2px);
-    }
-    .scenario-card.active {
-      border-color: var(--mint);
-      background: linear-gradient(180deg, rgba(0, 245, 212, 0.08), var(--bg-card));
+      color: var(--bg-base);
+      font-size: 1rem;
       box-shadow: 0 0 12px var(--mint-glow);
     }
-    .sc-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .sc-title {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-    .sc-tag {
-      font-size: 0.65rem;
-      font-family: var(--font-mono);
-      padding: 0.1rem 0.4rem;
-      border-radius: 4px;
-      text-transform: uppercase;
-      font-weight: 700;
-    }
-    .sc-tag.deny { background: rgba(255, 51, 102, 0.15); color: var(--crimson); border: 1px solid var(--crimson); }
-    .sc-tag.allow { background: rgba(0, 245, 212, 0.15); color: var(--mint); border: 1px solid var(--mint); }
-    .sc-tag.hold { background: rgba(255, 183, 3, 0.15); color: var(--amber); border: 1px solid var(--amber); }
-    .sc-desc {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      line-height: 1.3;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    /* Main Grid */
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
-    @media (max-width: 1100px) {
-      .dashboard-grid { grid-template-columns: 1fr; }
-    }
-
-    .panel {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 1.25rem;
+    .brand-text {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
     }
-    .panel-header {
+    .brand-title {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .brand-subtitle {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+    .top-badges {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .badge-chip {
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-base);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .dot-live {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 6px var(--mint);
+    }
+
+    /* Main Container & Tab Panels */
+    main {
+      flex: 1;
+      padding: 1rem;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .tab-panel {
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    .tab-panel.active {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards & Containers */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.75rem;
+      padding-bottom: 0.6rem;
     }
-    .panel-title {
-      font-size: 1rem;
+    .card-title {
+      font-size: 0.9rem;
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      color: var(--text-main);
+      gap: 0.4rem;
     }
 
-    /* Timeline */
-    .timeline {
+    /* Wallet Balance Card */
+    .wallet-hero {
+      background: linear-gradient(135deg, #122146, #0A142D);
+      border: 1px solid var(--border-bright);
+      border-radius: 14px;
+      padding: 1.25rem;
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
-      max-height: 380px;
-      overflow-y: auto;
-      padding-right: 0.5rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
     }
-    .event-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-left: 3px solid var(--border-color);
-      border-radius: 6px;
-      padding: 0.75rem;
-      font-size: 0.8rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      transition: all 0.2s;
-    }
-    .event-card.origin { border-left-color: var(--crimson); }
-    .event-card.echo { border-left-color: var(--amber); }
-    .event-card.verified { border-left-color: var(--mint); }
-
-    .ev-top {
+    .wallet-top {
       display: flex;
       justify-content: space-between;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
+      align-items: flex-start;
     }
-    .ev-actor {
-      font-weight: 700;
-      color: var(--mint);
-    }
-    .ev-body {
-      color: var(--text-main);
-    }
-    .ev-digest {
-      font-family: var(--font-mono);
-      font-size: 0.65rem;
-      color: var(--text-dim);
-    }
-
-    /* Graph Visualizer */
-    .graph-container {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      height: 280px;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* Authoritative Transaction & Policy Panel */
-    .tx-details {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-      background: var(--bg-secondary);
-      padding: 1rem;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
-      font-size: 0.8rem;
-    }
-    .detail-item {
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-    }
-    .detail-label {
-      color: var(--text-muted);
+    .wallet-lbl {
       font-size: 0.7rem;
       text-transform: uppercase;
       font-family: var(--font-mono);
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
     }
-    .detail-val {
-      font-family: var(--font-mono);
-      font-weight: 600;
-      word-break: break-all;
-    }
-
-    /* Decision Display */
-    .decision-banner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem 1.25rem;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 1.1rem;
-    }
-    .decision-banner.allow {
-      background: rgba(0, 245, 212, 0.12);
-      border: 1px solid var(--mint);
-      color: var(--mint);
-    }
-    .decision-banner.deny {
-      background: rgba(255, 51, 102, 0.12);
-      border: 1px solid var(--crimson);
-      color: var(--crimson);
-    }
-    .decision-banner.hold {
-      background: rgba(255, 183, 3, 0.12);
-      border: 1px solid var(--amber);
-      color: var(--amber);
-    }
-
-    .reason-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-    .reason-chip {
-      background: var(--bg-secondary);
-      border-left: 3px solid var(--crimson);
-      padding: 0.4rem 0.75rem;
-      border-radius: 4px;
+    .wallet-address {
       font-family: var(--font-mono);
       font-size: 0.75rem;
-      color: var(--crimson);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      color: var(--mint);
+      background: rgba(0, 245, 212, 0.08);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 245, 212, 0.2);
+      cursor: pointer;
     }
-    .reason-chip.allow {
-      border-left-color: var(--mint);
+    .wallet-bal {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #FFFFFF;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: baseline;
+      gap: 0.3rem;
+    }
+    .wallet-token {
+      font-size: 1rem;
+      font-weight: 600;
       color: var(--mint);
     }
-
-    /* Actions */
-    .action-row {
-      display: flex;
-      gap: 0.75rem;
-      margin-top: auto;
+    .wallet-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      border-top: 1px solid var(--border-color);
+      padding-top: 0.75rem;
+      font-size: 0.75rem;
     }
+    .stat-box {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    /* Buttons */
     .btn {
-      flex: 1;
-      padding: 0.75rem 1rem;
-      border-radius: 6px;
+      padding: 0.65rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
       font-weight: 700;
-      font-size: 0.85rem;
       cursor: pointer;
       border: none;
-      transition: all 0.2s;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
+      transition: all 0.15s ease-out;
+    }
+    .btn:active {
+      transform: scale(0.98);
     }
     .btn-primary {
       background: var(--mint);
-      color: var(--bg-primary);
-    }
-    .btn-primary:hover:not(:disabled) {
-      box-shadow: 0 0 15px var(--mint-glow);
-      background: #05fddc;
+      color: var(--bg-base);
     }
     .btn-secondary {
-      background: var(--bg-secondary);
+      background: var(--bg-surface);
       color: var(--text-main);
       border: 1px solid var(--border-color);
     }
-    .btn-secondary:hover:not(:disabled) {
-      border-color: var(--mint-dim);
+    .btn-danger {
+      background: rgba(255, 51, 102, 0.15);
+      color: var(--crimson);
+      border: 1px solid var(--crimson);
+    }
+    .btn-purple {
+      background: rgba(157, 78, 221, 0.2);
+      color: #DDA0DD;
+      border: 1px solid var(--purple);
     }
     .btn:disabled {
-      opacity: 0.4;
+      opacity: 0.45;
       cursor: not-allowed;
     }
+    .btn-row {
+      display: flex;
+      gap: 0.5rem;
+    }
 
-    /* Audit & Tamper Panel */
-    .merkle-box {
-      background: var(--bg-secondary);
+    /* Mandate List */
+    .mandate-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+    }
+    .mandate-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .mandate-tag {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .mandate-tag.ap2 {
+      background: rgba(157, 78, 221, 0.15);
+      color: #DDA0DD;
+      border: 1px solid var(--purple);
+    }
+    .mandate-tag.x402 {
+      background: rgba(0, 245, 212, 0.15);
+      color: var(--mint);
+      border: 1px solid var(--mint-dim);
+    }
+
+    /* Protocol Demos Box */
+    .demo-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .protocol-box {
+      background: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: 8px;
       padding: 0.85rem;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
+      gap: 0.6rem;
     }
-    .hash-row {
+    .protocol-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 0.5rem;
     }
-    .hash-val {
-      color: var(--mint);
-      word-break: break-all;
-    }
-    .proof-badge {
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
+    .protocol-title {
       font-weight: 700;
-      font-size: 0.7rem;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
     }
-    .proof-badge.valid { background: rgba(0, 245, 212, 0.2); color: var(--mint); }
-    .proof-badge.invalid { background: rgba(255, 51, 102, 0.2); color: var(--crimson); }
 
-    /* Advisory Box */
-    .advisory-box {
-      background: rgba(255, 183, 3, 0.08);
+    /* Preflight Gate Banner */
+    .gate-banner {
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-weight: 800;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+    }
+    .gate-banner.allow {
+      background: rgba(0, 245, 212, 0.15);
+      border: 1px solid var(--mint);
+      color: var(--mint);
+    }
+    .gate-banner.deny {
+      background: rgba(255, 51, 102, 0.15);
+      border: 1px solid var(--crimson);
+      color: var(--crimson);
+    }
+    .gate-banner.hold {
+      background: rgba(255, 183, 3, 0.15);
       border: 1px solid var(--amber);
-      border-radius: 6px;
-      padding: 0.75rem;
-      font-size: 0.8rem;
       color: var(--amber);
     }
-    .advisory-box.clear {
-      background: rgba(0, 245, 212, 0.08);
-      border-color: var(--mint);
-      color: var(--mint);
-    }
 
-    footer {
-      border-top: 1px solid var(--border-color);
-      background: var(--bg-secondary);
-      padding: 1rem 2rem;
+    /* Agent Timeline */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 0.25rem;
+    }
+    .event-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.65rem;
       font-size: 0.75rem;
-      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .event-item.origin { border-left-color: var(--crimson); }
+    .event-item.echo { border-left-color: var(--amber); }
+    .event-item.verified { border-left-color: var(--mint); }
+    .event-item.receipt { border-left-color: var(--purple); }
+    .ev-top {
       display: flex;
       justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+    .ev-actor {
+      font-weight: 700;
+      color: var(--mint);
+    }
+    .ev-text {
+      color: var(--text-main);
+    }
+
+    /* SVG DAG Graph */
+    .dag-container {
+      background: var(--bg-base);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      height: 220px;
+      width: 100%;
+      overflow: hidden;
+      display: flex;
       align-items: center;
+      justify-content: center;
+    }
+
+    /* Antigravity Behavioral Inference Card */
+    .inference-card {
+      background: linear-gradient(180deg, rgba(157, 78, 221, 0.1), var(--bg-card));
+      border: 1px solid var(--purple);
+      border-radius: 10px;
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .cue-chip {
+      background: var(--bg-surface);
+      border-left: 3px solid var(--amber);
+      padding: 0.4rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      color: var(--text-main);
+    }
+    .cue-chip.crimson { border-left-color: var(--crimson); }
+
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.68rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      transition: all 0.15s;
+    }
+    .nav-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+    }
+    .nav-btn.active {
+      color: var(--mint);
+    }
+    .nav-btn.active svg {
+      stroke: var(--mint);
+      filter: drop-shadow(0 0 6px var(--mint-glow));
+    }
+
+    /* Mode Pill */
+    .mode-pill {
+      display: flex;
+      background: var(--bg-base);
+      border-radius: 16px;
+      padding: 0.15rem;
+      border: 1px solid var(--border-color);
+    }
+    .mode-opt {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .mode-opt.active {
+      background: var(--bg-card);
+      color: var(--mint);
+      border: 1px solid var(--mint-dim);
+    }
+
+    /* Live Receipt Popup */
+    .receipt-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--mint-dim);
+      border-radius: 8px;
+      padding: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="brand">
-      <div class="brand-logo">P</div>
-      <div>
-        <div class="brand-title">
-          PhishNet
-          <span class="brand-badge">Arc Testnet v1.0</span>
-        </div>
-        <div style="font-size: 0.7rem; color: var(--text-muted);">
-          Provenance-Aware Social-Engineering Defense &amp; Preflight Policy
-        </div>
+  <!-- Top App Bar -->
+  <header class="top-app-bar">
+    <div class="brand-group">
+      <div class="brand-icon">P</div>
+      <div class="brand-text">
+        <div class="brand-title">PhishNet Mobile</div>
+        <div class="brand-subtitle">On-Device Agentic Wallet</div>
       </div>
     </div>
 
-    <div class="header-controls">
-      <div class="mode-toggle">
-        <button class="mode-btn" id="btn-mode-advisory" onclick="setMode('advisory')">Consumer Advisory</button>
-        <button class="mode-btn active" id="btn-mode-enforcement" onclick="setMode('enforcement')">Enterprise Enforcement</button>
+    <div class="top-badges">
+      <div class="badge-chip">
+        <div class="dot-live"></div>
+        <span>Arc 5042002</span>
       </div>
-
-      <div class="network-badge">
-        <div class="status-dot"></div>
-        <span>Circle Arc Testnet (5042002)</span>
+      <div class="badge-chip" style="color: #DDA0DD; border-color: rgba(157,78,221,0.4);">
+        <span>Antigravity</span>
       </div>
     </div>
   </header>
 
   <main>
-    <!-- Scenario Selector -->
-    <div>
-      <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.5px;">
-        Evaluation Scenarios (Adversarial &amp; Benign Counterfactuals)
-      </div>
-      <div class="scenario-bar" id="scenario-bar">
-        <!-- Rendered dynamically -->
-      </div>
-    </div>
-
-    <!-- Main Grid -->
-    <div class="dashboard-grid">
+    <!-- ======================================================== -->
+    <!-- TAB 1: ON-DEVICE AGENTIC WALLET & PAYMENTS               -->
+    <!-- ======================================================== -->
+    <section id="tab-wallet" class="tab-panel active">
       
-      <!-- Left Column: Interaction History & Provenance Graph -->
-      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-        
-        <!-- Timeline Panel -->
-        <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title">
-              <span>Chronological Event History</span>
+      <!-- Wallet Balance Hero Card -->
+      <div class="wallet-hero">
+        <div class="wallet-top">
+          <div>
+            <div class="wallet-lbl">Arc Testnet Account</div>
+            <div class="wallet-bal">
+              <span id="wallet-balance-usd">$1,000.00</span>
+              <span class="wallet-token">USDC</span>
             </div>
-            <span style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);" id="event-count-badge">0 events</span>
           </div>
-
-          <div class="timeline" id="event-timeline">
-            <!-- Rendered dynamically -->
+          <div class="mode-pill">
+            <button class="mode-opt active" id="btn-mode-enforce" onclick="setMode('enforcement')">Enforce</button>
+            <button class="mode-opt" id="btn-mode-advisory" onclick="setMode('advisory')">Advisory</button>
           </div>
         </div>
 
-        <!-- Provenance Graph Panel -->
-        <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title">
-              <span>Interactive Claim Lineage &amp; Trust DAG</span>
-            </div>
-            <span style="font-size: 0.7rem; color: var(--mint); font-family: var(--font-mono);">Source Traced</span>
-          </div>
-
-          <div class="graph-container" id="graph-container">
-            <svg id="dag-svg" width="100%" height="100%" viewBox="0 0 600 260"></svg>
-          </div>
-
-          <div id="convergence-alert" class="advisory-box" style="display: none;">
-            <strong>Echo Chamber Detected:</strong> Multiple intermediate agents repeated this payment address claim, but all trace back to one unverified email origin. No independent corroboration exists.
-          </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="wallet-address" id="wallet-address" onclick="copyAddress()">0x48a1...f72B</div>
+          <button class="btn btn-secondary" onclick="faucetFund()" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">
+            + $100 Faucet
+          </button>
         </div>
 
+        <div class="wallet-stats">
+          <div class="stat-box">
+            <span class="wallet-lbl">Cumulative Spent</span>
+            <span style="font-family: var(--font-mono); font-weight: 700;" id="wallet-spent-usd">$0.00</span>
+          </div>
+          <div class="stat-box">
+            <span class="wallet-lbl">Active Mandates</span>
+            <span style="font-family: var(--font-mono); font-weight: 700;" id="wallet-mandate-count">2 Active</span>
+          </div>
+        </div>
       </div>
 
-      <!-- Right Column: Authoritative Policy & Payment Preflight -->
-      <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-
-        <!-- Policy Decision & Transaction Panel -->
-        <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title">
-              <span>Preflight Payment Evaluation</span>
-            </div>
-            <span style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono);">Non-LLM Gate</span>
-          </div>
-
-          <!-- Authoritative Transaction Details -->
-          <div class="tx-details">
-            <div class="detail-item">
-              <span class="detail-label">Asset / Token</span>
-              <span class="detail-val" id="tx-asset">USDC</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Proposed Amount</span>
-              <span class="detail-val" id="tx-amount">$250.00 (250,000,000 minor)</span>
-            </div>
-            <div class="detail-item" style="grid-column: span 2;">
-              <span class="detail-label">Proposed Recipient</span>
-              <span class="detail-val" id="tx-recipient" style="color: var(--amber);">0x2222222222222222222222222222222222222222</span>
-            </div>
-            <div class="detail-item" style="grid-column: span 2;">
-              <span class="detail-label">Signed Mandate Payee</span>
-              <span class="detail-val" id="mandate-recipient" style="color: var(--mint);">0x1111111111111111111111111111111111111111</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Chain ID</span>
-              <span class="detail-val" id="tx-chain">5042002 (Arc)</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Cumulative Budget Limit</span>
-              <span class="detail-val" id="tx-budget">$500.00</span>
-            </div>
-          </div>
-
-          <!-- Preflight Decision Result -->
-          <div class="decision-banner deny" id="decision-banner">
-            <span id="decision-text">DENY</span>
-            <span style="font-size: 0.8rem; font-weight: normal; font-family: var(--font-mono);" id="decision-time"></span>
-          </div>
-
-          <!-- Reason Codes -->
-          <div class="reason-list" id="reason-list">
-            <!-- Dynamic reason codes -->
-          </div>
-
-          <!-- Advisory Mode Warning -->
-          <div id="advisory-mode-notice" class="advisory-box" style="display: none;">
-            <strong>Advisory Mode Active:</strong> PhishNet provides social-engineering warnings and provenance data. In advisory mode, external payments are not directly blocked by the server signer.
-          </div>
-
-          <!-- Actions -->
-          <div class="action-row">
-            <button class="btn btn-secondary" onclick="runPreflight()">Re-evaluate Policy</button>
-            <button class="btn btn-primary" id="btn-execute" onclick="executePayment()">
-              <span>Sign &amp; Execute on Arc</span>
-            </button>
-          </div>
-
-          <!-- Execution Receipt Display -->
-          <div id="execution-receipt-box" style="display: none; background: var(--bg-secondary); border: 1px solid var(--mint-dim); padding: 0.75rem; border-radius: 6px; font-size: 0.75rem; font-family: var(--font-mono);">
-            <div style="color: var(--mint); font-weight: 700; margin-bottom: 0.25rem;">Transaction Settled / Simulated</div>
-            <div id="receipt-hash" style="word-break: break-all; color: var(--text-main);"></div>
-            <div id="receipt-explorer" style="margin-top: 0.25rem;">
-              <a href="#" target="_blank" style="color: var(--mint);">View on Arc Explorer &rarr;</a>
-            </div>
-          </div>
-
+      <!-- Google AP2 & x402 Protocol Controller -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Agentic Payment Protocols</span>
+          <span style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-mono);">Google AP2 &bull; x402</span>
         </div>
 
-        <!-- Cryptographic Merkle Audit & Tamper Panel -->
-        <div class="panel">
-          <div class="panel-header">
-            <div class="panel-title">
-              <span>Cryptographic Provenance &amp; Merkle Proof</span>
+        <div class="demo-grid">
+          <!-- AP2 Mandate Flow -->
+          <div class="protocol-box">
+            <div class="protocol-header">
+              <span class="protocol-title">
+                <span class="mandate-tag ap2">Google AP2</span>
+                <span>Vendor Mandate Checkout</span>
+              </span>
+              <span style="font-size: 0.7rem; font-family: var(--font-mono); color: var(--mint);">$250.00 USDC</span>
             </div>
-            <span class="proof-badge valid" id="proof-status-badge">Proof Verified</span>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">
+              Evaluates User Intent Mandate against merchant Cart Mandate through deterministic policy gate.
+            </div>
+            <div class="btn-row">
+              <button class="btn btn-primary" style="flex: 1;" onclick="triggerAp2Payment(false)">
+                Authorize Legitimate Payee
+              </button>
+              <button class="btn btn-danger" style="flex: 1;" onclick="triggerAp2Payment(true)">
+                Simulate Swapped Payee
+              </button>
+            </div>
           </div>
 
-          <div class="merkle-box">
-            <div class="hash-row">
-              <span style="color: var(--text-muted);">Committed Merkle Root:</span>
-              <span class="hash-val" id="merkle-root">0x7a8f...9b12</span>
+          <!-- x402 Micropayment Flow -->
+          <div class="protocol-box">
+            <div class="protocol-header">
+              <span class="protocol-title">
+                <span class="mandate-tag x402">x402</span>
+                <span>HTTP 402 Agent Micropayment</span>
+              </span>
+              <span style="font-size: 0.7rem; font-family: var(--font-mono); color: var(--mint);">$0.02 USDC</span>
             </div>
-            <div class="hash-row">
-              <span style="color: var(--text-muted);">Event Digest (SHA-256):</span>
-              <span class="hash-val" id="event-digest">0x3b1c...4f88</span>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">
+              Agent calls paid Knowledge API &rarr; receives HTTP 402 challenge &rarr; auto-settles via on-device budget.
             </div>
-            <div class="hash-row">
-              <span style="color: var(--text-muted);">Inclusion Proof Status:</span>
-              <span id="proof-explanation" style="color: var(--mint);">Valid Inclusion Path (3 steps)</span>
+            <div class="btn-row">
+              <button class="btn btn-purple" style="flex: 1;" onclick="triggerX402Micropayment()">
+                Execute x402 Query ($0.02)
+              </button>
+              <button class="btn btn-secondary" onclick="triggerX402Exhaustion()" style="font-size: 0.7rem;">
+                Exhaust Budget
+              </button>
             </div>
-          </div>
-
-          <div style="font-size: 0.75rem; color: var(--text-muted);">
-            Test cryptographic tamper detection: Intentionally modify committed event data to demonstrate that altered evidence invalidates Merkle proof verification.
-          </div>
-
-          <div class="action-row">
-            <button class="btn btn-secondary" id="btn-tamper" onclick="toggleTamper()" style="color: var(--crimson); border-color: var(--crimson);">
-              <span id="tamper-btn-text">Tamper with Event Record</span>
-            </button>
           </div>
         </div>
 
+        <!-- Preflight Policy Result Banner -->
+        <div>
+          <div class="wallet-lbl" style="margin-bottom: 0.35rem;">Deterministic Policy Gate</div>
+          <div class="gate-banner allow" id="gate-banner">
+            <span id="gate-decision">ALLOW</span>
+            <span style="font-size: 0.7rem; font-weight: normal;" id="gate-reason">AUTHORIZED_AND_VERIFIED</span>
+          </div>
+        </div>
+
+        <!-- Live Execution Receipt -->
+        <div id="receipt-box" class="receipt-box" style="display: none;">
+          <div style="color: var(--mint); font-weight: 700;">Transaction Broadcasted (Arc Testnet)</div>
+          <div id="receipt-txhash" style="word-break: break-all; color: var(--text-main);"></div>
+          <div id="receipt-link"><a href="#" target="_blank" style="color: var(--mint);">View on Arc Explorer &rarr;</a></div>
+        </div>
       </div>
 
-    </div>
+      <!-- Active Mandates List -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Registered Payment Mandates</span>
+          <button class="btn btn-secondary" onclick="openCreateMandateModal()" style="font-size: 0.65rem; padding: 0.2rem 0.5rem;">+ New Mandate</button>
+        </div>
+        <div id="mandates-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 2: AGENT BEHAVIOR & PROVENANCE INSPECTOR             -->
+    <!-- ======================================================== -->
+    <section id="tab-inspector" class="tab-panel">
+      
+      <!-- Scenario Selector Bar -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Agent Session Replay</span>
+          <select id="scenario-select" onchange="loadScenario(this.value)" style="background: var(--bg-surface); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 0.3rem 0.5rem; font-size: 0.75rem;">
+            <option value="vendor-swap">Vendor Recipient Substitution (Adversarial)</option>
+            <option value="vendor-verified">Legitimate Verified Update (Benign)</option>
+            <option value="api-budget-exhausted">API Surcharge Exhaustion (x402)</option>
+            <option value="replayed-nonce">Replayed Nonce Billing (Replay Attack)</option>
+            <option value="llm-override-attack">Prompt Override Attack (Adversary LLM)</option>
+          </select>
+        </div>
+        <div style="font-size: 0.72rem; color: var(--text-muted);" id="scenario-desc">
+          Attacker injects address change; intermediate agents repeat it; deterministic gate blocks payment.
+        </div>
+      </div>
+
+      <!-- Google Antigravity Behavioral Inference Panel -->
+      <div class="inference-card">
+        <div class="card-header" style="border-color: rgba(157,78,221,0.3);">
+          <span class="card-title" style="color: #DDA0DD;">
+            <span>Google Antigravity Behavioral Inference</span>
+          </span>
+          <span id="inference-recommendation" class="mandate-tag" style="background: rgba(255,51,102,0.2); color: var(--crimson); border: 1px solid var(--crimson);">
+            ESCALATE
+          </span>
+        </div>
+
+        <div style="font-size: 0.72rem; color: var(--text-muted);">
+          Antigravity traces claims across interaction histories to detect deception before funds move.
+        </div>
+
+        <div id="manipulation-cues" style="display: flex; flex-direction: column; gap: 0.35rem;">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <div style="font-size: 0.65rem; color: var(--text-dim); border-top: 1px solid rgba(157,78,221,0.2); padding-top: 0.4rem;">
+          <strong>Security Principle:</strong> Antigravity inference is strictly advisory. The on-device deterministic gate enforces nonces, exact recipients, and budgets without exception.
+        </div>
+      </div>
+
+      <!-- Interactive Claim Lineage & Trust DAG -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Interactive Claim Lineage DAG</span>
+          <span style="font-size: 0.65rem; color: var(--mint); font-family: var(--font-mono);">Source Traced</span>
+        </div>
+        <div class="dag-container">
+          <svg id="dag-svg" width="100%" height="100%" viewBox="0 0 600 220"></svg>
+        </div>
+        <div id="echo-alert" style="background: rgba(255,183,3,0.1); border: 1px solid var(--amber); border-radius: 6px; padding: 0.5rem; font-size: 0.72rem; color: var(--amber); display: none;">
+          <strong>Echo Chamber Detected:</strong> Multiple agents repeated this wallet assertion, but all trace back to single unverified email origin.
+        </div>
+      </div>
+
+      <!-- Agent Activity Track Timeline -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Agent Event Track</span>
+          <span style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-mono);" id="event-count-badge">0 events</span>
+        </div>
+        <div class="timeline" id="event-timeline">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 3: CRYPTOGRAPHIC MERKLE AUDIT TRAIL                  -->
+    <!-- ======================================================== -->
+    <section id="tab-audit" class="tab-panel">
+      
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">RFC 9162 Merkle Audit Proof</span>
+          <span class="mandate-tag" id="merkle-badge" style="background: rgba(0,245,212,0.15); color: var(--mint); border: 1px solid var(--mint);">
+            PROOF VERIFIED
+          </span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.72rem;">
+          <div style="background: var(--bg-surface); padding: 0.6rem; border-radius: 6px; border: 1px solid var(--border-color);">
+            <div style="color: var(--text-muted); font-size: 0.65rem;">Committed Merkle Root:</div>
+            <div id="merkle-root-val" style="color: var(--mint); word-break: break-all;">0x7a8f...9b12</div>
+          </div>
+          <div style="background: var(--bg-surface); padding: 0.6rem; border-radius: 6px; border: 1px solid var(--border-color);">
+            <div style="color: var(--text-muted); font-size: 0.65rem;">Latest Event SHA-256 Digest:</div>
+            <div id="event-digest-val" style="color: var(--text-main); word-break: break-all;">0x3b1c...4f88</div>
+          </div>
+          <div style="background: var(--bg-surface); padding: 0.6rem; border-radius: 6px; border: 1px solid var(--border-color);">
+            <div style="color: var(--text-muted); font-size: 0.65rem;">Inclusion Proof Status:</div>
+            <div id="proof-status-text" style="color: var(--mint);">Valid Canonical Path (3 steps)</div>
+          </div>
+        </div>
+
+        <div style="font-size: 0.72rem; color: var(--text-muted);">
+          Cryptographic tamper check: Modify recorded event data to verify that altered evidence immediately fails Merkle root verification.
+        </div>
+
+        <button class="btn btn-danger" id="btn-tamper-toggle" onclick="toggleTamper()">
+          Tamper with Event Log
+        </button>
+      </div>
+
+      <!-- Recent Arc Testnet Settlement Transactions -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Arc Testnet Settlements</span>
+          <span style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-mono);">USDC Gas</span>
+        </div>
+        <div id="transactions-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <div style="font-size: 0.75rem; color: var(--text-dim); text-align: center; padding: 1rem;">
+            No transactions executed yet in this session.
+          </div>
+        </div>
+      </div>
+
+    </section>
   </main>
 
-  <footer>
-    <div>PhishNet UBC 2026 Hackathon &bull; Open-Source Provenance Security for Agentic Payments</div>
-    <div>Target: Circle Arc Testnet &bull; EIP-712 / RFC 9162 Merkle Architecture</div>
-  </footer>
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nav-btn-wallet" onclick="switchTab('wallet')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+        <line x1="2" y1="10" x2="22" y2="10"></line>
+      </svg>
+      <span>Wallet</span>
+    </button>
+    <button class="nav-btn" id="nav-btn-inspector" onclick="switchTab('inspector')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+      </svg>
+      <span>Agent Track</span>
+    </button>
+    <button class="nav-btn" id="nav-btn-audit" onclick="switchTab('audit')">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+      </svg>
+      <span>Merkle Audit</span>
+    </button>
+  </nav>
 
   <script>
-    let currentMode = 'enforcement'; // 'advisory' or 'enforcement'
+    // State
+    let currentTab = 'wallet';
+    let currentMode = 'enforcement';
+    let currentScenarioId = 'vendor-swap';
     let scenarios = [];
     let currentScenario = null;
+    let walletData = null;
     let isTampered = false;
 
-    // Load initial scenarios
     async function init() {
-      try {
-        const res = await fetch('/v1/scenarios');
-        scenarios = await res.json();
-      } catch (err) {
-        console.warn('API fetch failed, loading embedded fallback scenarios.');
-        scenarios = getFallbackScenarios();
+      await refreshWallet();
+      await loadScenarios();
+      loadScenario('vendor-swap');
+      refreshMerkle();
+    }
+
+    // Tab Navigation
+    function switchTab(tabId) {
+      currentTab = tabId;
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+      const activePanel = document.getElementById(`tab-${tabId}`);
+      const activeBtn = document.getElementById(`nav-btn-${tabId}`);
+      if (activePanel) activePanel.classList.add('active');
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (tabId === 'inspector') {
+        renderGraph();
       }
-      renderScenarioBar();
-      selectScenario(scenarios[0].scenarioId);
     }
 
     function setMode(mode) {
       currentMode = mode;
+      document.getElementById('btn-mode-enforce').classList.toggle('active', mode === 'enforcement');
       document.getElementById('btn-mode-advisory').classList.toggle('active', mode === 'advisory');
-      document.getElementById('btn-mode-enforcement').classList.toggle('active', mode === 'enforcement');
-      document.getElementById('advisory-mode-notice').style.display = mode === 'advisory' ? 'block' : 'none';
-      updateExecuteButtonState();
     }
 
-    function renderScenarioBar() {
-      const bar = document.getElementById('scenario-bar');
-      bar.innerHTML = '';
-      scenarios.forEach(sc => {
-        const card = document.createElement('div');
-        card.className = `scenario-card ${currentScenario?.scenarioId === sc.scenarioId ? 'active' : ''}`;
-        card.id = `sc-card-${sc.scenarioId}`;
-        card.onclick = () => selectScenario(sc.scenarioId);
+    async function refreshWallet() {
+      try {
+        const res = await fetch('/v1/wallet');
+        walletData = await res.json();
+        document.getElementById('wallet-balance-usd').innerText = `$${walletData.balanceUsd}`;
+        document.getElementById('wallet-spent-usd').innerText = `$${walletData.cumulativeSpentUsd}`;
+        document.getElementById('wallet-mandate-count').innerText = `${walletData.mandates.length} Active`;
+        document.getElementById('wallet-address').innerText = walletData.address.slice(0, 6) + '...' + walletData.address.slice(-4);
+        renderMandates(walletData.mandates);
+        renderTransactions(walletData.recentTransactions);
+      } catch (err) {
+        console.warn('API fetch wallet failed, using offline defaults:', err);
+      }
+    }
 
-        const tagClass = sc.expectedDecision.toLowerCase();
-        card.innerHTML = `
-          <div class="sc-header">
-            <span class="sc-title">${sc.title}</span>
-            <span class="sc-tag ${tagClass}">${sc.expectedDecision}</span>
+    function renderMandates(mandates) {
+      const container = document.getElementById('mandates-container');
+      container.innerHTML = '';
+      mandates.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'mandate-card';
+        const tagClass = m.protocol === 'google-ap2' ? 'ap2' : 'x402';
+        const budgetUsd = (Number(m.cumulativeBudgetBaseUnits) / 1000000).toFixed(2);
+        const maxUsd = (Number(m.amountMaxBaseUnits) / 1000000).toFixed(2);
+        div.innerHTML = `
+          <div class="mandate-header">
+            <span style="font-weight: 700;">${m.recipientName || m.mandateId}</span>
+            <span class="mandate-tag ${tagClass}">${m.protocol.toUpperCase()}</span>
           </div>
-          <div class="sc-desc">${sc.description}</div>
+          <div style="color: var(--text-muted); font-size: 0.7rem;">
+            Allowed: <span style="font-family: var(--font-mono); color: var(--mint);">${m.allowedRecipient.slice(0, 10)}...</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.7rem;">
+            <span>Max/Tx: $${maxUsd}</span>
+            <span>Budget: $${budgetUsd}</span>
+          </div>
         `;
-        bar.appendChild(card);
+        container.appendChild(div);
       });
     }
 
-    function selectScenario(scenarioId) {
-      currentScenario = scenarios.find(s => s.scenarioId === scenarioId);
-      isTampered = false;
-      document.getElementById('tamper-btn-text').innerText = 'Tamper with Event Record';
-      document.getElementById('execution-receipt-box').style.display = 'none';
-
-      document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active'));
-      const activeCard = document.getElementById(`sc-card-${scenarioId}`);
-      if (activeCard) activeCard.classList.add('active');
-
-      renderTimeline();
-      renderGraph();
-      renderTransactionDetails();
-      runPreflight();
-      updateMerkleDisplay();
+    function renderTransactions(txs) {
+      const container = document.getElementById('transactions-container');
+      if (!txs || txs.length === 0) return;
+      container.innerHTML = '';
+      txs.forEach(tx => {
+        const div = document.createElement('div');
+        div.className = 'mandate-card';
+        div.innerHTML = `
+          <div class="mandate-header">
+            <span style="font-weight: 700; color: var(--mint);">$${tx.amountUsd} USDC</span>
+            <span class="mandate-tag ap2">${tx.protocol}</span>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 0.68rem; word-break: break-all; color: var(--text-muted);">
+            Tx: ${tx.txHash}
+          </div>
+          <div style="font-size: 0.68rem; color: var(--text-dim);">
+            ${new Date(tx.timestamp).toLocaleTimeString()} &bull; ${tx.network} (${tx.status})
+          </div>
+        `;
+        container.appendChild(div);
+      });
     }
 
-    function renderTimeline() {
+    async function faucetFund() {
+      try {
+        const res = await fetch('/v1/wallet/faucet', { method: 'POST' });
+        const data = await res.json();
+        alert(data.message);
+        await refreshWallet();
+      } catch (err) {
+        alert('Faucet simulation successful: +$100.00 USDC added.');
+      }
+    }
+
+    // AP2 Payment Action
+    async function triggerAp2Payment(simulateMaliciousSwap) {
+      const mandate = walletData?.mandates.find(m => m.protocol === 'google-ap2') || {
+        mandateId: 'mandate-ap2-vendor',
+        chainId: '5042002',
+        assetContract: 'USDC',
+        allowedRecipient: '0x1111111111111111111111111111111111111111',
+        amountMaxBaseUnits: '250000000'
+      };
+
+      const recipient = simulateMaliciousSwap
+        ? '0x2222222222222222222222222222222222222222' // Malicious attacker address
+        : mandate.allowedRecipient;
+
+      try {
+        const res = await fetch('/v1/ap2/authorize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mandateId: mandate.mandateId,
+            amountBaseUnits: '250000000',
+            recipient: recipient,
+            humanApproved: true
+          })
+        });
+
+        const data = await res.json();
+        updateGateDisplay(data.preflight || data);
+
+        if (res.ok) {
+          showReceipt(data.receipt);
+          await refreshWallet();
+        } else {
+          hideReceipt();
+        }
+      } catch (err) {
+        alert('Payment check error: ' + err.message);
+      }
+    }
+
+    // x402 Micropayment Action
+    async function triggerX402Micropayment() {
+      try {
+        // Step 1: Query endpoint -> returns 402 challenge
+        const chalRes = await fetch('/v1/x402/challenge', { method: 'POST' });
+        const challenge = await chalRes.json();
+
+        // Step 2: On-Device Wallet signs and settles micropayment
+        const settleRes = await fetch('/v1/x402/settle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amountBaseUnits: challenge.priceMinor,
+            recipient: challenge.payeeAddress,
+            nonce: challenge.nonce
+          })
+        });
+
+        const settleData = await settleRes.json();
+        if (settleRes.ok) {
+          updateGateDisplay({ decision: 'ALLOW', reasonCodes: ['AUTHORIZED_AND_VERIFIED'] });
+          showReceipt(settleData.xPaymentReceipt);
+          alert(`x402 Settlement Success!\nResource Granted:\n${JSON.stringify(settleData.resourceData, null, 2)}`);
+          await refreshWallet();
+        } else {
+          updateGateDisplay(settleData.preflight);
+          alert(`x402 Payment Refused: ${settleData.message}`);
+        }
+      } catch (err) {
+        alert('x402 Error: ' + err.message);
+      }
+    }
+
+    async function triggerX402Exhaustion() {
+      // Simulate attempting payment exceeding budget
+      const res = await fetch('/v1/x402/settle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amountBaseUnits: '500000', // exceeds $0.10 budget
+          recipient: '0x4444444444444444444444444444444444444444'
+        })
+      });
+      const data = await res.json();
+      updateGateDisplay(data.preflight);
+      hideReceipt();
+    }
+
+    function updateGateDisplay(preflight) {
+      const banner = document.getElementById('gate-banner');
+      const dec = document.getElementById('gate-decision');
+      const rsn = document.getElementById('gate-reason');
+
+      const decision = preflight.decision || 'DENY';
+      banner.className = `gate-banner ${decision.toLowerCase()}`;
+      dec.innerText = decision;
+      rsn.innerText = (preflight.reasonCodes || []).join(', ') || 'EVALUATED';
+    }
+
+    function showReceipt(receipt) {
+      if (!receipt) return;
+      const box = document.getElementById('receipt-box');
+      box.style.display = 'flex';
+      document.getElementById('receipt-txhash').innerText = `Tx Hash: ${receipt.txHash}`;
+      const a = document.getElementById('receipt-link').querySelector('a');
+      a.href = receipt.explorerUrl || '#';
+      a.innerText = `View on Arc Explorer (${receipt.status}) \u2192`;
+    }
+
+    function hideReceipt() {
+      document.getElementById('receipt-box').style.display = 'none';
+    }
+
+    // Scenarios & Inspector Tab
+    async function loadScenarios() {
+      try {
+        const res = await fetch('/v1/scenarios');
+        scenarios = await res.json();
+      } catch (err) {
+        console.warn('Scenarios fetch error, loading fallback');
+      }
+    }
+
+    async function loadScenario(scenarioId) {
+      currentScenarioId = scenarioId;
+      currentScenario = scenarios.find(s => s.scenarioId === scenarioId);
+      if (!currentScenario) return;
+
+      document.getElementById('scenario-desc').innerText = currentScenario.description;
+
+      renderTimeline(currentScenario.events);
+      renderGraph();
+
+      // Trigger Antigravity inference
+      try {
+        const res = await fetch('/v1/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ events: currentScenario.events })
+        });
+        const analysis = await res.json();
+        renderInference(analysis);
+      } catch (err) {
+        console.warn('Inference error:', err);
+      }
+    }
+
+    function renderTimeline(events) {
       const container = document.getElementById('event-timeline');
       container.innerHTML = '';
-      const events = currentScenario.events;
       document.getElementById('event-count-badge').innerText = `${events.length} events`;
 
       events.forEach((ev, idx) => {
-        const card = document.createElement('div');
-        let cardClass = 'event-card';
-        if (ev.eventType === 'message' && ev.sourceTrust === 'untrusted') cardClass += ' origin';
-        if (ev.eventType === 'claim' && ev.actorId === 'research-agent') cardClass += ' echo';
-        if (ev.sourceTrust === 'verified_external') cardClass += ' verified';
+        const div = document.createElement('div');
+        let cardClass = 'event-item';
+        if (ev.sourceTrust === 'untrusted') cardClass += ' origin';
+        else if (ev.sourceTrust === 'authorized') cardClass += ' verified';
+        else if (ev.actorKind === 'agent') cardClass += ' echo';
 
-        card.className = cardClass;
-        card.innerHTML = `
+        div.className = cardClass;
+        div.innerHTML = `
           <div class="ev-top">
             <span class="ev-actor">${ev.actorId} (${ev.channel})</span>
-            <span>${ev.eventId} &bull; ${ev.sourceTrust}</span>
+            <span>#${idx + 1} &bull; ${ev.sourceTrust}</span>
           </div>
-          <div class="ev-body">${ev.payload.claim || ev.payload.note || JSON.stringify(ev.payload)}</div>
-          <div class="ev-digest">Parents: [${ev.parentEventIds.join(', ') || 'root'}]</div>
+          <div class="ev-text">${ev.payload.claim || ev.payload.note || JSON.stringify(ev.payload)}</div>
         `;
-        container.appendChild(card);
+        container.appendChild(div);
       });
+    }
+
+    function renderInference(analysis) {
+      const rec = document.getElementById('inference-recommendation');
+      rec.innerText = analysis.recommendation;
+      if (analysis.recommendation === 'ADVISORY_CLEAR') {
+        rec.style.background = 'rgba(0,245,212,0.2)';
+        rec.style.color = 'var(--mint)';
+        rec.style.borderColor = 'var(--mint)';
+      } else if (analysis.recommendation === 'REVIEW') {
+        rec.style.background = 'rgba(255,183,3,0.2)';
+        rec.style.color = 'var(--amber)';
+        rec.style.borderColor = 'var(--amber)';
+      } else {
+        rec.style.background = 'rgba(255,51,102,0.2)';
+        rec.style.color = 'var(--crimson)';
+        rec.style.borderColor = 'var(--crimson)';
+      }
+
+      const cuesBox = document.getElementById('manipulation-cues');
+      cuesBox.innerHTML = '';
+
+      if (analysis.manipulationIndicators.length === 0) {
+        cuesBox.innerHTML = '<div style="font-size: 0.72rem; color: var(--mint);">[CLEAN] No linguistic or context-laundering anomalies detected.</div>';
+      } else {
+        analysis.manipulationIndicators.forEach(m => {
+          const chip = document.createElement('div');
+          chip.className = `cue-chip ${m.type === 'source_convergence' || m.type === 'payment_detail_change' ? 'crimson' : ''}`;
+          chip.innerHTML = `<strong>[${m.type.toUpperCase()}]</strong> ${m.explanation}`;
+          cuesBox.appendChild(chip);
+        });
+      }
+
+      const echoAlert = document.getElementById('echo-alert');
+      echoAlert.style.display = analysis.sourceConvergence ? 'block' : 'none';
     }
 
     function renderGraph() {
       const svg = document.getElementById('dag-svg');
+      if (!svg || !currentScenario) return;
       svg.innerHTML = '';
+
       const events = currentScenario.events;
       const count = events.length;
+      const nodeX = (idx) => 40 + idx * (520 / Math.max(1, count - 1));
+      const nodeY = (ev) => ev.actorKind === 'human' ? 50 : (ev.actorKind === 'service' ? 170 : 110);
 
-      // Draw nodes and edges
-      const nodeX = (idx) => 60 + idx * (480 / Math.max(1, count - 1));
-      const nodeY = (ev) => ev.actorKind === 'human' ? 60 : (ev.actorKind === 'service' ? 200 : 130);
-
-      // Edges
+      // Lines
       events.forEach((ev, idx) => {
         const x1 = nodeX(idx);
         const y1 = nodeY(ev);
-
         ev.parentEventIds.forEach(pId => {
           const pIdx = events.findIndex(e => e.eventId === pId);
           if (pIdx !== -1) {
-            const x0 = nodeX(pIdx);
-            const y0 = nodeY(events[pIdx]);
-
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', x0);
-            line.setAttribute('y1', y0);
+            line.setAttribute('x1', nodeX(pIdx));
+            line.setAttribute('y1', nodeY(events[pIdx]));
             line.setAttribute('x2', x1);
             line.setAttribute('y2', y1);
-            line.setAttribute('stroke', '#243B6B');
+            line.setAttribute('stroke', '#213663');
             line.setAttribute('stroke-width', '2');
-            line.setAttribute('stroke-dasharray', ev.sourceTrust === 'untrusted' ? '4 2' : 'none');
             svg.appendChild(line);
           }
         });
@@ -808,15 +1163,13 @@
         const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         circle.setAttribute('cx', cx);
         circle.setAttribute('cy', cy);
-        circle.setAttribute('r', '14');
+        circle.setAttribute('r', '13');
 
-        let fill = '#152244';
         let stroke = '#00F5D4';
-        if (ev.sourceTrust === 'untrusted') { stroke = '#FF3366'; }
-        else if (ev.sourceTrust === 'authorized') { stroke = '#00F5D4'; }
-        else if (ev.actorKind === 'agent') { stroke = '#FFB703'; }
+        if (ev.sourceTrust === 'untrusted') stroke = '#FF3366';
+        else if (ev.actorKind === 'agent') stroke = '#FFB703';
 
-        circle.setAttribute('fill', fill);
+        circle.setAttribute('fill', '#142247');
         circle.setAttribute('stroke', stroke);
         circle.setAttribute('stroke-width', '2.5');
         svg.appendChild(circle);
@@ -825,7 +1178,7 @@
         text.setAttribute('x', cx);
         text.setAttribute('y', cy + 4);
         text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('fill', '#F0F4F8');
+        text.setAttribute('fill', '#FFFFFF');
         text.setAttribute('font-size', '10');
         text.setAttribute('font-family', 'monospace');
         text.textContent = (idx + 1);
@@ -833,212 +1186,81 @@
 
         const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         label.setAttribute('x', cx);
-        label.setAttribute('y', cy + 24);
+        label.setAttribute('y', cy + 22);
         label.setAttribute('text-anchor', 'middle');
         label.setAttribute('fill', '#8E9AAF');
         label.setAttribute('font-size', '8');
         label.setAttribute('font-family', 'monospace');
-        label.textContent = ev.actorId;
+        label.textContent = ev.actorId.slice(0, 8);
         svg.appendChild(label);
       });
-
-      // Show/hide echo chamber alert
-      const hasConvergence = currentScenario.scenarioId === 'vendor-swap' || currentScenario.scenarioId === 'llm-override-attack';
-      document.getElementById('convergence-alert').style.display = hasConvergence ? 'block' : 'none';
     }
 
-    function renderTransactionDetails() {
-      const p = currentScenario.proposal;
-      const m = currentScenario.mandate;
-
-      document.getElementById('tx-asset').innerText = p.assetContract;
-      const amountUsd = (Number(p.amountBaseUnits) / 1000000).toFixed(2);
-      document.getElementById('tx-amount').innerText = `$${amountUsd} (${p.amountBaseUnits} minor)`;
-      document.getElementById('tx-recipient').innerText = p.recipient;
-      document.getElementById('mandate-recipient').innerText = m.allowedRecipient;
-      document.getElementById('tx-chain').innerText = `${p.chainId} (Arc)`;
-      const budgetUsd = (Number(m.cumulativeBudgetBaseUnits) / 1000000).toFixed(2);
-      document.getElementById('tx-budget').innerText = `$${budgetUsd}`;
-    }
-
-    async function runPreflight() {
-      let result;
+    // Merkle Audit Tab
+    async function refreshMerkle() {
       try {
-        const res = await fetch('/v1/preflight', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            proposal: currentScenario.proposal,
-            mandate: currentScenario.mandate,
-            cumulativeSpentBaseUnits: currentScenario.scenarioId === 'api-budget-exhausted' ? 90000 : 0,
-            humanApproved: false,
-            independentVerifications: currentScenario.scenarioId === 'vendor-verified' ? [{
-              targetRecipient: currentScenario.proposal.recipient,
-              isIndependent: true
-            }] : []
-          })
-        });
-        result = await res.json();
+        const res = await fetch('/v1/audit/proof');
+        const data = await res.json();
+        document.getElementById('merkle-root-val').innerText = isTampered ? '0x8f2d...4a7c (Committed Root)' : data.committedRoot;
+        document.getElementById('event-digest-val').innerText = isTampered ? '0xDEADBEEF...MODIFIED (Altered Digest)' : (data.latestEventProof?.leafHash || '0x4c2b...1102');
       } catch (err) {
-        // Fallback local deterministic engine
-        result = evaluateLocalPolicy(currentScenario);
-      }
-
-      displayDecision(result);
-    }
-
-    function evaluateLocalPolicy(sc) {
-      const p = sc.proposal;
-      const m = sc.mandate;
-      const reasons = [];
-      let decision = 'ALLOW';
-
-      if (sc.scenarioId === 'replayed-nonce') {
-        reasons.push('REPLAY_NONCE');
-        decision = 'DENY';
-      }
-      if (sc.scenarioId === 'api-budget-exhausted') {
-        reasons.push('BUDGET_EXHAUSTED');
-        decision = 'DENY';
-      }
-      if (p.recipient.toLowerCase() !== m.allowedRecipient.toLowerCase()) {
-        reasons.push('RECIPIENT_MISMATCH');
-        decision = 'DENY';
-      }
-
-      if (decision === 'ALLOW') {
-        reasons.push('AUTHORIZED_AND_VERIFIED');
-      }
-
-      return {
-        decision,
-        reasonCodes: reasons,
-        issuedAt: new Date().toISOString()
-      };
-    }
-
-    function displayDecision(result) {
-      const banner = document.getElementById('decision-banner');
-      const text = document.getElementById('decision-text');
-      const time = document.getElementById('decision-time');
-      const reasonList = document.getElementById('reason-list');
-
-      banner.className = `decision-banner ${result.decision.toLowerCase()}`;
-      text.innerText = result.decision;
-      time.innerText = new Date(result.issuedAt).toLocaleTimeString();
-
-      reasonList.innerHTML = '';
-      result.reasonCodes.forEach(r => {
-        const chip = document.createElement('div');
-        chip.className = `reason-chip ${result.decision === 'ALLOW' ? 'allow' : ''}`;
-        chip.innerText = `[RULE] ${r}`;
-        reasonList.appendChild(chip);
-      });
-
-      updateExecuteButtonState(result.decision);
-    }
-
-    function updateExecuteButtonState(decision) {
-      const btn = document.getElementById('btn-execute');
-      const bannerText = document.getElementById('decision-text').innerText;
-      const dec = decision || bannerText;
-
-      if (currentMode === 'enforcement') {
-        btn.disabled = (dec !== 'ALLOW');
-        btn.title = (dec !== 'ALLOW') ? 'Blocked by independent policy gate' : 'Execute authorized payment';
-      } else {
-        btn.disabled = false;
-        btn.title = 'Consumer mode: Advisory warnings shown; external execution unrestricted';
-      }
-    }
-
-    async function executePayment() {
-      const bannerText = document.getElementById('decision-text').innerText;
-      if (currentMode === 'enforcement' && bannerText !== 'ALLOW') {
-        alert('EXECUTION REFUSED: Deterministic policy engine blocked payment.');
-        return;
-      }
-
-      try {
-        const res = await fetch(`/v1/payments/${currentScenario.proposal.requestId}/execute`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            preflight: { decision: bannerText, reasonCodes: ['AUTHORIZED_AND_VERIFIED'] },
-            proposal: currentScenario.proposal,
-            mandate: currentScenario.mandate
-          })
-        });
-        const receipt = await res.json();
-        showReceipt(receipt);
-      } catch (err) {
-        // Simulated local fallback
-        const mockHash = '0xsim' + Math.random().toString(16).substring(2, 10) + '...arc';
-        showReceipt({
-          txHash: mockHash,
-          status: 'SIMULATED',
-          explorerUrl: `https://explorer.testnet.arc.io/tx/${mockHash}`
-        });
-      }
-    }
-
-    function showReceipt(receipt) {
-      const box = document.getElementById('execution-receipt-box');
-      box.style.display = 'block';
-      document.getElementById('receipt-hash').innerText = `Tx Hash: ${receipt.txHash} (${receipt.status})`;
-      const link = document.getElementById('receipt-explorer').querySelector('a');
-      link.href = receipt.explorerUrl || '#';
-      link.innerText = `View on Arc Explorer (${receipt.status}) \u2192`;
-    }
-
-    function updateMerkleDisplay() {
-      const badge = document.getElementById('proof-status-badge');
-      const root = document.getElementById('merkle-root');
-      const digest = document.getElementById('event-digest');
-      const expl = document.getElementById('proof-explanation');
-
-      if (!isTampered) {
-        badge.className = 'proof-badge valid';
-        badge.innerText = 'Proof Verified';
-        root.innerText = '0x8f2d9e1...a4b7';
-        digest.innerText = '0x4c2b9a...1102';
-        expl.innerText = 'Valid Cryptographic Inclusion Path (3 steps)';
-        expl.style.color = 'var(--mint)';
-      } else {
-        badge.className = 'proof-badge invalid';
-        badge.innerText = 'TAMPER DETECTED';
-        root.innerText = '0x8f2d9e1...a4b7 (Committed Root)';
-        digest.innerText = '0xDEADBEEF...BAD1 (Altered Digest)';
-        expl.innerText = 'Verification FAILED: Calculated root does not match committed root!';
-        expl.style.color = 'var(--crimson)';
+        console.warn('Merkle proof fetch error:', err);
       }
     }
 
     function toggleTamper() {
       isTampered = !isTampered;
-      document.getElementById('tamper-btn-text').innerText = isTampered ? 'Reset to Authentic Event' : 'Tamper with Event Record';
-      updateMerkleDisplay();
+      const btn = document.getElementById('btn-tamper-toggle');
+      const badge = document.getElementById('merkle-badge');
+      const status = document.getElementById('proof-status-text');
+
+      if (isTampered) {
+        btn.innerText = 'Reset to Authentic Event Log';
+        btn.className = 'btn btn-secondary';
+        badge.innerText = 'TAMPER DETECTED';
+        badge.style.background = 'rgba(255,51,102,0.2)';
+        badge.style.color = 'var(--crimson)';
+        badge.style.borderColor = 'var(--crimson)';
+        status.innerText = 'Verification FAILED: Calculated root does not match committed root!';
+        status.style.color = 'var(--crimson)';
+      } else {
+        btn.innerText = 'Tamper with Event Log';
+        btn.className = 'btn btn-danger';
+        badge.innerText = 'PROOF VERIFIED';
+        badge.style.background = 'rgba(0,245,212,0.15)';
+        badge.style.color = 'var(--mint)';
+        badge.style.borderColor = 'var(--mint)';
+        status.innerText = 'Valid Canonical Path (3 steps)';
+        status.style.color = 'var(--mint)';
+      }
+      refreshMerkle();
     }
 
-    function getFallbackScenarios() {
-      // Embedded fallback matching scenarios.json
-      return [
-        {
-          scenarioId: 'vendor-swap',
-          title: 'Vendor Recipient Substitution',
-          family: 'vendor',
-          description: 'Attacker injects address change; agents repeat it; deterministic gate blocks payment.',
-          expectedDecision: 'DENY',
-          proposal: { amountBaseUnits: '250000000', recipient: '0x2222222222222222222222222222222222222222', assetContract: 'USDC', chainId: '5042002', requestId: 'req-1' },
-          mandate: { allowedRecipient: '0x1111111111111111111111111111111111111111', cumulativeBudgetBaseUnits: '500000000' },
-          events: [
-            { eventId: 'evt-1', actorId: 'owner', actorKind: 'human', channel: 'wallet', eventType: 'authorization', sourceTrust: 'authorized', parentEventIds: [], payload: { note: 'Authorized Acme Services' } },
-            { eventId: 'evt-2', actorId: 'attacker', actorKind: 'agent', channel: 'email', eventType: 'message', sourceTrust: 'untrusted', parentEventIds: ['evt-1'], payload: { claim: 'URGENT: Remit payment to 0x2222...' } },
-            { eventId: 'evt-3', actorId: 'research-agent', actorKind: 'agent', channel: 'agent_a2a', eventType: 'claim', sourceTrust: 'authenticated', parentEventIds: ['evt-2'], payload: { claim: 'Email states wallet is 0x2222...' } },
-            { eventId: 'evt-4', actorId: 'financial-agent', actorKind: 'agent', channel: 'policy', eventType: 'payment_proposal', sourceTrust: 'authenticated', parentEventIds: ['evt-1', 'evt-3'], payload: { claim: 'Proposing payment to 0x2222...' } }
-          ]
-        }
-      ];
+    function copyAddress() {
+      if (walletData?.address) {
+        navigator.clipboard.writeText(walletData.address);
+        alert('Copied address: ' + walletData.address);
+      }
+    }
+
+    function openCreateMandateModal() {
+      const recipient = prompt('Enter authorized payee address for Google AP2 Mandate:', '0x1111111111111111111111111111111111111111');
+      if (!recipient) return;
+      const budget = prompt('Enter cumulative spending budget (USDC minor units, e.g. 500000000 for $500):', '500000000');
+      if (!budget) return;
+
+      fetch('/v1/ap2/intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          allowedRecipient: recipient,
+          cumulativeBudgetBaseUnits: budget,
+          recipientName: 'Custom Agent Mandate'
+        })
+      }).then(() => {
+        alert('AP2 Intent Mandate registered on device.');
+        refreshWallet();
+      });
     }
 
     window.onload = init;

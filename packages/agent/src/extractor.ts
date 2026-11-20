@@ -9,8 +9,8 @@
  * - Unsupported verification claims
  */
 
-import { EventEnvelope, RiskAnalysis, Claim, ManipulationIndicator } from '../../core/src/schemas';
-import { InteractionGraph } from '../../provenance/src/graph';
+import type { EventEnvelope, RiskAnalysis, Claim, ManipulationIndicator } from '../../core/src/schemas.ts';
+import { InteractionGraph } from '../../provenance/src/graph.ts';
 
 export function analyzeInteractionHistory(
   sessionId: string,

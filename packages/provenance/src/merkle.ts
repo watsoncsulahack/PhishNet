@@ -5,7 +5,7 @@
  * proof path generation, and proof verification.
  */
 
-import { computeLeafHash, computeNodeHash, sha256Hex } from './hash';
+import { computeLeafHash, computeNodeHash, sha256Hex } from './hash.ts';
 
 export interface MerklePathElement {
   position: 'left' | 'right';

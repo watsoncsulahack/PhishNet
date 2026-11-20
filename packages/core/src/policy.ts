@@ -14,7 +14,7 @@
  * INVARIANT: LLM risk recommendations NEVER override this engine!
  */
 
-import { PaymentMandate, PaymentProposal, PreflightDecision, ReasonCode } from './schemas';
+import type { PaymentMandate, PaymentProposal, PreflightDecision, ReasonCode } from './schemas.ts';
 
 export interface PolicyEvaluationContext {
   proposal: PaymentProposal;

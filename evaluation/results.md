@@ -1,10 +1,10 @@
-﻿# PhishNet — Automated Evaluation & Verification Report
+# PhishNet — Automated Evaluation & Verification Report
 
-**Date:** 2026-11-20 09:13:24 UTC  
-**Environment:** Windows Sandboxed Native Engine  
+**Date:** 2026-11-20T16:46:43.274Z  
+**Environment:** Android Termux Native Node.js  
 **Target Network:** Circle Arc Testnet (Chain ID: 5042002)  
-**Total Tests:** 13  
-**Passed Tests:** 13 (100%)  
+**Total Tests:** 14  
+**Passed Tests:** 14 (100%)  
 
 ## Key Security Metrics
 
@@ -18,23 +18,17 @@
 
 ## Test Suite Results
 
-- [x] **T-01**: Valid permitted API purchase (.02)
-- [x] **T-02**: Duplicate API purchase / nonce reuse
-- [x] **T-03**: Extra fee beyond cumulative budget
-- [x] **T-04**: Valid  vendor payment exact payee with approval
-- [x] **T-05**: Changed unauthorized payee blocked
-- [x] **T-06**: Vendor wallet change without independent evidence
-- [x] **T-07**: Verified new payee + independent verification + approval
+- [x] **T-01**: Valid permitted x402 API purchase ($0.02)
+- [x] **T-02**: Duplicate API purchase / nonce reuse blocked
+- [x] **T-03**: Extra fee beyond cumulative budget blocked
+- [x] **T-04**: Valid $250 vendor payment exact payee with approval
+- [x] **T-05**: Changed unauthorized payee blocked (RECIPIENT_MISMATCH)
+- [x] **T-06**: Vendor wallet change without independent evidence -> DENY
+- [x] **T-07**: Verified new payee + independent verification + approval -> ALLOW
 - [x] **T-08**: Source convergence / Echo chamber detection
-- [x] **T-09**: Expired mandate strictly denied
-- [x] **T-10**: LLM opinion cannot override payment policy
-- [x] **T-11**: Cryptographic Merkle tamper detection
-- [x] **T-12**: Simulated transaction explicitly distinguished from settled
+- [x] **T-09**: Cryptographic Merkle tamper detection
+- [x] **T-10**: Expired mandate strictly blocked (EXPIRED_MANDATE)
+- [x] **T-11**: Invalid chain ID rejected (CHAIN_NOT_ALLOWED)
+- [x] **T-12**: High-value payment held awaiting approval (MISSING_REQUIRED_APPROVAL)
+- [x] **T-13**: LLM Adversary prompt cannot override policy gate (ALLOW -> DENY)
 - [x] **REG-16**: 16/16 Synthetic Provenance Regression Cases Passed
-
-
-## Limitations and Integrity Disclosure
-
-1. Synthetic scenarios represent controlled regression fixtures, not field estimates of real-world fraud prevalence.
-2. The Merkle tree proves integrity of recorded events; it does not prove all historical real-world events were captured.
-3. Live testnet execution requires a funded Arc Testnet dev wallet; in local testing, transactions are explicitly marked \status: SIMULATED\.
