@@ -20,7 +20,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions { jvmTarget = "17" }
-    packaging { resources.excludes += setOf("META-INF/INDEX.LIST", "META-INF/io.netty.versions.properties") }
+    packaging {
+        resources.excludes += setOf("META-INF/INDEX.LIST", "META-INF/io.netty.versions.properties")
+        resources.merges += setOf("META-INF/DISCLAIMER", "META-INF/LICENSE*", "META-INF/NOTICE*")
+    }
 }
 dependencies {
     implementation(platform("androidx.compose:compose-bom:2025.02.00"))
