@@ -1,5 +1,11 @@
 # PhishNet — Provenance-Aware Security Platform for Agentic Payments
 
+## Hackathon demo video
+
+[Download the 2:15 captioned MP4](demo/PhishNet-hackathon-demo.mp4) · [Video notes and subtitles](demo/README.md) · [Official-rules compliance review](docs/hackathon-video-compliance.md)
+
+Silent 1080p recording of the working research prototype, with simulated payments explicitly labeled. Runtime is verified; full track compliance is not established. The owner will supply the Google Drive submission link.
+
 ## Android preview (new)
 
 A native, phone-first app now lives in [`apps/android`](apps/android). It creates an empty, encrypted device-held **test wallet**, reads the real Arc Testnet balance, links to Circle's faucet, and includes a private built-in help assistant. No backend or Termux server is needed.

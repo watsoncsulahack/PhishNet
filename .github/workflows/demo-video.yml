@@ -45,6 +45,8 @@ jobs:
           path: |
             tools/demo/output/PhishNet-*.mp4
             tools/demo/output/narration.srt
+            tools/demo/output/PhishNet-hackathon-demo.srt
+            tools/demo/output/video-validation.json
             tools/demo/output/narration.txt
             tools/demo/output/evidence.json
             tools/demo/output/*.png
