@@ -26,9 +26,12 @@ jobs:
       - name: Install recorder and browser
         run: |
           npm ci
-          npx playwright install --with-deps chromium
-          sudo apt-get update -qq
-          sudo apt-get install -y ffmpeg
+          # Ubuntu runners already include Chrome runtime dependencies.
+          npx playwright install chromium
+          if ! command -v ffmpeg >/dev/null; then
+            timeout 180 sudo apt-get update -qq
+            timeout 180 sudo apt-get install -y ffmpeg
+          fi
       - name: Record prototype with Stagehand
         env:
           ELEVENLABS_API_KEY: ${{ inputs.narration && secrets.ELEVENLABS_API_KEY || '' }}
@@ -39,5 +42,10 @@ jobs:
         if: always()
         with:
           name: PhishNet-hackathon-demo
-          path: tools/demo/output/
+          path: |
+            tools/demo/output/PhishNet-*.mp4
+            tools/demo/output/narration.srt
+            tools/demo/output/narration.txt
+            tools/demo/output/evidence.json
+            tools/demo/output/*.png
           if-no-files-found: error

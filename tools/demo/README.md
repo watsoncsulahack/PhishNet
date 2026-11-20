@@ -4,7 +4,7 @@ A reproducible, under-three-minute browser demo based on the new 12-slide **Phis
 
 ## Draft now
 
-**Actions → Record hackathon demo → successful run → PhishNet-hackathon-demo** contains an MP4, scene screenshots, narration script, approximate SRT subtitles and response evidence. A push affecting this folder records a **silent captioned draft**, without API keys or external AI calls.
+**Actions → Record hackathon demo → successful run → PhishNet-hackathon-demo** contains an MP4, scene screenshots, narration script, approximate SRT subtitles and response evidence. A push affecting this folder records a **silent, open-captioned final MP4**, without API keys or external AI calls. Use `PhishNet-hackathon-demo.mp4` (1920×1080, approximately 1m50s). The `captioned-draft` file is an intermediate; the final includes the full burned-in transcript and explicit editorial simulation-receipt labeling.
 
 The recording shows title card → source lineage → recipient-mismatch denial → original-recipient allowance → scope/end card. It asserts real API responses rather than animating fake outcomes. Title cards are labeled, the web footage says simulation throughout, and no explorer link is clicked. Android is described in the closing narration, not represented by browser footage.
 
@@ -33,6 +33,14 @@ The Android/Termux environment may not run the bundled desktop browser. GitHub's
 ## Recorder dependency boundary
 
 The isolated Stagehand 2 recorder currently has npm audit advisories in transitive AI SDK, Zod and diffing dependencies. Its AI inference, file-upload and diff-rendering paths are not used; it only opens the local synthetic demo. Do not use this tool as a production service or give it untrusted URLs/content. These dependencies are not included in the Android APK. Migration to a patched current Stagehand API remains follow-up work.
+
+## Finish an existing capture without re-recording
+
+```sh
+node finalize.mjs /path/to/downloaded/artifact
+```
+
+This uses FFmpeg only. It adds open captions, replaces obsolete draft labels on title cards, covers the prototype's misleading receipt label with an explicit **SIMULATION ONLY** editorial disclosure (without changing ALLOW/DENY), and exports a silent H.264 1080p MP4. It does not generate speech or use ElevenLabs. Full original scene captures and response evidence remain available for inspection. On Android it uses the system Roboto font; on Linux it uses DejaVu Sans. Override with `DEMO_FONT` if needed.
 
 Edit `scenes.json` to adjust narration and short on-screen captions. Total narration is capped at 5,000 characters before any TTS call. Runs regenerate audio and consume credits again; review the text before requesting narration.
 

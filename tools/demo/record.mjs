@@ -140,7 +140,10 @@ try {
   await writeFile(resolve(output, 'narration.srt'), subtitles.join('\n'));
   await writeFile(resolve(output, 'narration.txt'), scenes.map(scene => `${scene.title}\n${scene.narration}\n`).join('\n'));
   await writeFile(resolve(output, 'evidence.json'), JSON.stringify({ narrated, seconds: offset, recording: 'Stagehand 2.5.9 local Chromium', sourceDeck: 'PhishNet — Provenance-Aware Firewall for Financial AI Agents (2).pptx', evidence }, null, 2));
-  console.log(`Created ${filename} (${Math.round(offset)}s). Review all captions and footage before submission. SRT timings are approximate.`);
+  if (!narrated) {
+    execFileSync(process.execPath, [resolve('finalize.mjs'), output], { stdio: 'inherit' });
+  }
+  console.log(`Created ${narrated ? filename : 'PhishNet-hackathon-demo.mp4'} (${Math.round(offset)}s). Review all captions and footage before submission. SRT timings are approximate.`);
 } finally {
   if (stagehand) await stagehand.close().catch(() => {});
   server.kill();
