@@ -60,6 +60,13 @@ try {
     });
     await stagehand.init();
     const page = stagehand.page;
+    await page.setViewportSize({ width: 1600, height: 1000 });
+    const focus = async selector => {
+      await page.locator(selector).evaluate(element => {
+        const y = element.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: Math.max(0, y - 420), behavior: 'instant' });
+      });
+    };
     const video = page.video();
     assert(video, 'Stagehand video recording not initialized');
     if (scene.id === 'intro' || scene.id === 'outro') {
@@ -79,9 +86,9 @@ try {
       }, scene);
       if (scene.id === 'lineage') {
         await page.locator('#nav-btn-inspector').click();
-        await page.locator('#dag-svg').scrollIntoViewIfNeeded();
+        await focus('#dag-svg');
       } else {
-        await page.locator('#gate-banner').scrollIntoViewIfNeeded();
+        await focus('#gate-banner');
       }
     }
     const started = Date.now();
@@ -96,8 +103,10 @@ try {
       if (malicious) assert(result.preflight.reasonCodes.includes('RECIPIENT_MISMATCH'));
       else assert.equal(result.receipt.status, 'SETTLED_SIMULATED');
       evidence.push({ scene: scene.id, httpStatus: response.status(), result });
-      await page.locator('#gate-banner').scrollIntoViewIfNeeded();
+      await focus('#gate-banner');
       await page.locator('#gate-decision').filter({ hasText: malicious ? 'DENY' : 'ALLOW' }).waitFor();
+      const bounds = await page.locator('#gate-banner').boundingBox();
+      assert(bounds && bounds.y > 135 && bounds.y + bounds.height < 820, 'Policy result must remain visible between overlays');
     }
     await sleep(Math.max(0, seconds * 1000 - (Date.now() - started)));
     await page.screenshot({ path: resolve(output, `${scene.id}.png`) });

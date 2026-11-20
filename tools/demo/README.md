@@ -30,6 +30,10 @@ npm run record
 
 The Android/Termux environment may not run the bundled desktop browser. GitHub's Ubuntu runner is the supported recording environment. Stagehand 2's deterministic Playwright interface is used deliberately: no LLM inference, Browserbase account, or extra model API key is required to reproduce this fixed shot list.
 
+## Recorder dependency boundary
+
+The isolated Stagehand 2 recorder currently has npm audit advisories in transitive AI SDK, Zod and diffing dependencies. Its AI inference, file-upload and diff-rendering paths are not used; it only opens the local synthetic demo. Do not use this tool as a production service or give it untrusted URLs/content. These dependencies are not included in the Android APK. Migration to a patched current Stagehand API remains follow-up work.
+
 Edit `scenes.json` to adjust narration and short on-screen captions. Total narration is capped at 5,000 characters before any TTS call. Runs regenerate audio and consume credits again; review the text before requesting narration.
 
 ## Submission review

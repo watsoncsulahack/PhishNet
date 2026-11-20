@@ -11,8 +11,8 @@ class WalletDeviceTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     @Test fun onboardingRequiresAcknowledgement() {
         compose.onNodeWithText("Create test wallet").assertIsNotEnabled()
-        compose.onNode(isToggleable()).performClick()
-        compose.onNodeWithText("Create test wallet").assertIsEnabled()
+        compose.onNode(isToggleable()).performScrollTo().performClick().assertIsOn()
+        compose.onNodeWithText("Create test wallet").performScrollTo().assertIsEnabled()
     }
     @Test fun encryptedWalletSurvivesStoreRecreation() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
