@@ -39,7 +39,7 @@ try {
   });
   assert.equal(mandateResponse.status, 201);
   for (const [index, scene] of scenes.entries()) {
-    console.log(`Recording ${index + 1}/${scenes.length}: ${scene.id}`);
+    console.log(`Recording ${index + 1}/${scenes.length}: ${scene.id} (explicit prototype receipt labels)`);
     const audio = resolve(output, `${scene.id}.mp3`);
     if (narrated) {
       const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voice)}?output_format=mp3_44100_128`, {

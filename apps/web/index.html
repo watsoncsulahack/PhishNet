@@ -634,9 +634,9 @@
           </div>
         </div>
 
-        <!-- Live Execution Receipt -->
+        <!-- Prototype execution receipt: never imply on-chain broadcast. -->
         <div id="receipt-box" class="receipt-box" style="display: none;">
-          <div style="color: var(--mint); font-weight: 700;">Transaction Broadcasted (Arc Testnet)</div>
+          <div id="receipt-title" style="color: var(--mint); font-weight: 700;">Simulation receipt — no blockchain broadcast</div>
           <div id="receipt-txhash" style="word-break: break-all; color: var(--text-main);"></div>
           <div id="receipt-link"><a href="#" target="_blank" style="color: var(--mint);">View on Arc Explorer &rarr;</a></div>
         </div>
@@ -1023,10 +1023,11 @@
       if (!receipt) return;
       const box = document.getElementById('receipt-box');
       box.style.display = 'flex';
-      document.getElementById('receipt-txhash').innerText = `Tx Hash: ${receipt.txHash}`;
-      const a = document.getElementById('receipt-link').querySelector('a');
-      a.href = receipt.explorerUrl || '#';
-      a.innerText = `View on Arc Explorer (${receipt.status}) \u2192`;
+      document.getElementById('receipt-title').innerText = 'Prototype receipt — no verified blockchain settlement';
+      document.getElementById('receipt-txhash').innerText = `Status: ${receipt.status || 'UNVERIFIED'} · Reference: ${receipt.txHash || 'none'}`;
+      // This prototype has no verified broadcast path; generated references are
+      // not real explorer transactions and must not link to a public explorer.
+      document.getElementById('receipt-link').style.display = 'none';
     }
 
     function hideReceipt() {
