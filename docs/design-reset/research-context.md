@@ -89,3 +89,7 @@ Unanswered: Does provenance improve decisions beyond allowlists? Can reviewers i
 ## 7. Coding-agent reading order
 
 Read requirements.md, this research-context.md, research-references.md, diagrams.md, normalization.md, schema-implementation-checklist.md, testing.md and implementation-plan.md before making architectural changes. The simplified 1NF/2NF/3NF diagrams are **presentation stages**, not mathematically proven normal forms or complete migration specifications.
+
+## 8. New mobile/storytelling/business-design inputs
+
+Six further user-supplied readings have been assessed in [uploaded-source-notes.md](uploaded-source-notes.md), with publisher links, licensing cautions and source-specific design implications. They collectively shift PhishNet's default mobile experience from a general-purpose network graph to an **actionable, readable, transaction-first review** with progressively revealed chronology and provenance. The FICO article motivates integrated accountability and model-governance lineage, while the Busbud business case cautions that meaningful source data and a narrow verified workflow must precede a broad analytics platform. For the actual UI plan and alternatives, see [visualization-design-strategy.md](visualization-design-strategy.md) and [visualization-projects.md](visualization-projects.md).

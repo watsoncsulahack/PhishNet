@@ -2,6 +2,10 @@
 
 **Authority:** [requirements.md](requirements.md) provides only user/system requirements; [dfd-level-0.mmd](dfd-level-0.mmd) defines the context boundary; [normalization.md](normalization.md) explains 1NF→2NF→3NF; [erd-3nf.mmd](erd-3nf.mmd) is the **initial database migration target**, subject to constraint review. Existing baseline: \`main\` at \`ab57d519\`.
 
+## Visualization-related design inputs
+
+Read [uploaded-source-notes.md](uploaded-source-notes.md), [visualization-design-strategy.md](visualization-design-strategy.md), and [visualization-projects.md](visualization-projects.md) before implementing Stage 2. The updated strategy favors **mobile transaction review first, a source-linked timeline second, and a desktop evidence graph third**. Start with React Flow + shadcn/ui + TanStack Table; add aggregate charts only when measurements exist. Reuse only licenses compatible with the intended distribution. All UI metrics require real tests, not canned scores.
+
 ## Required context and verification
 
 Read [research-context.md](research-context.md), [research-references.md](research-references.md), and [testing.md](testing.md) before editing. The simpler ERDs are visual presentation views; use [schema-implementation-checklist.md](schema-implementation-checklist.md) to construct and prove an actual normalized physical schema.
@@ -14,7 +18,7 @@ Build an evidence/provenance investigator and deterministic payment-authorizatio
 |---|---|---|
 | **0 — Truthful, safe demo** | Loopback-only server, simulation-only receipts, no fabricated explorer links, safe event rendering, input validation, truthful capability matrix. Refactor tests to invoke production code. | No false settlement/approval/model claims; reproducible tests exercise real modules. |
 | **1 — Canonical model and persistence** | Validate 3NF-oriented ERD and implement durable SQLite migrations, atomic simulated accounting, replay identifiers, fixture import, event and evidence API. | Foreign keys and uniqueness work; state survives restart; cycle/duplicate protection tested. |
-| **2 — Investigation UX** | Event timeline, expandable claim graph, observed vs inferred edges, source citation and evidence drilldown, original intent vs proposed payment diff, mobile layout. | Reviewer can contrast fraudulent-looking vendor swap and legitimate independently verified update, without asserting unsupported causality. |
+| **2 — Investigation UX** | Mobile-first payment comparison and source-linked vertical timeline; desktop read-only React Flow evidence graph; cross-highlighting; visible observed/inferred/verified/unknown states; user-facing source context. Use the visualization strategy and catalog. | VC-01–VC-10 pass tested desktop/mobile flows, including a signed legitimate-update counterexample, exact address visibility and uncertainty labels. |
 | **3 — Independent deterministic policy** | One shared evaluator, ALLOW/HOLD/DENY reason codes, strict scope/recipient/amount/asset/chain/expiry/nonce validation, test-first evaluation. | Real API and unit tests cover legitimate and denied outcomes, no expected-label self-comparison. |
 | **4 — Authenticated human authorization** | Identity/authz, signed mandates, transaction-bound human approvals, signing-service separation, credential revocation, concurrency safeguards. | Agent/client cannot self-authorize or bypass signer boundary; replay and concurrent-spend tests pass. |
 | **5 — Verified testnet and audit** | Pick one real testnet payment flow and supported AP2/x402 profile; verify receipt; signed append-only checkpoint, inclusion/consistency checks and redacted audit exports. | Real receipt exists only after network verification; tampering is detected against an independently trusted commitment. |
