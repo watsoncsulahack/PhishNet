@@ -80,3 +80,13 @@ Baseline: `1f7fe05`. Status is conservative: existing prototype behavior is not 
 | SR-048 | P2 | 4–6: authorization, audit and evaluation; Future implementation | Open | NOT_IMPLEMENTED / not verified |
 | SR-049 | P2 | 4–6: authorization, audit and evaluation; Future implementation | Open | NOT_IMPLEMENTED / not verified |
 | SR-050 | P2 | 4–6: authorization, audit and evaluation; Future implementation | Open | NOT_IMPLEMENTED / not verified |
+
+## Investigation increment (2026-11-26)
+
+The read-only case replay does not complete Stage 1 persistence or Stage 4 production authorization. Modules: `packages/core/src/investigations.js`, shared `simulation-policy.js`, `/v1/investigations`. Evidence: `node tests/investigations.test.js` passes 4/4; `npm test` passes 15/15 actual-server checks. Fixture tests reject altered mandates, a changed proposal nonce and verifier signatures made with the wrong key. Keys and identities are synthetic; these are not production credentials. Implementation SHA: the commit introducing these modules (git history).
+
+| Requirements | Module | Increment status | Verification |
+|---|---|---|---|
+| UR-09, UR-11; SR-004, SR-016, SR-017, SR-019 | simulation-policy.js / API | Shared simulation policy; full authorization remains open | 15 API smoke checks; fixture DENY/ALLOW and signature rejection |
+| UR-13, UR-18; SR-011, SR-026 | investigations.js | Two synthetic cases; independently keyed fixture check plus new signed mandate / exact proposal; real identity open | 4 fixture tests; no execution capability added |
+| UR-02–05; SR-007–010 | investigations.js | Canonical event, claim, mention and typed-edge IDs for this read-only slice; database integrity / arbitrary ingest open | Fixture reference / chronology test |
