@@ -956,6 +956,8 @@
                 "enum": [
                   "PROPOSED",
                   "PENDING_APPROVAL",
+                  "APPROVED",
+                  "AUTHORIZATION_REQUESTED",
                   "REJECTED",
                   "EXPIRED",
                   "WALLET_REJECTED",

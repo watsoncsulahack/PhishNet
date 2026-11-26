@@ -135,3 +135,14 @@ See [scope, protocol sources, setup and actual verification](notebook-and-consen
 | UR-02–05, UR-07–08, UR-15; SR-008, SR-010, SR-012–013, SR-024, SR-030 | notebook model / UI / case fixtures | Linked notebook/map, typed rationale vs sources/interactions/proposal/policy/consent/settlement, search/filter/replay and backlinks implemented for synthetic cases. No private cognition or live agent-ingest claim | 3 model tests + 9 notebook browser checks; existing 18 VC regressions pass |
 | UR-11, UR-17–18; SR-016, SR-019–021, SR-032–034 | consent broker; independent human helper; wallet gate | Real counter-sign 0.2 keyed-Ed25519 profile; pinned public enrollment, reject-on-silence, exact transfer commitment, receipt/time/one-time checks. Raw-key file route implemented; OS isolation, org-root registry, WebAuthn/card and durable receipt store remain open | 6 broker tests + 6 actual HTTP signature tests; 6 additional browser gate checks with mocks |
 | UR-12, UR-19, UR-23; SR-002, SR-036, SR-038 | notebook / wallet journal | Human receipt, wallet approval and network settlement remain distinct; no hardware attestation or synthetic CONFIRMED | Original payment regressions and typed-event tests; real funded/device end-to-end NOT_RUN |
+
+## Authoritative MVP increment (supersedes historical implementation gaps above)
+
+| Acceptance | Implementation / evidence | Current gate |
+|---|---|---|
+| MVP-01, MVP-03 | gateway typed capabilities; durable broker; gateway 5/5, HTTP 1/1; existing consent HTTP 6/6 | Server implemented; canonical UI pending; real separate credential enrollment is operator responsibility |
+| MVP-02, MVP-04, MVP-05 | Immutable scoped proposals, one-time authorization, recorded rejection and exact existing RPC reader | Server integration tested with controlled reader; live funded run pending |
+| MVP-06–09 | Strict EventTraceV1 / encrypted scoped journal; schema 4/4, journal 5/5 | Real projection / UI pending |
+| MVP-10–11 | Private content references, encrypted store | Signed checkpoint / independent Arc verification pending |
+| MVP-12 | Existing manual external wallet path preserved in source | Sketch-led PWA pending |
+| MVP-13 | Existing API 15/15; consent HTTP 6/6; new gateway and HTTP suites | Full browser regression will be rerun after UI integration |

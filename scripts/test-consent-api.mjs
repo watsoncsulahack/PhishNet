@@ -1,10 +1,12 @@
+import {mkdtempSync} from 'node:fs';
+import {tmpdir} from 'node:os';
 // External test signer models the human; its seed is NEVER given to the API process.
 import {generateKeypair,signDecision} from '@countersignlabs/counter-sign';
 import {spawn} from 'node:child_process';
 import assert from 'node:assert/strict';
 import {setTimeout as delay} from 'node:timers/promises';
 const human=generateKeypair(),attacker=generateKeypair(),port=39000+Math.floor(Math.random()*3000),origin=`http://127.0.0.1:${port}`;
-const server=spawn(process.execPath,['apps/api/src/server.js'],{env:{...process.env,PORT:String(port),HOST:'127.0.0.1',COUNTERSIGN_APPROVER_PUBLIC_KEY:human.publicKey},stdio:['ignore','pipe','pipe']});
+const server=spawn(process.execPath,['apps/api/src/server.js'],{env:{PHISHNET_DATA_DIR:mkdtempSync(tmpdir()+'/phishnet-http-'),...process.env,PORT:String(port),HOST:'127.0.0.1',COUNTERSIGN_APPROVER_PUBLIC_KEY:human.publicKey},stdio:['ignore','pipe','pipe']});
 let errors='';server.stderr.on('data',c=>errors+=c);
 const payment={from:'0x'+'1'.repeat(40),to:'0x'+'2'.repeat(40),amount:'0.02'};
 async function call(path,body){const res=await fetch(origin+'/v1/testnet/consent/'+path,{...(body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{}),signal:AbortSignal.timeout(5000)});return {status:res.status,body:await res.json()};}

@@ -27,7 +27,7 @@ const payloads={
  'wallet.rejected':object({...proposal,reasonCode:{enum:['USER_REJECTED','CANCELLED','REQUEST_FAILED']}}),
  'chain.receipt.checked':object({...proposal,txHash:hash,status:{enum:['BROADCAST','CONFIRMED','FAILED','MISMATCH','UNVERIFIED']},blockNumber:uint,feeBaseUnits:uint,verificationRef:id},['proposalId','txHash','status']),
  'history.imported':object({txHash:hash,from:address,recipient:address,amountBaseUnits:uint}),
- 'payment.status.changed':object({...proposal,status:{enum:['PROPOSED','PENDING_APPROVAL','REJECTED','EXPIRED','WALLET_REJECTED','BROADCAST','CONFIRMED','FAILED','UNVERIFIED']},reasonCode:id}),
+ 'payment.status.changed':object({...proposal,status:{enum:['PROPOSED','PENDING_APPROVAL','APPROVED','AUTHORIZATION_REQUESTED','REJECTED','EXPIRED','WALLET_REJECTED','BROADCAST','CONFIRMED','FAILED','UNVERIFIED']},reasonCode:id}),
  'agent.connector.changed':object({agentId:id,action:{enum:['issued','revoked']}}),
  'audit.checkpoint.created':object({checkpointId:id,firstSequence:{type:'integer',minimum:1},lastSequence:{type:'integer',minimum:1},root:digest,checkpointDigest:digest}),
  'audit.checkpoint.published':object({checkpointId:id,txHash:hash,status:{const:'BROADCAST'}}),

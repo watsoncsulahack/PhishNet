@@ -1,9 +1,11 @@
+import {mkdtempSync} from 'node:fs';
+import {tmpdir} from 'node:os';
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {request as httpRequest} from 'node:http';
 import {setTimeout as delay} from 'node:timers/promises';
 const port=35000+Math.floor(Math.random()*5000),origin=`http://127.0.0.1:${port}`;
-const server=spawn(process.execPath,['apps/api/src/server.js'],{env:{...process.env,PORT:String(port),HOST:'127.0.0.1'},stdio:['ignore','pipe','pipe']});
+const server=spawn(process.execPath,['apps/api/src/server.js'],{env:{PHISHNET_DATA_DIR:mkdtempSync(tmpdir()+'/phishnet-http-'),...process.env,PORT:String(port),HOST:'127.0.0.1'},stdio:['ignore','pipe','pipe']});
 let stderr='';server.stderr.on('data',chunk=>stderr+=chunk);let passed=0;
 const request=(path,init={})=>fetch(origin+path,{...init,signal:AbortSignal.timeout(5000)});
 async function check(name,fn){await fn();console.log('PASS '+name);passed++;}

@@ -1,4 +1,5 @@
-#!/usr/bin/env node
+import {mkdtempSync} from 'node:fs';
+import {tmpdir} from 'node:os';
 // Safe loopback PhishNet API smoke test. This is NOT a payment-security certification.
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
@@ -10,7 +11,7 @@ const port = 34000 + Math.floor(Math.random()*10000);
 const origin = 'http://127.0.0.1:' + port;
 const { HOST: _host, ...serverEnv } = process.env;
 const server = spawn(process.execPath, [path.join(root,'apps/api/src/server.js')], {
-  cwd: root, env: {...serverEnv, PORT:String(port)}, stdio:['ignore','pipe','pipe']
+  cwd: root, env: {PHISHNET_DATA_DIR:mkdtempSync(tmpdir()+'/phishnet-http-'),...serverEnv, PORT:String(port)}, stdio:['ignore','pipe','pipe']
 });
 let stderr='', stdout='';
 server.stderr.on('data',chunk=>{stderr+=chunk.toString()});

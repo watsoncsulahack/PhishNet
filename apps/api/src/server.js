@@ -3,7 +3,9 @@
 import { evaluateDeterministicPolicy as evaluateSimulationPolicy } from '../../../packages/core/src/simulation-policy.js';
 import { investigations } from '../../../packages/core/src/investigations.js';
 import { testnet } from './testnet.js';
-import { consentBroker } from '../../../packages/consent/src/broker.js';
+import { Journal } from '../../../packages/journal/src/journal.js';
+import { createGateway } from './gateway.js';
+import { gatewayHandler } from './gateway-http.js';
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
@@ -16,6 +18,10 @@ const ROOT_DIR = path.resolve(__dirname, '../../../');
 
 const PORT = process.env.PORT || 3001;
 const HOST = process.env.HOST || '127.0.0.1';
+const journal = new Journal(process.env.PHISHNET_DATA_DIR || path.join(ROOT_DIR, '.data'));
+const gateway = createGateway({journal});
+const consentBroker = gateway.consent;
+const handleGateway = gatewayHandler(gateway);
 
 // Load fixtures
 const scenariosPath = path.join(ROOT_DIR, 'data/fixtures/scenarios.json');
@@ -338,6 +344,7 @@ const server = http.createServer(async (req, res) => {
   res.setHeader('Referrer-Policy','no-referrer');
   res.setHeader('X-Frame-Options','DENY');
   res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
+  if(await handleGateway(req,res))return;
   // Wallet signing stays in the user's wallet. These routes only read Arc public data.
   if (req.url?.startsWith('/v1/testnet/')) {
     const origin = `http://${req.headers.host}`;
@@ -711,3 +718,5 @@ server.listen(PORT, HOST, () => {
   console.log(` Analysis:    local advisory heuristics`);
   console.log(`=======================================================`);
 });
+
+process.on('SIGTERM',()=>server.close(()=>{journal.close();process.exit(0);}));
