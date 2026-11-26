@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Open **http://127.0.0.1:3000**. `npm run dev` builds the wallet bundle before starting the local server. No API key, seed phrase or private-key environment variable is needed.
+Open **http://127.0.0.1:3001**. `npm run dev` builds the wallet bundle before starting the local server. No API key, seed phrase or private-key environment variable is needed.
 
 1. **Connect wallet.** Approve the connection and switch to Arc Testnet. If needed, the app offers to add the official network.
 2. **Get test funds.** Use the in-app link to the [Circle faucet](https://faucet.circle.com), select Arc Testnet, and fund your connected address. USDC pays both the transfer and network fee.

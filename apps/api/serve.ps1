@@ -1,6 +1,6 @@
 # PhishNet Native Windows API Server and Web Application Host (User-mode TcpListener)
 param(
-    [int]$Port = 3000,
+    [int]$Port = 3001,
     [string]$HostAddress = "127.0.0.1"
 )
 
