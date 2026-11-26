@@ -1,0 +1,7 @@
+{
+  "name": "phishnet-demo-recorder",
+  "private": true,
+  "type": "module",
+  "scripts": { "record": "node record.mjs" },
+  "dependencies": { "@browserbasehq/stagehand": "2.5.9" }
+}
