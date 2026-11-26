@@ -1,15 +1,4 @@
-/**
- * PhishNet Mobile Server (Node.js)
- *
- * Implements:
- * 1. On-Device Wallet with Circle Arc Testnet USDC (Chain ID: 5042002)
- * 2. Google AP2 (Agent Payments Protocol): Intent, Cart, and Payment Mandates
- * 3. x402 (HTTP 402 Payment Required) agentic micropayment protocol
- * 4. Deterministic Policy Gate (independent of LLM)
- * 5. Google Antigravity Behavioral Inference Engine (claim lineage & manipulation analysis)
- * 6. RFC 9162 Canonical SHA-256 Merkle Provenance & Audit proofs
- * 7. Mobile Web App static asset serving
- */
+/** Local, in-memory financial simulation and heuristic investigation demo. */
 
 import http from 'http';
 import fs from 'fs';
@@ -185,11 +174,14 @@ if (scenarios.length > 0 && scenarios[0].events) {
 // Deterministic Policy Engine (PRD Section 6)
 // ==========================================
 function evaluateDeterministicPolicy(proposal, mandate, options = {}) {
+  const amountFields = [proposal?.amountBaseUnits, mandate?.amountMaxBaseUnits, mandate?.cumulativeBudgetBaseUnits, mandate?.spentBaseUnits ?? '0'];
+  const invalid = !proposal || !mandate || amountFields.some(v => typeof v !== 'string' || !/^(0|[1-9][0-9]{0,29})$/.test(v)) ||
+    !/^0x[0-9a-f]{40}$/i.test(proposal.recipient ?? '') || !/^0x[0-9a-f]{40}$/i.test(mandate.allowedRecipient ?? '') ||
+    !proposal.nonce || !mandate.validAfter || !mandate.validUntil || !Number.isFinite(Date.parse(mandate.validAfter)) || !Number.isFinite(Date.parse(mandate.validUntil));
+  if (invalid) return { decision: 'DENY', reasonCodes: ['INVALID_INPUT'], policyVersion: '1.0.0-deterministic' };
   const {
     consumedNonces = walletState.consumedNonces,
     cumulativeSpent = BigInt(mandate.spentBaseUnits || '0'),
-    humanApproved = options.humanApproved || false,
-    independentVerifications = options.independentVerifications || [],
     currentTimeUtc = new Date().toISOString()
   } = options;
 
@@ -229,6 +221,10 @@ function evaluateDeterministicPolicy(proposal, mandate, options = {}) {
   // 5. Amount limit
   const proposalAmount = BigInt(proposal.amountBaseUnits || '0');
   const maxAmount = BigInt(mandate.amountMaxBaseUnits || '0');
+  if (proposalAmount <= 0n) {
+    reasons.push('INVALID_AMOUNT');
+    decision = 'DENY';
+  }
   if (proposalAmount > maxAmount) {
     reasons.push('AMOUNT_EXCEEDS_LIMIT');
     decision = 'DENY';
@@ -248,19 +244,8 @@ function evaluateDeterministicPolicy(proposal, mandate, options = {}) {
   const recipientMatches = pRecipient === mRecipient;
 
   if (!recipientMatches) {
-    const hasIndependent = independentVerifications.some(
-      (v) => (v.targetRecipient || '').trim().toLowerCase() === pRecipient && v.isIndependent
-    );
-
-    if (hasIndependent) {
-      if (!humanApproved) {
-        reasons.push('NEW_PAYEE_UNVERIFIED');
-        if (decision !== 'DENY') decision = 'HOLD';
-      }
-    } else {
-      reasons.push('RECIPIENT_MISMATCH');
-      decision = 'DENY';
-    }
+    reasons.push('RECIPIENT_MISMATCH');
+    decision = 'DENY';
   }
 
   // 8. High-value transaction approval requirement ($50.00 = 50,000,000 minor)
@@ -268,11 +253,11 @@ function evaluateDeterministicPolicy(proposal, mandate, options = {}) {
   const humanApprovalRequired = isHighValue || !recipientMatches;
 
   if (decision === 'ALLOW') {
-    if (humanApprovalRequired && !humanApproved) {
+    if (humanApprovalRequired) {
       decision = 'HOLD';
       reasons.push('MISSING_REQUIRED_APPROVAL');
     } else {
-      reasons.push('AUTHORIZED_AND_VERIFIED');
+      reasons.push('SIMULATION_WITHIN_POLICY');
     }
   }
 
@@ -349,7 +334,7 @@ function runAntigravityBehavioralInference(events) {
       // Multiple agents repeated the exact same address
       const origin = recipientClaims[0];
       const repeaters = recipientClaims.slice(1);
-      sourceConvergenceDetected = true;
+      sourceConvergenceDetected = false;
       echoDetails = {
         originEventId: origin.eventId,
         originActor: origin.actorId,
@@ -360,7 +345,7 @@ function runAntigravityBehavioralInference(events) {
       manipulationIndicators.push({
         type: 'source_convergence',
         evidenceEventIds: recipientClaims.map((r) => r.eventId),
-        explanation: `Echo Chamber Detected: Recipient ${origin.recipient} repeated across ${repeaters.length} agent turns, but originates solely from single unverified event (${origin.eventId}).`
+        explanation: `Echo Chamber Detected: Recipient ${origin.recipient} repeated across ${repeaters.length} agent turns, the common origin is unknown.`
       });
     }
 
@@ -384,7 +369,7 @@ function runAntigravityBehavioralInference(events) {
   }
 
   return {
-    inferenceEngine: 'Google Antigravity Inference v2.0 (Gemini High)',
+    inferenceEngine: 'Local keyword and recipient-matching heuristic (advisory)',
     analyzedAt: new Date().toISOString(),
     eventCount: events.length,
     recommendation,
@@ -394,7 +379,7 @@ function runAntigravityBehavioralInference(events) {
       claimId: `clm-${idx + 1}`,
       quotedSpan: r.text || r.recipient,
       originatingEventId: r.eventId,
-      verification: r.recipient.toLowerCase() === originalRecipient ? 'verified' : 'unverified'
+      verification: 'unverified'
     }))
   };
 }
@@ -460,13 +445,14 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, {
         status: 'healthy',
         platform: 'PhishNet Mobile Agentic Payments & Behavior Inspector',
-        runtime: 'Node.js (Android Termux)',
-        network: 'Circle Arc Testnet',
+        environment: 'SIMULATION',
+        runtime: 'Node.js',
+        network: 'Simulated Arc configuration (no network connection)',
         chainId: '5042002',
         nativeAsset: 'USDC',
-        protocols: ['Google AP2 (Agent Payments Protocol)', 'x402 (HTTP 402 Micropayments)'],
-        inferenceEngine: 'Google Antigravity Behavioral Inference',
-        policyGate: 'Deterministic Non-LLM Gate (Zero Override)',
+        protocols: ['AP2-inspired simulation', 'x402-inspired simulation'],
+        inferenceEngine: 'Local heuristic (advisory)',
+        policyGate: 'Simulation only; not an enforcement service',
         walletAddress: walletState.address
       });
     }
@@ -483,6 +469,7 @@ const server = http.createServer(async (req, res) => {
     // ------------------------------------------
     if (pathname === '/v1/wallet' && req.method === 'GET') {
       return sendJson(res, 200, {
+        environment: 'SIMULATION',
         address: walletState.address,
         network: walletState.network,
         chainId: walletState.chainId,
@@ -500,7 +487,7 @@ const server = http.createServer(async (req, res) => {
       const faucetAmount = 100000000n; // $100.00 USDC
       walletState.balanceMinor += faucetAmount;
       return sendJson(res, 200, {
-        message: 'Successfully funded 100.00 testnet USDC from Circle Arc Faucet simulator.',
+        message: 'Simulated balance increased by 100.00 units; no funds were transferred.',
         balanceMinor: walletState.balanceMinor.toString(),
         balanceUsd: (Number(walletState.balanceMinor) / 1000000).toFixed(2)
       });
@@ -531,7 +518,7 @@ const server = http.createServer(async (req, res) => {
 
       walletState.activeMandates.unshift(newMandate);
       return sendJson(res, 201, {
-        message: 'Google AP2 Intent Mandate cryptographically created and signed on device.',
+        message: 'Simulated mandate created; no signature or independent authorization was verified.',
         mandate: newMandate
       });
     }
@@ -560,6 +547,7 @@ const server = http.createServer(async (req, res) => {
 
       if (preflight.decision === 'ALLOW') {
         const amountBig = BigInt(proposal.amountBaseUnits);
+        if (amountBig > walletState.balanceMinor) return sendJson(res, 403, {status: 'SIMULATION_INSUFFICIENT_BALANCE'});
         walletState.balanceMinor -= amountBig;
         walletState.cumulativeSpentMinor += amountBig;
         mandate.spentBaseUnits = (BigInt(mandate.spentBaseUnits || '0') + amountBig).toString();
@@ -571,12 +559,12 @@ const server = http.createServer(async (req, res) => {
           protocol: 'google-ap2',
           chainId: '5042002',
           network: 'Circle Arc Testnet',
-          status: 'SETTLED_SIMULATED',
+          status: 'SIMULATED',
           amountBaseUnits: proposal.amountBaseUnits,
           amountUsd: (Number(amountBig) / 1000000).toFixed(2),
           recipient: proposal.recipient,
           timestamp: new Date().toISOString(),
-          explorerUrl: `https://explorer.testnet.arc.io/tx/${txHash}`
+          environment: 'SIMULATION'
         };
 
         walletState.transactions.unshift(receipt);
@@ -597,7 +585,7 @@ const server = http.createServer(async (req, res) => {
         };
         walletState.eventLog.push({ ...execEvent, digest: computeEventDigest(execEvent) });
 
-        return sendJson(res, 200, { preflight, receipt, status: 'EXECUTED' });
+        return sendJson(res, 200, { preflight, receipt, status: 'SIMULATED' });
       } else {
         return sendJson(res, 403, {
           preflight,
@@ -621,7 +609,7 @@ const server = http.createServer(async (req, res) => {
         priceMinor: '20000', // $0.02 USDC
         priceUsd: '0.02',
         token: 'USDC',
-        network: 'Circle Arc Testnet',
+        network: 'Simulated Arc configuration (no network connection)',
         chainId: '5042002',
         payeeAddress: '0x4444444444444444444444444444444444444444',
         nonce: `x402-chal-${Date.now()}`,
@@ -653,6 +641,7 @@ const server = http.createServer(async (req, res) => {
 
       if (preflight.decision === 'ALLOW') {
         const amountBig = BigInt(proposal.amountBaseUnits);
+        if (amountBig > walletState.balanceMinor) return sendJson(res, 403, {status: 'SIMULATION_INSUFFICIENT_BALANCE'});
         walletState.balanceMinor -= amountBig;
         walletState.cumulativeSpentMinor += amountBig;
         mandate.spentBaseUnits = (BigInt(mandate.spentBaseUnits || '0') + amountBig).toString();
@@ -664,12 +653,12 @@ const server = http.createServer(async (req, res) => {
           protocol: 'x402',
           chainId: '5042002',
           network: 'Circle Arc Testnet',
-          status: 'SETTLED_SIMULATED',
+          status: 'SIMULATED',
           amountBaseUnits: proposal.amountBaseUnits,
           amountUsd: (Number(amountBig) / 1000000).toFixed(2),
           recipient: proposal.recipient,
           timestamp: new Date().toISOString(),
-          explorerUrl: `https://explorer.testnet.arc.io/tx/${txHash}`
+          environment: 'SIMULATION'
         };
 
         walletState.transactions.unshift(receipt);
@@ -681,8 +670,7 @@ const server = http.createServer(async (req, res) => {
             topic: 'Autonomous Agent Realtime Knowledge Feed',
             temperature: '18.4 C',
             barometricPressure: '1013.2 hPa',
-            verifiedBy: 'Arc Oracle Station Alpha',
-            payloadSignature: '0x992fa...11c4'
+            source: 'synthetic demonstration data'
           }
         });
       } else {
@@ -701,10 +689,13 @@ const server = http.createServer(async (req, res) => {
       const body = await parseJsonBody(req);
       const proposal = body.proposal;
       const mandate = body.mandate;
+      if (body.cumulativeSpentBaseUnits !== undefined && (typeof body.cumulativeSpentBaseUnits !== 'string' || !/^(0|[1-9][0-9]{0,29})$/.test(body.cumulativeSpentBaseUnits))) {
+        return sendJson(res, 400, {error: 'Invalid cumulative spend'});
+      }
       const decision = evaluateDeterministicPolicy(proposal, mandate, {
         humanApproved: body.humanApproved,
         independentVerifications: body.independentVerifications,
-        cumulativeSpent: BigInt(body.cumulativeSpentBaseUnits || '0')
+        cumulativeSpent: typeof body.cumulativeSpentBaseUnits === 'string' && /^(0|[1-9][0-9]{0,29})$/.test(body.cumulativeSpentBaseUnits) ? BigInt(body.cumulativeSpentBaseUnits) : 0n
       });
       return sendJson(res, 200, decision);
     }
@@ -728,7 +719,8 @@ const server = http.createServer(async (req, res) => {
       const proof = generateMerkleProof(digests, digests.length - 1);
 
       return sendJson(res, 200, {
-        schema: 'RFC-9162-SHA256',
+        schema: 'custom-demo-merkle-sha256',
+        limitation: 'No independent checkpoint or verification of history',
         committedRoot: root,
         eventCount: walletState.eventLog.length,
         latestEventProof: proof
@@ -751,7 +743,7 @@ const server = http.createServer(async (req, res) => {
     sendJson(res, 404, { error: 'Route not found', path: pathname });
   } catch (err) {
     console.error('Server processing error:', err);
-    sendJson(res, 500, { error: 'Internal server error', details: err.message });
+    sendJson(res, 400, { error: 'Invalid request' });
   }
 });
 
@@ -760,8 +752,8 @@ server.listen(PORT, HOST, () => {
   console.log(` PhishNet Mobile App & API Server Running`);
   console.log(` Local URL:   http://127.0.0.1:${PORT}`);
   console.log(` Network URL: http://${HOST}:${PORT}`);
-  console.log(` Network:     Circle Arc Testnet (5042002)`);
-  console.log(` Protocols:   Google AP2 + x402 Micropayments`);
-  console.log(` Inference:   Google Antigravity Behavioral Engine`);
+  console.log(` Environment: SIMULATION (no settlement)`);
+  console.log(` Protocols:   AP2/x402-inspired examples`);
+  console.log(` Analysis:    local advisory heuristics`);
   console.log(`=======================================================`);
 });

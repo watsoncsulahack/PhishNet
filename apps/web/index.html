@@ -509,6 +509,7 @@
   </style>
 </head>
 <body>
+  <div style="padding:12px;background:#623b00;color:white;text-align:center">SIMULATION ONLY — no real payments, verified approvals, or network settlement</div>
 
   <!-- Top App Bar -->
   <header class="top-app-bar">
@@ -526,7 +527,7 @@
         <span>Arc 5042002</span>
       </div>
       <div class="badge-chip" style="color: #DDA0DD; border-color: rgba(157,78,221,0.4);">
-        <span>Antigravity</span>
+        <span>Heuristics</span>
       </div>
     </div>
   </header>
@@ -541,14 +542,14 @@
       <div class="wallet-hero">
         <div class="wallet-top">
           <div>
-            <div class="wallet-lbl">Arc Testnet Account</div>
+            <div class="wallet-lbl">Simulated Account</div>
             <div class="wallet-bal">
               <span id="wallet-balance-usd">$1,000.00</span>
               <span class="wallet-token">USDC</span>
             </div>
           </div>
           <div class="mode-pill">
-            <button class="mode-opt active" id="btn-mode-enforce" onclick="setMode('enforcement')">Enforce</button>
+            <button class="mode-opt active" id="btn-mode-enforce" onclick="setMode('enforcement')">Simulation</button>
             <button class="mode-opt" id="btn-mode-advisory" onclick="setMode('advisory')">Advisory</button>
           </div>
         </div>
@@ -612,7 +613,7 @@
               <span style="font-size: 0.7rem; font-family: var(--font-mono); color: var(--mint);">$0.02 USDC</span>
             </div>
             <div style="font-size: 0.72rem; color: var(--text-muted);">
-              Agent calls paid Knowledge API &rarr; receives HTTP 402 challenge &rarr; auto-settles via on-device budget.
+              Agent calls paid Knowledge API &rarr; receives HTTP 402 challenge &rarr; simulates a charge against a local budget.
             </div>
             <div class="btn-row">
               <button class="btn btn-purple" style="flex: 1;" onclick="triggerX402Micropayment()">
@@ -630,15 +631,15 @@
           <div class="wallet-lbl" style="margin-bottom: 0.35rem;">Deterministic Policy Gate</div>
           <div class="gate-banner allow" id="gate-banner">
             <span id="gate-decision">ALLOW</span>
-            <span style="font-size: 0.7rem; font-weight: normal;" id="gate-reason">AUTHORIZED_AND_VERIFIED</span>
+            <span style="font-size: 0.7rem; font-weight: normal;" id="gate-reason">SIMULATION_WITHIN_POLICY</span>
           </div>
         </div>
 
         <!-- Live Execution Receipt -->
         <div id="receipt-box" class="receipt-box" style="display: none;">
-          <div style="color: var(--mint); font-weight: 700;">Transaction Broadcasted (Arc Testnet)</div>
+          <div style="color: var(--mint); font-weight: 700;">Simulated payment (no broadcast)</div>
           <div id="receipt-txhash" style="word-break: break-all; color: var(--text-main);"></div>
-          <div id="receipt-link"><a href="#" target="_blank" style="color: var(--mint);">View on Arc Explorer &rarr;</a></div>
+          <div id="receipt-link">Simulated receipt; no network transaction</div>
         </div>
       </div>
 
@@ -666,7 +667,7 @@
           <span class="card-title">Agent Session Replay</span>
           <select id="scenario-select" onchange="loadScenario(this.value)" style="background: var(--bg-surface); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 0.3rem 0.5rem; font-size: 0.75rem;">
             <option value="vendor-swap">Vendor Recipient Substitution (Adversarial)</option>
-            <option value="vendor-verified">Legitimate Verified Update (Benign)</option>
+            <option value="vendor-verified">Example recipient update (unverified)</option>
             <option value="api-budget-exhausted">API Surcharge Exhaustion (x402)</option>
             <option value="replayed-nonce">Replayed Nonce Billing (Replay Attack)</option>
             <option value="llm-override-attack">Prompt Override Attack (Adversary LLM)</option>
@@ -677,11 +678,11 @@
         </div>
       </div>
 
-      <!-- Google Antigravity Behavioral Inference Panel -->
+      <!-- Local Advisory Heuristics Panel -->
       <div class="inference-card">
         <div class="card-header" style="border-color: rgba(157,78,221,0.3);">
           <span class="card-title" style="color: #DDA0DD;">
-            <span>Google Antigravity Behavioral Inference</span>
+            <span>Local Advisory Heuristics</span>
           </span>
           <span id="inference-recommendation" class="mandate-tag" style="background: rgba(255,51,102,0.2); color: var(--crimson); border: 1px solid var(--crimson);">
             ESCALATE
@@ -689,7 +690,7 @@
         </div>
 
         <div style="font-size: 0.72rem; color: var(--text-muted);">
-          Antigravity traces claims across interaction histories to detect deception before funds move.
+          Keyword and address matching highlights patterns for review; it does not establish deception or causality.
         </div>
 
         <div id="manipulation-cues" style="display: flex; flex-direction: column; gap: 0.35rem;">
@@ -697,7 +698,7 @@
         </div>
 
         <div style="font-size: 0.65rem; color: var(--text-dim); border-top: 1px solid rgba(157,78,221,0.2); padding-top: 0.4rem;">
-          <strong>Security Principle:</strong> Antigravity inference is strictly advisory. The on-device deterministic gate enforces nonces, exact recipients, and budgets without exception.
+          <strong>Security Principle:</strong> Analysis is advisory. Payment checks are simulations and cannot block external transfers.
         </div>
       </div>
 
@@ -711,7 +712,7 @@
           <svg id="dag-svg" width="100%" height="100%" viewBox="0 0 600 220"></svg>
         </div>
         <div id="echo-alert" style="background: rgba(255,183,3,0.1); border: 1px solid var(--amber); border-radius: 6px; padding: 0.5rem; font-size: 0.72rem; color: var(--amber); display: none;">
-          <strong>Echo Chamber Detected:</strong> Multiple agents repeated this wallet assertion, but all trace back to single unverified email origin.
+          <strong>Repeated address:</strong> Similar strings alone do not establish a common origin.
         </div>
       </div>
 
@@ -735,9 +736,9 @@
       
       <div class="card">
         <div class="card-header">
-          <span class="card-title">RFC 9162 Merkle Audit Proof</span>
+          <span class="card-title">Demonstration hash tree</span>
           <span class="mandate-tag" id="merkle-badge" style="background: rgba(0,245,212,0.15); color: var(--mint); border: 1px solid var(--mint);">
-            PROOF VERIFIED
+            DEMO HASH ONLY
           </span>
         </div>
 
@@ -752,23 +753,23 @@
           </div>
           <div style="background: var(--bg-surface); padding: 0.6rem; border-radius: 6px; border: 1px solid var(--border-color);">
             <div style="color: var(--text-muted); font-size: 0.65rem;">Inclusion Proof Status:</div>
-            <div id="proof-status-text" style="color: var(--mint);">Valid Canonical Path (3 steps)</div>
+            <div id="proof-status-text" style="color: var(--mint);">No independent checkpoint has been verified.</div>
           </div>
         </div>
 
         <div style="font-size: 0.72rem; color: var(--text-muted);">
-          Cryptographic tamper check: Modify recorded event data to verify that altered evidence immediately fails Merkle root verification.
+          Illustrative toggle only; no independent audit checkpoint or verification is performed.
         </div>
 
         <button class="btn btn-danger" id="btn-tamper-toggle" onclick="toggleTamper()">
-          Tamper with Event Log
+          Toggle demonstration
         </button>
       </div>
 
       <!-- Recent Arc Testnet Settlement Transactions -->
       <div class="card">
         <div class="card-header">
-          <span class="card-title">Arc Testnet Settlements</span>
+          <span class="card-title">Simulated payments</span>
           <span style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-mono);">USDC Gas</span>
         </div>
         <div id="transactions-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
@@ -802,7 +803,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
       </svg>
-      <span>Merkle Audit</span>
+      <span>Demo hashes</span>
     </button>
   </nav>
 
@@ -860,6 +861,10 @@
       }
     }
 
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
+    }
+
     function renderMandates(mandates) {
       const container = document.getElementById('mandates-container');
       container.innerHTML = '';
@@ -871,11 +876,11 @@
         const maxUsd = (Number(m.amountMaxBaseUnits) / 1000000).toFixed(2);
         div.innerHTML = `
           <div class="mandate-header">
-            <span style="font-weight: 700;">${m.recipientName || m.mandateId}</span>
-            <span class="mandate-tag ${tagClass}">${m.protocol.toUpperCase()}</span>
+            <span style="font-weight: 700;">${escapeHtml(m.recipientName || m.mandateId)}</span>
+            <span class="mandate-tag ${tagClass}">${escapeHtml(m.protocol.toUpperCase())}</span>
           </div>
           <div style="color: var(--text-muted); font-size: 0.7rem;">
-            Allowed: <span style="font-family: var(--font-mono); color: var(--mint);">${m.allowedRecipient.slice(0, 10)}...</span>
+            Allowed: <span style="font-family: var(--font-mono); color: var(--mint);">${escapeHtml(m.allowedRecipient.slice(0, 10))}...</span>
           </div>
           <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.7rem;">
             <span>Max/Tx: $${maxUsd}</span>
@@ -895,14 +900,14 @@
         div.className = 'mandate-card';
         div.innerHTML = `
           <div class="mandate-header">
-            <span style="font-weight: 700; color: var(--mint);">$${tx.amountUsd} USDC</span>
-            <span class="mandate-tag ap2">${tx.protocol}</span>
+            <span style="font-weight: 700; color: var(--mint);">$${escapeHtml(tx.amountUsd)} USDC</span>
+            <span class="mandate-tag ap2">${escapeHtml(tx.protocol)}</span>
           </div>
           <div style="font-family: var(--font-mono); font-size: 0.68rem; word-break: break-all; color: var(--text-muted);">
-            Tx: ${tx.txHash}
+            Tx: ${escapeHtml(tx.txHash)}
           </div>
           <div style="font-size: 0.68rem; color: var(--text-dim);">
-            ${new Date(tx.timestamp).toLocaleTimeString()} &bull; ${tx.network} (${tx.status})
+            ${new Date(tx.timestamp).toLocaleTimeString()} &bull; ${escapeHtml(tx.network)} (${escapeHtml(tx.status)})
           </div>
         `;
         container.appendChild(div);
@@ -980,9 +985,9 @@
 
         const settleData = await settleRes.json();
         if (settleRes.ok) {
-          updateGateDisplay({ decision: 'ALLOW', reasonCodes: ['AUTHORIZED_AND_VERIFIED'] });
+          updateGateDisplay({ decision: 'ALLOW', reasonCodes: ['SIMULATION_WITHIN_POLICY'] });
           showReceipt(settleData.xPaymentReceipt);
-          alert(`x402 Settlement Success!\nResource Granted:\n${JSON.stringify(settleData.resourceData, null, 2)}`);
+          alert(`Simulated payment!\nResource Granted:\n${JSON.stringify(settleData.resourceData, null, 2)}`);
           await refreshWallet();
         } else {
           updateGateDisplay(settleData.preflight);
@@ -1024,9 +1029,7 @@
       const box = document.getElementById('receipt-box');
       box.style.display = 'flex';
       document.getElementById('receipt-txhash').innerText = `Tx Hash: ${receipt.txHash}`;
-      const a = document.getElementById('receipt-link').querySelector('a');
-      a.href = receipt.explorerUrl || '#';
-      a.innerText = `View on Arc Explorer (${receipt.status}) \u2192`;
+      document.getElementById('receipt-link').innerText = 'Simulated receipt; no network transaction';
     }
 
     function hideReceipt() {
@@ -1082,10 +1085,10 @@
         div.className = cardClass;
         div.innerHTML = `
           <div class="ev-top">
-            <span class="ev-actor">${ev.actorId} (${ev.channel})</span>
-            <span>#${idx + 1} &bull; ${ev.sourceTrust}</span>
+            <span class="ev-actor">${escapeHtml(ev.actorId)} (${escapeHtml(ev.channel)})</span>
+            <span>#${idx + 1} &bull; ${escapeHtml(ev.sourceTrust)}</span>
           </div>
-          <div class="ev-text">${ev.payload.claim || ev.payload.note || JSON.stringify(ev.payload)}</div>
+          <div class="ev-text">${escapeHtml(ev.payload.claim || ev.payload.note || JSON.stringify(ev.payload))}</div>
         `;
         container.appendChild(div);
       });
@@ -1117,7 +1120,7 @@
         analysis.manipulationIndicators.forEach(m => {
           const chip = document.createElement('div');
           chip.className = `cue-chip ${m.type === 'source_convergence' || m.type === 'payment_detail_change' ? 'crimson' : ''}`;
-          chip.innerHTML = `<strong>[${m.type.toUpperCase()}]</strong> ${m.explanation}`;
+          chip.innerHTML = `<strong>[${escapeHtml(m.type.toUpperCase())}]</strong> ${escapeHtml(m.explanation)}`;
           cuesBox.appendChild(chip);
         });
       }
@@ -1215,22 +1218,22 @@
       const status = document.getElementById('proof-status-text');
 
       if (isTampered) {
-        btn.innerText = 'Reset to Authentic Event Log';
+        btn.innerText = 'Reset demonstration';
         btn.className = 'btn btn-secondary';
-        badge.innerText = 'TAMPER DETECTED';
+        badge.innerText = 'DEMO ALTERED';
         badge.style.background = 'rgba(255,51,102,0.2)';
         badge.style.color = 'var(--crimson)';
         badge.style.borderColor = 'var(--crimson)';
-        status.innerText = 'Verification FAILED: Calculated root does not match committed root!';
+        status.innerText = 'Demonstration only: no independent verification was performed.';
         status.style.color = 'var(--crimson)';
       } else {
-        btn.innerText = 'Tamper with Event Log';
+        btn.innerText = 'Toggle demonstration';
         btn.className = 'btn btn-danger';
-        badge.innerText = 'PROOF VERIFIED';
+        badge.innerText = 'DEMO HASH ONLY';
         badge.style.background = 'rgba(0,245,212,0.15)';
         badge.style.color = 'var(--mint)';
         badge.style.borderColor = 'var(--mint)';
-        status.innerText = 'Valid Canonical Path (3 steps)';
+        status.innerText = 'No independent checkpoint has been verified.';
         status.style.color = 'var(--mint)';
       }
       refreshMerkle();
