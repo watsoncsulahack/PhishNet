@@ -48,6 +48,6 @@
 
 ## Required CI and reporting
 
-The new workflow .github/workflows/design-verification.yml runs node scripts/verify-design-docs.mjs for documentation structure. Build additional unit, API, database, mobile and signer test jobs as implementation progresses. A docs green check verifies only docs structure.
+The workflow .github/workflows/design-verification.yml runs node scripts/verify-design-docs.mjs for documentation structure and node scripts/smoke-api.mjs against a locally spawned actual Node HTTP server. These are baseline checks and do NOT verify signer isolation, durable spend, genuine AP2/x402, provenance accuracy or confirmed on-chain settlement. Build additional unit, API, database, mobile and signer test jobs as implementation progresses. A docs green check verifies only docs structure.
 
 Before each stage is declared complete, produce a requirements-to-tests matrix with command, actual output, pass/fail, code commit, and remaining blockers. No mainnet or uncontrolled third-party testing.

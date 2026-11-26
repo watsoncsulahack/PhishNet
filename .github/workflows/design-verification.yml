@@ -1,17 +1,21 @@
-name: Verify design documentation
+name: Verify design and API smoke tests
 on:
   push:
     paths:
       - 'docs/design-reset/**'
       - 'scripts/verify-design-docs.mjs'
+      - 'scripts/smoke-api.mjs'
       - '.github/workflows/design-verification.yml'
+      - 'apps/api/src/server.js'
   pull_request:
     paths:
       - 'docs/design-reset/**'
       - 'scripts/verify-design-docs.mjs'
+      - 'scripts/smoke-api.mjs'
       - '.github/workflows/design-verification.yml'
+      - 'apps/api/src/server.js'
 jobs:
-  design:
+  docs-and-smoke:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -20,4 +24,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node scripts/verify-design-docs.mjs
+      - name: Validate documentation structure
+        run: node scripts/verify-design-docs.mjs
+      - name: Smoke test the actual Node API
+        run: node scripts/smoke-api.mjs
