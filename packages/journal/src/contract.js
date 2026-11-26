@@ -13,9 +13,10 @@ const refs={type:'array',items:id,maxItems:32,uniqueItems:true};
 const content={contentRef:id,contentDigest:digest};
 const proposal={proposalId:id};
 const payloads={
- 'chat.user.submitted':object(content),
- 'agent.tool.requested':object({toolCallId:id,tool:{enum:['wallet.balance','chat.read','payment.propose','plan.report']}}),
+ 'chat.user.submitted':object({...content,selectedItemRefs:{type:'array',items:object({eventId:id,itemId:id}),minItems:1,maxItems:3,uniqueItems:true}},['contentRef','contentDigest']),
+ 'agent.tool.requested':object({toolCallId:id,tool:{enum:['wallet.balance','chat.read','payment.propose','plan.report','chat.respond']}}),
  'tool.result.observed':object({toolCallId:id,tool:text,resultRef:id}),
+ 'agent.message.reported':object({...content,chatId:id,replyId:id,format:{const:'phishnet.chat-reply.v1'}}),
  'agent.plan.reported':object({...content,sourceEventIds:refs}),
  'payment.proposed':object({...proposal,from:address,recipient:address,amountBaseUnits:uint,asset:{const:'native-USDC'},decimals:{const:18},chainId:{const:5042002},initiator:{enum:['human','agent']},purposeRef:id},['proposalId','from','recipient','amountBaseUnits','asset','decimals','chainId','initiator']),
  'payment.validated':object({...proposal,transactionDigest:digest,feeBaseUnits:uint},['proposalId','transactionDigest']),

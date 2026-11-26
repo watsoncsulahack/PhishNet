@@ -9,6 +9,7 @@ const rules={
  'chat.user.submitted':['ui-gateway','user-ui','LOCAL_OBSERVATION'],
  'agent.tool.requested':['agent-gateway','agent-runtime','AGENT_REPORTED'],
  'tool.result.observed':['agent-gateway','agent-runtime','LOCAL_OBSERVATION'],
+ 'agent.message.reported':['agent-gateway','agent-runtime','AGENT_REPORTED'],
  'agent.plan.reported':['agent-gateway','agent-runtime','AGENT_REPORTED'],
  'payment.proposed':['payment-gateway','payment-gateway','LOCAL_OBSERVATION'],
  'payment.validated':['payment-gateway','payment-gateway','LOCAL_OBSERVATION'],
@@ -64,7 +65,7 @@ export class Journal{
    const head=this.db.prepare('SELECT sequence,digest FROM events ORDER BY sequence DESC LIMIT 1').get();const sequence=(head?.sequence||0)+1;
    const now=new Date().toISOString(),parents=[...new Set(draft.links?.parentEventIds||[])];
    for(const parent of parents){const row=this.db.prepare('SELECT wallet,trace_id FROM events WHERE event_id=?').get(parent);if(!row||row.wallet!==draft.walletScope.address||row.trace_id!==draft.traceId)throw Error('Missing, cross-trace or cross-wallet parent reference.');}
-   const event={schemaVersion:VERSION,eventId:'evt-'+randomUUID(),traceId:draft.traceId,sequence,eventType:draft.eventType,observedAt:now,recordedAt:now,recordedBy:component,actor:structuredClone(draft.actor),origin:rule[1],walletScope:structuredClone(draft.walletScope),links:{...draft.links,parentEventIds:parents},relations:parents.map(eventId=>({eventId,kind:'OBSERVED_REFERENCE',evidenceIds:[eventId]})),privacy:draft.eventType.startsWith('audit.')?'public-commitment':draft.eventType==='agent.plan.reported'||draft.eventType==='chat.user.submitted'?'private-reference':'wallet-record',verification:{state:rule[2],method:component+'-v1',confidence:rule[2]==='AGENT_REPORTED'?'unknown':'not_applicable'},payload:structuredClone(draft.payload),integrity:{profile:PROFILE,previousDigest:head?.digest||'0'.repeat(64),eventDigest:'0'.repeat(64),authentication:'unsigned-local'}};
+   const event={schemaVersion:VERSION,eventId:'evt-'+randomUUID(),traceId:draft.traceId,sequence,eventType:draft.eventType,observedAt:now,recordedAt:now,recordedBy:component,actor:structuredClone(draft.actor),origin:rule[1],walletScope:structuredClone(draft.walletScope),links:{...draft.links,parentEventIds:parents},relations:parents.map(eventId=>({eventId,kind:'OBSERVED_REFERENCE',evidenceIds:[eventId]})),privacy:draft.eventType.startsWith('audit.')?'public-commitment':draft.eventType==='agent.message.reported'||draft.eventType==='agent.plan.reported'||draft.eventType==='chat.user.submitted'?'private-reference':'wallet-record',verification:{state:rule[2],method:component+'-v1',confidence:rule[2]==='AGENT_REPORTED'?'unknown':'not_applicable'},payload:structuredClone(draft.payload),integrity:{profile:PROFILE,previousDigest:head?.digest||'0'.repeat(64),eventDigest:'0'.repeat(64),authentication:'unsigned-local'}};
    if(draft.verification||draft.sequence||draft.recordedBy||draft.eventId||draft.integrity)throw Error('Recorder fields cannot be supplied by a caller.');
    if(draft.eventType==='chain.receipt.checked'&&['UNVERIFIED','BROADCAST','MISMATCH'].includes(draft.payload.status))event.verification={state:'UNKNOWN',method:component+'-v1',confidence:'unknown'};
    event.integrity.eventDigest=eventDigest(event);assertEvent(event);

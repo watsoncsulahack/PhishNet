@@ -27,6 +27,7 @@
         "chat.user.submitted",
         "agent.tool.requested",
         "tool.result.observed",
+        "agent.message.reported",
         "agent.plan.reported",
         "payment.proposed",
         "payment.validated",
@@ -318,6 +319,34 @@
               "contentDigest": {
                 "type": "string",
                 "pattern": "^[a-f0-9]{64}$"
+              },
+              "selectedItemRefs": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "eventId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160,
+                      "pattern": "^[A-Za-z0-9:._-]+$"
+                    },
+                    "itemId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160,
+                      "pattern": "^[A-Za-z0-9:._-]+$"
+                    }
+                  },
+                  "required": [
+                    "eventId",
+                    "itemId"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1,
+                "maxItems": 3,
+                "uniqueItems": true
               }
             },
             "required": [
@@ -356,7 +385,8 @@
                   "wallet.balance",
                   "chat.read",
                   "payment.propose",
-                  "plan.report"
+                  "plan.report",
+                  "chat.respond"
                 ]
               }
             },
@@ -406,6 +436,60 @@
               "toolCallId",
               "tool",
               "resultRef"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "agent.message.reported"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "contentRef": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "contentDigest": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "chatId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "replyId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "format": {
+                "const": "phishnet.chat-reply.v1"
+              }
+            },
+            "required": [
+              "contentRef",
+              "contentDigest",
+              "chatId",
+              "replyId",
+              "format"
             ],
             "additionalProperties": false
           }

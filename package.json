@@ -5,7 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node apps/api/src/server.js",
+    "dev": "node --env-file-if-exists=.env.local apps/api/src/server.js",
     "test": "node tests/run-all.js",
     "test:native": "powershell -ExecutionPolicy Bypass -File tests/run-tests.ps1",
     "serve": "powershell -ExecutionPolicy Bypass -File apps/api/serve.ps1",

@@ -88,3 +88,9 @@ The release browser run used the final navigation and graph source: **75 passed,
 | `node scripts/check-arc-network.mjs` | PASS live **read-only** | Block/chain/native fee estimate; no signing/broadcast |
 
 Machine-readable [results](../../evaluation/mvp-results.json) contain every browser outcome, all 25 MVP test names, exact denominators, final source SHA-256 hashes and deferred gates. CI is configured but no hosted CI run is claimed. Verified incremental commits: M0 `970e14b`, M1 `13fdb43`, M2 `3793083`, integrated M3–M5 software `f4d72b4`; this results entry is committed separately. Funded M6 and a real externally verified Arc anchor remain explicitly deferred, not passed.
+
+## Chat workspace extension — server contract
+
+Pulled owner README update `181881a` with a clean fast-forward. Added wallet-scoped multi-turn conversations, protected `agent.message.reported` events, typed `chat.respond`, immutable selected-item source references, recorded context and read-only capability status. Existing plan-reporting tokens can submit the structured content form; no signing or consent capability is added. The supplied local testing capability was checked against its active hashed journal record, and stored only in ignored owner-only `.env.local`. Its value is not in tracked sources or the browser bundle.
+
+Actual server verification: **6/6** new chat/provenance tests and **32/32** tests across the seven MVP suites passed, including the new actual HTTP reply/context/isolation case. Existing actual API smoke **15/15**, CounterSign HTTP **6/6** and testnet boundary **9/9** passed. The larger Chat interface is verified in the subsequent UI/results increment; funded payment and real anchor deferrals are unchanged.
