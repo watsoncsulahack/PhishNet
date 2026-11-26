@@ -11,7 +11,8 @@
     "serve": "powershell -ExecutionPolicy Bypass -File apps/api/serve.ps1",
     "test:unit": "node tests/investigations.test.js",
     "test:browser": "playwright test",
-    "test:chain": "node --experimental-strip-types tests/chain-safety.test.mjs"
+    "test:chain": "node --experimental-strip-types tests/chain-safety.test.mjs",
+    "test:payments": "node tests/payments.test.js"
   },
   "keywords": [
     "agentic-payments",
@@ -26,6 +27,10 @@
   "author": "PhishNet Team",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@playwright/test": "1.65.1"
+    "@playwright/test": "1.65.1",
+    "esbuild": "0.28.2"
+  },
+  "dependencies": {
+    "viem": "2.58.7"
   }
 }

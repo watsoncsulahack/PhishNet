@@ -108,3 +108,13 @@ These rows supersede “acceptance not established” only for the two synthetic
 | UR-15–16; SR-024–025, SR-030 | investigate.js / .css | Scoped browser checks pass | 320px/390px, touch/Enter/focus, full addresses, hostile source rendered as text |
 | UR-13, UR-21; SR-028, SR-042 | Local review form | Instrumentation only; human comparison NOT_RUN | VC-10 form/download test verifies incorrect responses and confidence; zero real reviewers |
 | SR-027, SR-029 | tests/browser, investigations.test.js, chain-safety.test.mjs, README, CI | Repeatable actual-code checks added | 18 browser + 4 fixture + 4 adapter + 15 API checks; no efficacy claim |
+
+## Direct human testnet-payment increment
+
+Scope: [testnet-payments.md](testnet-payments.md). The owner authorized direct wallet-initiated testnet transfers. Autonomous/agent server signing stays disabled. Requirements are assessed separately for this manual scope and the earlier agent-enforcement scope.
+
+| UR / SR | Module | Status | Executed evidence |
+|---|---|---|---|
+| UR-01, UR-12, UR-23; SR-006, SR-036 | packages/payments/src/transfer.js; apps/api/src/testnet.js | Exact native USDC terms and network receipt verification implemented; funded human wallet end-to-end still requires user approval | 7/7 payment unit tests; official live chain/decimals/read-only gas estimate passed |
+| UR-11, UR-20; SR-016, SR-031–035 | External wallet / direct transfer scope | Human explicitly authorizes each transfer through wallet; no keys or signing/broadcast API on server. Autonomous credentials/budget/tenant enforcement NOT_IMPLEMENTED | Wrong chain, insufficient balance/fees, unsupported contract and receipt mismatch tests; old agent execution gate remains simulation-only |
+| SR-044 | Testnet read-only API / security headers | New endpoints local/same-origin bounded; legacy API still not production hardened | Runtime/browser tests tracked in subsequent UI verification; no production certification |
