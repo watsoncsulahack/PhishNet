@@ -1,0 +1,334 @@
+{
+  "source": "Executed Chromium Playwright JSON reporter; mocked external wallet and payment RPC, actual application",
+  "limits": [
+    "No funded-wallet transfer executed by coding agent",
+    "No physical mobile device or non-Chromium wallet-extension certification",
+    "No human efficacy reviewers; VC-10 study remains open"
+  ],
+  "stats": {
+    "startTime": "2026-11-26T08:46:55.168Z",
+    "duration": 11700.984,
+    "expected": 48,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "tests": [
+    {
+      "title": "VC-01/06/07 transaction is legible, exact and explicitly simulated",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 694
+    },
+    {
+      "title": "VC-01/06/07 transaction is legible, exact and explicitly simulated",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 598
+    },
+    {
+      "title": "VC-01/06/07 transaction is legible, exact and explicitly simulated",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 673
+    },
+    {
+      "title": "VC-02/03/04/08 shared selection and source detail with typed relationships",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 605
+    },
+    {
+      "title": "VC-02/03/04/08 shared selection and source detail with typed relationships",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 526
+    },
+    {
+      "title": "VC-02/03/04/08 shared selection and source detail with typed relationships",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 680
+    },
+    {
+      "title": "VC-05 signed benign counterexample differs without live execution",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 499
+    },
+    {
+      "title": "VC-05 signed benign counterexample differs without live execution",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 506
+    },
+    {
+      "title": "VC-05 signed benign counterexample differs without live execution",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 579
+    },
+    {
+      "title": "VC-09 keyboard/touch, reduced motion and inert untrusted text",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 542
+    },
+    {
+      "title": "VC-09 keyboard/touch, reduced motion and inert untrusted text",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 714
+    },
+    {
+      "title": "VC-09 keyboard/touch, reduced motion and inert untrusted text",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 555
+    },
+    {
+      "title": "VC-10 recording infrastructure measures input, not fabricated study outcomes",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 644
+    },
+    {
+      "title": "VC-10 recording infrastructure measures input, not fabricated study outcomes",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 653
+    },
+    {
+      "title": "VC-10 recording infrastructure measures input, not fabricated study outcomes",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 440
+    },
+    {
+      "title": "failed case loading is visible and does not present stale authorization",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 399
+    },
+    {
+      "title": "failed case loading is visible and does not present stale authorization",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 414
+    },
+    {
+      "title": "failed case loading is visible and does not present stale authorization",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 260
+    },
+    {
+      "title": "cohesive payment workspace and responsive tab navigation",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 892
+    },
+    {
+      "title": "cohesive payment workspace and responsive tab navigation",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 880
+    },
+    {
+      "title": "cohesive payment workspace and responsive tab navigation",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 1463
+    },
+    {
+      "title": "wallet-approved send has exact native amount, one broadcast, verified activity and provenance",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 944
+    },
+    {
+      "title": "wallet-approved send has exact native amount, one broadcast, verified activity and provenance",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 1054
+    },
+    {
+      "title": "wallet-approved send has exact native amount, one broadcast, verified activity and provenance",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 1084
+    },
+    {
+      "title": "wallet rejection creates no submitted payment and leaves review editable",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 740
+    },
+    {
+      "title": "wallet rejection creates no submitted payment and leaves review editable",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 683
+    },
+    {
+      "title": "wallet rejection creates no submitted payment and leaves review editable",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 663
+    },
+    {
+      "title": "network, account and review expiry changes prevent signing",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 727
+    },
+    {
+      "title": "network, account and review expiry changes prevent signing",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 742
+    },
+    {
+      "title": "network, account and review expiry changes prevent signing",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 573
+    },
+    {
+      "title": "account change invalidates an open review",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 471
+    },
+    {
+      "title": "account change invalidates an open review",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 470
+    },
+    {
+      "title": "account change invalidates an open review",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 285
+    },
+    {
+      "title": "wrong amount and insufficient funds never reach wallet signing",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 539
+    },
+    {
+      "title": "wrong amount and insufficient funds never reach wallet signing",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 607
+    },
+    {
+      "title": "wrong amount and insufficient funds never reach wallet signing",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 356
+    },
+    {
+      "title": "repeated approval cannot create duplicate submissions",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 708
+    },
+    {
+      "title": "repeated approval cannot create duplicate submissions",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 725
+    },
+    {
+      "title": "repeated approval cannot create duplicate submissions",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 507
+    },
+    {
+      "title": "receipt mismatch never shows confirmed",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 676
+    },
+    {
+      "title": "receipt mismatch never shows confirmed",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 712
+    },
+    {
+      "title": "receipt mismatch never shows confirmed",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 499
+    },
+    {
+      "title": "stored confirmation is not trusted after reload and RPC failure",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 291
+    },
+    {
+      "title": "stored confirmation is not trusted after reload and RPC failure",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 352
+    },
+    {
+      "title": "stored confirmation is not trusted after reload and RPC failure",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 132
+    },
+    {
+      "title": "unknown Arc network is added with 18 native decimals and then switched",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 446
+    },
+    {
+      "title": "unknown Arc network is added with 18 native decimals and then switched",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 295
+    },
+    {
+      "title": "unknown Arc network is added with 18 native decimals and then switched",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 177
+    }
+  ],
+  "sha256": {
+    "apps/web/index.html": "31f3b100b117032c3291c7e4b76960306cc7168b7fef11110634b60465a5ac7d",
+    "apps/web/app.js": "0ea665d40f9385e8bc84b461803358d85430703134944221587470ed35eaaaa9",
+    "apps/web/app.css": "9bc426f406d44fa8c2da342961b51a6406431eb428897ac03a47c441016fe581",
+    "apps/web/investigate.js": "b505d0130923b9b625141df245c9fabca3c0f2a05f09bac4e1d3ea282fc62359",
+    "apps/web/investigate.css": "36fc6843bb64954c6d7a71908a420096d31dfd2a1f202a187b9412e5b6b57f42",
+    "apps/api/src/server.js": "afe3e94d43a3f86043cbbd42d309861c956c42b1485d3d84834ebd8a17c1d0c7",
+    "apps/api/src/testnet.js": "f48412f74b7e65d4593dc39d592d8b795b9b00c1becd4307402ed541e2287349",
+    "packages/payments/src/transfer.js": "8e4263285842d3d9ac59696238d00770c4a0cfa1dbfa038a1dc51cc45ef76ad4",
+    "packages/core/src/investigations.js": "bc3a5b04c59e65ef39b9c2e86c4708067c643ee3d2530958cb0b4ecf7f159ec9",
+    "tests/browser/payments.spec.js": "ad1646d617f5cbddf28176c72060ff9f63ef08a4abacfc7a0aea5ef0bd64051b",
+    "tests/browser/investigation.spec.js": "efc81fda6923113cc38f34adfdfdfcbca6ac86c8c3566781d05d886f5d36f015",
+    "tests/payments.test.js": "c421ede4619ea09c2cc558fdc1203f2671e8cb3a288d30dc7a2d31cfdb4facaa",
+    "scripts/test-testnet-api.mjs": "5a061bc255cd4f7dbf474c93614ebc6fd21d60e7a801498dfa6533122a56ad9b",
+    "scripts/build-web.mjs": "e71be34463e0887ed5d2784cf29e66738029e1df5974639e57bc62175f9612cb",
+    "package-lock.json": "d132a67031cde8659ae84a96459dd589ee6ecb848221078453615f5f865677db",
+    "playwright.config.js": "19010d4d42650af3ca00ff5c90c339d8806ddad77467e9e0fa42e41d67b675f1"
+  },
+  "supplementary": {
+    "actualHttpBoundaryChecksPassed": 9,
+    "productionPaymentUnitTestsPassed": 7,
+    "legacyApiSmokePassed": 15,
+    "investigationFixtureTestsPassed": 4,
+    "disabledAdapterChecksPassed": 4,
+    "liveNetworkReadOnly": "PASS chain 5042002, block 74180041, ERC-20 decimals 6, native gas estimate",
+    "fundedWalletTransfer": "NOT_RUN; user wallet/faucet approval required",
+    "humanReviewers": 0
+  }
+}

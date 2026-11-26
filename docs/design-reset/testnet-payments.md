@@ -49,3 +49,19 @@ The public RPC is a network trust dependency, independent of the injected wallet
 `npm test`: **15/15 passed** after introducing read-only testnet endpoints. Legacy policy/approval simulations retain their existing isolation. Full payment browser results are recorded after the UI increment; mocked wallet submissions are never reported as live on-chain transactions.
 
 No funded wallet is available to this coding session. A real transfer still requires the user's connected wallet, faucet balance and explicit wallet approval. No real transaction hash or live settled transfer is claimed by this log.
+
+## Cohesive application and browser verification
+
+The default route is now a payment workspace with consistent desktop navigation and mobile bottom navigation: **Payments**, **Activity**, **Visualizations**. The payment view shows the connected wallet's network balance and a send/review flow. Activity contains real submitted hashes, full addresses, explicit receipt status, explorer links and a recorded payment-trail inspector. Visualizations keeps synthetic claim investigations visibly labeled and separate from actual payment trail records. Both use progressive source disclosure; no synthetic claim or fixture approval is transferable into a wallet payment.
+
+The first full browser run passed 43/48. Two mobile failures were test locators expecting text hidden by the responsive layout; three failures exposed a missing DOM identifier on the live-trail inspector. After correction, **48/48 passed in 11.5s**: 10 payment tests and 6 investigation tests at each of 320×740 touch, 390×844 touch and 1440×1000 desktop. Wallet/RPC responses are controlled test doubles; this validates app state and exact wallet requests, not a live funded transfer.
+
+New **9/9 actual HTTP boundary checks passed** with `npm run test:testnet-api`: invalid balance address, malformed amount, forbidden chain/calldata fields, fake receipt hash, foreign Origin, unexpected Host, non-JSON input, absent signing endpoint and security headers. The Host test uses raw HTTP because Node fetch did not preserve its custom Host header; that test-harness issue was corrected. No financial authority is inferred from these checks.
+
+Visual QA was performed on generated desktop and phone payment screenshots. The screenshots and browser JSON are generated under `test-results/`; final executed counts, source hashes and remaining gaps are recorded in `evaluation/payment-app-browser-results.json` and the final verification entry below.
+
+## Final verification for the application increment
+
+After wallet-feedback, live-trail refresh and sender-display changes, `npm run test:browser` again passed **48/48 in 11.7 seconds**, zero failures/skips. `npm run test:testnet-api` again passed **9/9**. `npm run build` passed, and the generated bundle's linked license file includes full notices for viem 2.58.7 and the bundled @noble/hashes 1.8.0 (MIT, installed LICENSE inspected); the license file is served locally. `npm run test:unit` passed 4/4, `npm run test:chain` passed four adapter checks, and documentation verification passed. CI installs dependencies before API checks and is configured for all these suites; no hosted CI run is claimed.
+
+The [committed execution summary](../../evaluation/payment-app-browser-results.json) includes test-by-test outcomes and source hashes. Implementation commits: `01451bc` for the transfer/RPC modules, followed by the commit introducing `apps/web/app.js` for the cohesive app and endpoint integration. Resolve the latter using `git log -- apps/web/app.js`.

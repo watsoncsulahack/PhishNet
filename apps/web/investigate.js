@@ -44,3 +44,5 @@ $('task-form').onsubmit=e=>{e.preventDefault();if(started===null||!$('answer').v
 $('download-study').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(observations,null,2)],{type:'application/json'}));const a=el('a',null,{href:url,download:'phishnet-review-observations.json'});a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
 new ResizeObserver(drawEdges).observe($('graph'));
 try{const res=await fetch('/v1/investigations');if(!res.ok)throw Error('Unable to load cases');cases=await res.json();$('case').replaceChildren(...cases.map(c=>el('option',c.title,{value:c.id})));$('case').disabled=false;render();}catch(e){$('error').textContent='Cases could not be loaded. Reload to retry. '+e.message;}
+
+document.addEventListener('phishnet:select-event',event=>{if(current?.events.some(e=>e.eventId===event.detail))selectEvent(event.detail,true);});

@@ -4,7 +4,7 @@ on:
     paths:
       - 'docs/design-reset/**'
       - 'scripts/verify-design-docs.mjs'
-      - 'scripts/smoke-api.mjs'
+      - 'scripts/**'
       - '.github/workflows/design-verification.yml'
       - 'apps/**'
       - 'packages/**'
@@ -15,7 +15,7 @@ on:
     paths:
       - 'docs/design-reset/**'
       - 'scripts/verify-design-docs.mjs'
-      - 'scripts/smoke-api.mjs'
+      - 'scripts/**'
       - '.github/workflows/design-verification.yml'
       - 'apps/**'
       - 'packages/**'
@@ -32,13 +32,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: npm ci
       - name: Validate documentation structure
         run: node scripts/verify-design-docs.mjs
       - name: Smoke test the actual Node API
         run: node scripts/smoke-api.mjs
-      - run: npm ci
       - run: npm run test:unit
       - run: npm run test:chain
+      - run: npm run test:payments
+      - run: npm run test:testnet-api
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
       - uses: actions/upload-artifact@v4

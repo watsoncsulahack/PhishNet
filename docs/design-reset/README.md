@@ -31,3 +31,7 @@ Read all documents, make a requirement-to-code/test traceability matrix, run and
 ## Visualization recommendation
 
 Start with **a readable mobile payment comparison + source-linked timeline**, then a desktop React Flow graph. Treat dashboard KPI walls as optional research/operations views. Maintain **one canonical case/evidence source of truth** across screen sizes. Licenses matter: only import source code after pinning and checking the applicable license; particularly **do not copy Blockscout's custom-licensed frontend as if it were permissive**. See [visualization-projects.md](visualization-projects.md).
+
+## Current direct-wallet app
+
+The default UI now includes Payments, Activity and Visualizations. The owner authorized direct, human-approved testnet wallet transactions; see [the scope, controls and verification](testnet-payments.md). Legacy agent simulations remain simulated, and server-side signing remains disabled. Historical stage recommendations above should be read alongside that explicit scope update.

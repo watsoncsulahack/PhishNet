@@ -68,3 +68,7 @@ The ten requirements in [visualization-design-strategy.md](visualization-design-
 ## Executed investigation UI increment
 
 The first two canonical cases now have executable checks in `tests/browser/investigation.spec.js` and `tests/investigations.test.js`. Run `npm ci`, `npx playwright install chromium`, `npm run test:unit`, `npm run test:chain`, `npm test`, and `npm run test:browser`. See [actual results and VC matrix](investigation-results.md). VC-01–09 pass the scoped synthetic browser flows; VC-10 measurement infrastructure is tested but human observations remain NOT_RUN. These results supersede the earlier “future tests” statement only for this narrow slice.
+
+## Direct-wallet payment application
+
+Run `npm run test:payments` for strict native-unit/address and actual public-reader logic; `npm run test:testnet-api` for actual HTTP boundary checks; `npm run test:browser` for mock-wallet payment flows plus investigation regressions. `node scripts/check-arc-network.mjs` performs optional live read-only chain/decimals/gas-estimate checks. Browser mocks are not live settlement evidence. See [the scoped controls and actual results](testnet-payments.md). A funded user-wallet send remains NOT_RUN in this coding session, and VC-10 human efficacy testing remains open.

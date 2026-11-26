@@ -2,6 +2,7 @@
 
 import { evaluateDeterministicPolicy as evaluateSimulationPolicy } from '../../../packages/core/src/simulation-policy.js';
 import { investigations } from '../../../packages/core/src/investigations.js';
+import { testnet } from './testnet.js';
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
@@ -330,7 +331,32 @@ function sendJson(res, statusCode, data) {
 // ==========================================
 // HTTP Server Implementation
 // ==========================================
+let testnetWindow = {start:Date.now(), count:0};
 const server = http.createServer(async (req, res) => {
+  res.setHeader('X-Content-Type-Options','nosniff');
+  res.setHeader('Referrer-Policy','no-referrer');
+  res.setHeader('X-Frame-Options','DENY');
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
+  // Wallet signing stays in the user's wallet. These routes only read Arc public data.
+  if (req.url?.startsWith('/v1/testnet/')) {
+    const origin = `http://${req.headers.host}`;
+    const localHost = /^(localhost|127\.0\.0\.1|\[::1\])(:[0-9]+)?$/.test(req.headers.host || '');
+    const reply = (status, body) => {res.writeHead(status, {'Content-Type':'application/json', 'Cache-Control':'no-store'});res.end(JSON.stringify(body));};
+    if(!localHost || (req.headers.origin && req.headers.origin !== origin)) return reply(403,{error:'Use this API from the local PhishNet app.'});
+    if(Date.now()-testnetWindow.start>60000)testnetWindow={start:Date.now(),count:0};
+    if(++testnetWindow.count>180)return reply(429,{error:'Too many requests. Wait one minute and retry.'});
+    try {
+      const endpoint = new URL(req.url,origin);
+      if(req.method==='GET' && endpoint.pathname==='/v1/testnet/network')return reply(200,await testnet.network());
+      if(req.method==='GET' && endpoint.pathname==='/v1/testnet/balance')return reply(200,await testnet.balance(endpoint.searchParams.get('address')));
+      if(req.method==='POST' && ['/v1/testnet/quote','/v1/testnet/receipt'].includes(endpoint.pathname)) {
+        if(!req.headers['content-type']?.startsWith('application/json'))return reply(415,{error:'JSON body required.'});
+        const body=await parseJsonBody(req);
+        return reply(200,await (endpoint.pathname.endsWith('/quote')?testnet.quote(body):testnet.receipt(body)));
+      }
+      return reply(404,{error:'Testnet route not found.'});
+    } catch(error) {return reply(400,{error:error.message || 'Testnet request failed.'});}
+  }
   // Handle CORS Preflight
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
@@ -354,6 +380,7 @@ const server = http.createServer(async (req, res) => {
         status: 'healthy',
         platform: 'PhishNet Mobile Agentic Payments & Behavior Inspector',
         environment: 'SIMULATION',
+        capabilities: {legacyPaymentApis:'SIMULATION', directPayments:'External human-approved Arc Testnet wallet', testnetApi:'Read-only network checks; no server signing'},
         runtime: 'Node.js',
         network: 'Simulated Arc configuration (no network connection)',
         chainId: '5042002',
@@ -651,7 +678,7 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
-    const assets = {'/investigate.js': ['investigate.js', 'text/javascript'], '/investigate.css': ['investigate.css', 'text/css']};
+    const assets = {'/app.js':['build/app.js','text/javascript'], '/app.css':['app.css','text/css'], '/app.js.LEGAL.txt':['build/app.js.LEGAL.txt','text/plain'], '/investigate.js': ['investigate.js', 'text/javascript'], '/investigate.css': ['investigate.css', 'text/css']};
     if (req.method === 'GET' && assets[pathname]) {
       const [file, type] = assets[pathname];
       res.writeHead(200, {'Content-Type': type + '; charset=utf-8'});
@@ -670,7 +697,8 @@ server.listen(PORT, HOST, () => {
   console.log(` PhishNet Mobile App & API Server Running`);
   console.log(` Local URL:   http://127.0.0.1:${PORT}`);
   console.log(` Network URL: http://${HOST}:${PORT}`);
-  console.log(` Environment: SIMULATION (no settlement)`);
+  console.log(` Payments:    Human-approved Arc Testnet wallet`);
+  console.log(` Legacy APIs: SIMULATION (no server signing)`);
   console.log(` Protocols:   AP2/x402-inspired examples`);
   console.log(` Analysis:    local advisory heuristics`);
   console.log(`=======================================================`);

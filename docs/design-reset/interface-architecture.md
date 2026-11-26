@@ -1,5 +1,7 @@
 # Investigation interface decision — 2026-11-26
 
+Historical investigation increment. The subsequent owner-requested direct human testnet payment path is described in [testnet-payments.md](testnet-payments.md); blanket simulation-only statements below now apply to the agent/legacy execution scope. The canonical investigator is retained under Visualizations.
+
 Read the complete design-reset directory, including source notes, catalog, strategy, research, requirements, diagrams, schema checklist, testing, prior results and traceability. The uploaded readings are used through their original summaries; no restricted PDFs/slides or extracts were copied.
 
 ## Implemented slice

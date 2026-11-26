@@ -52,3 +52,7 @@ Create and maintain a requirements traceability matrix. For each stage, include 
 ## 2026-11-26 investigation increment
 
 The user's transaction/timeline/provenance priority is implemented as a read-only vertical slice alongside the existing simulation API. See [architecture and component selection](interface-architecture.md) and [actual results](investigation-results.md). This is an intentional scoped advance into Stage 2, not a claim that Stage 1 persistence or Stage 4 production authorization passed. Native controls and an original fixed graph avoid introducing React for six events; the canonical model permits a later React Flow renderer. Stage 2 remains partial: signed synthetic counterexample passes, real trusted identity/signing and human study VC-10 are open.
+
+## Direct wallet application update
+
+The owner subsequently requested actual testnet initiation. [testnet-payments.md](testnet-payments.md) defines the added manual wallet path and its tested controls. A human reviews and signs each native USDC transfer in an external browser wallet; the backend only reads public chain data and checks receipts. This changes the application default to Payments, Activity and Visualizations. It does **not** complete autonomous signing, institutional authorization, durable mandate accounting or the broader Stage 4/5 gates. The legacy Arc adapter stays disabled, and synthetic agent scenarios stay simulated. Real funded-wallet end-to-end verification requires the user's approval.

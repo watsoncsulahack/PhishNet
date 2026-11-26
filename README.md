@@ -1,40 +1,53 @@
 # PhishNet
 
-A local, mobile-first investigation demo for claims behind agent payment proposals. **All financial actions are simulated.** No network transfer, live signing, protocol conformance or fraud-detection efficacy is established.
+**Payments with perspective.** Send test USDC through your wallet, follow network receipts, and explore the evidence behind agent payment instructions.
 
-## Run
+## Run the app
 
-Requires Node.js 22+.
+Requires Node.js 22+ and a browser wallet supporting custom EVM networks (for example MetaMask).
 
 ```bash
 npm ci
 npm run dev
 ```
 
-Open http://127.0.0.1:3000. Review vendor recipient substitution, then switch to the independently authorized update counterexample. Select timeline events, graph nodes or relationship labels to inspect the same canonical evidence. Addresses are fully displayed and copyable.
+Open **http://127.0.0.1:3000**. `npm run dev` builds the wallet bundle before starting the local server. No API key, seed phrase or private-key environment variable is needed.
 
-The case API (`GET /v1/investigations`) is read-only. Its two synthetic replays use a fixed clock (2026-11-26 09:10 UTC). The legitimate update verifies Ed25519 fixture signatures for a separate reviewer, a new mandate and the exact proposal. Ephemeral fixture keys are generated within the process; this demonstrates signature checking, **not real identity enrollment or independent human authorization**. No private keys reach the browser.
+1. **Connect wallet.** Approve the connection and switch to Arc Testnet. If needed, the app offers to add the official network.
+2. **Get test funds.** Use the in-app link to the [Circle faucet](https://faucet.circle.com), select Arc Testnet, and fund your connected address. USDC pays both the transfer and network fee.
+3. **Send a payment.** Enter a complete recipient wallet address and amount (up to 100 test USDC per payment). Review the full addresses, exact amount, network and estimated fee, then approve the transaction in your wallet.
+4. **Follow Activity.** A wallet submission is BROADCAST; CONFIRMED appears only after the public RPC receipt and transaction match the reviewed payment. Check the explorer or inspect the recorded payment trail.
+5. **Open Visualizations.** Explore the vendor-substitution and independently signed-update synthetic cases through the same linked timeline, graph and source inspector. These examples do not initiate payments.
+
+The connected-wallet path signs only in the external wallet. It uses **native USDC at 18 decimals** on chain **5042002**, with empty calldata. Amount input supports six decimal places. Contract/smart-wallet recipients are not supported in this release. Recipient identity is not independently verified by a format/code check. No mainnet, autonomous agent signing, or server-held keys are enabled.
+
+On mobile, use a compatible wallet browser with access to the running app. The default server is local to this computer; a separate phone cannot reach this computer via its own `localhost`. This build's testnet read API accepts localhost hosts only. Remote/mobile hosting and secure public-origin configuration require a separate deployment step.
 
 ## Verify
 
 ```bash
-npm test                       # 15 actual-server API smoke checks
-npm run test:unit              # investigation/signature fixtures
+npm run build
+npm test                  # existing simulation API regression checks
+npm run test:unit         # synthetic investigation/signature fixtures
+npm run test:payments     # actual transfer validation and RPC reader with controlled inputs
+npm run test:testnet-api  # actual read-only HTTP boundary tests
+npm run test:chain        # legacy server signer stays disabled
 npx playwright install chromium
-npm run test:browser           # Chromium, 320px / 390px / desktop
+npm run test:browser      # 320px, 390px and desktop; mocked wallet/RPC
 node scripts/verify-design-docs.mjs
+node scripts/check-arc-network.mjs # optional LIVE read-only chain/decimals/gas estimate
 ```
 
-Browser results are generated in `test-results/browser-results.json`. See [the investigation results](docs/design-reset/investigation-results.md) for recorded commands, outcomes and VC-01–VC-10 status. A local reviewer form measures decisions, source attribution, elapsed time, confidence and input errors; results stay in memory until downloaded. Automated form tests are not human study observations.
+Browser output is generated in `test-results/browser-results.json`, with screenshots and failure traces. The live network script never signs or broadcasts. Automated wallet submissions are mocked and are not proof of a real on-chain transfer. A funded wallet and the user's explicit approval are required to execute a real testnet transfer.
 
-## Architecture and limits
+[Payment scope and actual results](docs/design-reset/testnet-payments.md) · [Requirements traceability](docs/design-reset/traceability.md) · [Design reset](docs/design-reset/README.md)
 
-One canonical case model drives payment comparison, chronology, provenance and source detail. A shared deterministic simulation policy serves both API and fixture replay. Source authenticity, assertion truth, observed links, inferred influence, verified authorization and settlement remain distinct.
+## Data and remaining scope
 
-The initial slice uses native accessible controls and an original small fixed graph. [Component selection](docs/design-reset/interface-architecture.md) documents the catalog review, license checks and why React dependencies are deferred.
+Payment history and optional notes stay in this browser. Saved confirmation labels are not trusted after reload: every saved hash is rechecked. This is a local journal, not an account-wide index or tamper-proof audit log. Clearing browser data removes it; the network/wallet record remains.
 
-The legacy AP2/x402-inspired API simulates balances in memory; it does not enforce external payments. Persistence, full input/ownership validation, production credentials, revocation, transaction-bound passkeys, isolated signing, atomic durable budgets, protocol compliance, independent audit checkpoints and verified testnet settlement remain open. The PowerShell server/test harness and TypeScript legacy modules are not the supported investigation runtime; their previous headline metrics are not valid evidence. There are no measured human efficacy or market results.
+Legacy `/v1/ap2/*`, `/v1/x402/*` and generic policy endpoints remain **in-memory, protocol-inspired simulations**. Their six-decimal fixture amounts never feed the native 18-decimal wallet path. Synthetic mandate keys demonstrate signature checking, not production identity or independent human enrollment. Autonomous authorizations, durable policy budgets/replay accounting, tenant isolation, verified AP2/x402, private audit checkpoints and human efficacy studies remain open. Legacy PowerShell code is not the supported payment-app runtime.
 
-[Design reset](docs/design-reset/README.md) · [Requirements traceability](docs/design-reset/traceability.md)
+Runtime dependencies: viem 2.58.7 (MIT). Local build: esbuild 0.28.2 (MIT). Dependency licenses are retained; no remote JavaScript CDN is used.
 
 Apache-2.0.

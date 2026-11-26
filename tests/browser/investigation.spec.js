@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-test.beforeEach(async({page})=>{await page.goto('/');await expect(page.locator('#decision')).toHaveText('DENIED');});
+test.beforeEach(async({page})=>{await page.goto('/#explore');await expect(page.locator('#decision')).toHaveText('DENIED');});
 test('VC-01/06/07 transaction is legible, exact and explicitly simulated',async({page,context})=>{
   await expect(page.locator('.amount')).toHaveText('250.00 USDC');await expect(page.locator('#change')).toContainText('Recipient changed');
   await expect(page.locator('#decision')).toBeInViewport();await expect(page.locator('.amount')).toBeInViewport();await expect(page.locator('#change')).toBeInViewport();
