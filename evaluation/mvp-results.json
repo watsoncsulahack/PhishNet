@@ -1,0 +1,855 @@
+{
+  "format": "phishnet.mvp-evaluation.v1",
+  "generatedAt": "2026-11-26T20:25:26.477202+00:00",
+  "authoritativeScope": "docs/design-reset/mvp-scope.md",
+  "synchronizedMain": "ae7b9f6",
+  "verifiedImplementationCommit": "f4d72b4548f7ee7c82dc129c572124861da76dab",
+  "runtime": {
+    "node": "22.23.0",
+    "playwright": "1.65.1",
+    "sqlite": "3.51.3 (node:sqlite experimental)"
+  },
+  "milestones": {
+    "M0": "Implemented; 4/4 contract tests",
+    "M1": "Implemented; 5/5 core tests plus actual gateway/HTTP integration",
+    "M2": "Implemented; 7/7 gateway and 1/1 actual HTTP workflow tests, real CounterSign signatures with controlled keys",
+    "M3": "Implemented; responsive PWA/browser evidence; physical-device install NOT_RUN",
+    "M4": "Implemented; 3/3 projection tests and linked real-journal browser flows",
+    "M5": "Software implemented and tested; REAL ARC ANCHOR NOT_RUN / OWNER_DEFERRED",
+    "M6": "Automated workflow tested; FUNDED RUN NOT_RUN / OWNER_DEFERRED"
+  },
+  "mvp": {
+    "command": "npm run test:mvp",
+    "status": "PASS",
+    "suites": 6,
+    "passed": 25,
+    "failed": 0,
+    "suiteResults": [
+      {
+        "name": "EventTraceV1",
+        "passed": 4,
+        "failed": 0
+      },
+      {
+        "name": "durable journal",
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "name": "gateway and durable authorization",
+        "passed": 7,
+        "failed": 0
+      },
+      {
+        "name": "real graph projection",
+        "passed": 3,
+        "failed": 0
+      },
+      {
+        "name": "checkpoint and independent verifier",
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "name": "actual HTTP workflow",
+        "passed": 1,
+        "failed": 0
+      }
+    ],
+    "caseNames": [
+      "shared contract accepts native proposal and rejects authority injection / wrong units / unknown fields",
+      "event-specific schemas reject a receipt disguised as an agent plan",
+      "canonical profile is deterministic and refuses unsafe numbers",
+      "checked-in JSON Schema matches runtime contract",
+      "journal survives restart with stable event identity, sequence, source and key",
+      "private source is encrypted separately and inaccessible across wallet scope",
+      "invalid/cross-wallet parent, self-assigned approval and schema failure leave no records",
+      "SQL append-only protections and atomic rollback prevent partial observations",
+      "naive offline alteration is detected; no external-anchoring claim is made",
+      "manual real-record journal correlates proposal, consent, wallet and verifier across restart",
+      "rejection, foreign receipt, scope mismatch and changed terms never release a wallet request",
+      "agent can read allowed tools and propose unsigned terms, but cannot sign, approve or impersonate recorder",
+      "wallet challenge signature binds scoped session, is one-time, and cannot reveal foreign private content",
+      "browser imports remain untrusted chain observations, never invented agent decisions",
+      "consumed authorization cannot become a fresh intent or expire into a resend after restart",
+      "human rejection and silence expiry remain fail-closed in durable state across restart",
+      "four independent visibility states preserve originals and shared IDs without invented agent notes",
+      "scope, dates, trace and text filters never bridge omitted provenance or expose another wallet",
+      "only actual agent-reported events produce agent nodes; imports remain exact observations",
+      "signed scoped checkpoint and inclusion proofs survive restart; minimal data contains no chat or wallet identities",
+      "independent verifier rejects modified/omitted/reordered events, foreign keys and checkpoint rollback",
+      "actual independent CLI rejects unanchored export without contacting PhishNet",
+      "canonical finalized Arc anchor requires exact hash-only transaction; failure/retry and restart stay honest",
+      "all odd/even Merkle paths bind exact index and length; publisher may not be a payment account",
+      "actual HTTP: scoped agent proposal \u2192 real CounterSign \u2192 durable one-time wallet request, never agent signing"
+    ],
+    "outputSha256": "a14b25c254f0b5a4e122a5c4b32e36f6ff24526534e954bfc502ca9d51e039bd"
+  },
+  "browser": {
+    "command": "npm run test:browser",
+    "status": "PASS",
+    "passed": 75,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "durationMs": 76425.06000000001,
+    "startedAt": "2026-11-26T20:22:48.051Z",
+    "viewports": [
+      {
+        "name": "narrow-320",
+        "width": 320,
+        "height": 740,
+        "touch": true
+      },
+      {
+        "name": "phone-390",
+        "width": 390,
+        "height": 844,
+        "touch": true
+      },
+      {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1000,
+        "touch": false
+      }
+    ],
+    "scope": "Actual gateway, SQLite, wallet-ownership and CounterSign cryptography; controlled external EIP-1193 wallet and RPC reader. No funded transaction or live checkpoint publication.",
+    "cases": [
+      {
+        "file": "investigation.spec.js",
+        "name": "VC-01/06/07 transaction is legible, exact and explicitly simulated",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 3781
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "VC-01/06/07 transaction is legible, exact and explicitly simulated",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 3588
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "VC-01/06/07 transaction is legible, exact and explicitly simulated",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 2953
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "VC-02/03/04/08 shared selection and source detail with typed relationships",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 2716
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "VC-02/03/04/08 shared selection and source detail with typed relationships",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 2930
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "VC-02/03/04/08 shared selection and source detail with typed relationships",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 3426
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "VC-05 signed benign counterexample differs without live execution",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 2779
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "VC-05 signed benign counterexample differs without live execution",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 1871
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "VC-05 signed benign counterexample differs without live execution",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 2451
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "VC-09 keyboard/touch, reduced motion and inert untrusted text",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 2589
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "VC-09 keyboard/touch, reduced motion and inert untrusted text",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 2449
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "VC-09 keyboard/touch, reduced motion and inert untrusted text",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 2500
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "VC-10 recording infrastructure measures input, not fabricated study outcomes",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 2515
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "VC-10 recording infrastructure measures input, not fabricated study outcomes",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 2996
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "VC-10 recording infrastructure measures input, not fabricated study outcomes",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 2594
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "failed case loading is visible and does not present stale authorization",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 1879
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "failed case loading is visible and does not present stale authorization",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 1865
+      },
+      {
+        "file": "investigation.spec.js",
+        "name": "failed case loading is visible and does not present stale authorization",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 2164
+      },
+      {
+        "file": "notebook.spec.js",
+        "name": "typed notes, backlinks, search and chronological replay share one record model",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 4011
+      },
+      {
+        "file": "notebook.spec.js",
+        "name": "typed notes, backlinks, search and chronological replay share one record model",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 3139
+      },
+      {
+        "file": "notebook.spec.js",
+        "name": "typed notes, backlinks, search and chronological replay share one record model",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 3491
+      },
+      {
+        "file": "notebook.spec.js",
+        "name": "canvas node selection, map zoom and native keyboard index work together",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 2775
+      },
+      {
+        "file": "notebook.spec.js",
+        "name": "canvas node selection, map zoom and native keyboard index work together",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 2468
+      },
+      {
+        "file": "notebook.spec.js",
+        "name": "canvas node selection, map zoom and native keyboard index work together",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 2874
+      },
+      {
+        "file": "notebook.spec.js",
+        "name": "consent profile and device boundary are visible without pretending hardware is attested",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 3113
+      },
+      {
+        "file": "notebook.spec.js",
+        "name": "consent profile and device boundary are visible without pretending hardware is attested",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 2495
+      },
+      {
+        "file": "notebook.spec.js",
+        "name": "consent profile and device boundary are visible without pretending hardware is attested",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 2712
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "sketch-led wallet, equal Send/Receive, generic Chat and four-tab navigation",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 3772
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "sketch-led wallet, equal Send/Receive, generic Chat and four-tab navigation",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 3147
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "sketch-led wallet, equal Send/Receive, generic Chat and four-tab navigation",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 2730
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "manual external-wallet send records exact amount and real source provenance without agent events",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 5060
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "manual external-wallet send records exact amount and real source provenance without agent events",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 3978
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "manual external-wallet send records exact amount and real source provenance without agent events",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 4350
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "wallet rejection is durable and cannot retry a consumed authorization",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 3258
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "wallet rejection is durable and cannot retry a consumed authorization",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 2995
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "wallet rejection is durable and cannot retry a consumed authorization",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 3078
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "expired review and wrong network prevent signing",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 2778
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "expired review and wrong network prevent signing",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 3012
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "expired review and wrong network prevent signing",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 2769
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "account switch clears private graph, chat and activity and invalidates review",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 2541
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "account switch clears private graph, chat and activity and invalidates review",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 2347
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "account switch clears private graph, chat and activity and invalidates review",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 1711
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "invalid amount and insufficient funds prevent external wallet request",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 2755
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "invalid amount and insufficient funds prevent external wallet request",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 2449
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "invalid amount and insufficient funds prevent external wallet request",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 1547
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "double approval cannot duplicate wallet requests",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 2961
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "double approval cannot duplicate wallet requests",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 3175
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "double approval cannot duplicate wallet requests",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 2305
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "receipt mismatch stays unverified",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 2797
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "receipt mismatch stays unverified",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 2781
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "receipt mismatch stays unverified",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 2129
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "stored status is hidden until wallet proof and imported only as untrusted",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 3246
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "stored status is hidden until wallet proof and imported only as untrusted",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 2471
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "stored status is hidden until wallet proof and imported only as untrusted",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 2334
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "unknown Arc network is added with native USDC 18 decimals",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 1590
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "unknown Arc network is added with native USDC 18 decimals",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 1145
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "unknown Arc network is added with native USDC 18 decimals",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 1101
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "real CounterSign receipt gates canonical manual review",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 3302
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "real CounterSign receipt gates canonical manual review",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 2403
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "real CounterSign receipt gates canonical manual review",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 2564
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "foreign human signature cannot release wallet signing",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 3035
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "foreign human signature cannot release wallet signing",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 1768
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "foreign human signature cannot release wallet signing",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 2165
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "Receive shows full selected address and incomplete history disclosure",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 2192
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "Receive shows full selected address and incomplete history disclosure",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 1405
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "Receive shows full selected address and incomplete history disclosure",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 1334
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "offline agent queues generic Chat; actual tool proposal requires human review",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 5076
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "offline agent queues generic Chat; actual tool proposal requires human review",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 3650
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "offline agent queues generic Chat; actual tool proposal requires human review",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 3401
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "checkpoint export and failed Arc verification never display an independent anchor",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 2301
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "checkpoint export and failed Arc verification never display an independent anchor",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 2434
+      },
+      {
+        "file": "payments.spec.js",
+        "name": "checkpoint export and failed Arc verification never display an independent anchor",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 1575
+      },
+      {
+        "file": "pwa.spec.js",
+        "name": "manifest, icons and public-only offline shell work without a local model",
+        "project": "phone-390",
+        "status": "passed",
+        "durationMs": 4255
+      },
+      {
+        "file": "pwa.spec.js",
+        "name": "manifest, icons and public-only offline shell work without a local model",
+        "project": "narrow-320",
+        "status": "passed",
+        "durationMs": 2450
+      },
+      {
+        "file": "pwa.spec.js",
+        "name": "manifest, icons and public-only offline shell work without a local model",
+        "project": "desktop",
+        "status": "passed",
+        "durationMs": 2727
+      }
+    ]
+  },
+  "legacyRegressions": [
+    {
+      "command": "npm test",
+      "status": "PASS",
+      "passed": 15,
+      "failed": 0,
+      "stdoutSha256": "a64e0adb7911538334249b74cfeb13eceba56d4899609009c1ce26a0b3aaff4a",
+      "scope": "Controlled test data; no live financial transaction."
+    },
+    {
+      "command": "npm run test:unit",
+      "status": "PASS",
+      "passed": 4,
+      "failed": 0,
+      "stdoutSha256": "fa3f2cac5854f500b7cad2f05ec08e490da313160deb2e377355dfe7bc6a9036",
+      "scope": "Controlled test data; no live financial transaction."
+    },
+    {
+      "command": "npm run test:payments",
+      "status": "PASS",
+      "passed": 7,
+      "failed": 0,
+      "stdoutSha256": "19a0ff1c779c10f188545fbc51b0b103e1facdb8d55e3b15e84c2fbd5a844c62",
+      "scope": "Controlled test data; no live financial transaction."
+    },
+    {
+      "command": "npm run test:chain",
+      "status": "PASS",
+      "passed": 4,
+      "failed": 0,
+      "stdoutSha256": "bcc7ca453500e8565da8b5a3fb85a9ec5f49b9454e9350631c4997d8be7f6a3e",
+      "scope": "Controlled test data; no live financial transaction."
+    },
+    {
+      "command": "npm run test:notebook",
+      "status": "PASS",
+      "passed": 3,
+      "failed": 0,
+      "stdoutSha256": "91cef04d348e7d4c7b50fc32abd8789da73ef52c4a0ea114dd0e440eb9d5039b",
+      "scope": "Controlled test data; no live financial transaction."
+    },
+    {
+      "command": "npm run test:consent",
+      "status": "PASS",
+      "passed": 6,
+      "failed": 0,
+      "stdoutSha256": "7135d225d7bb0782f27947ac52287a156ad17d9f84eb4dea075863ab70ac18c1",
+      "scope": "Controlled test data; no live financial transaction."
+    },
+    {
+      "command": "npm run test:consent-api",
+      "status": "PASS",
+      "passed": 6,
+      "failed": 0,
+      "stdoutSha256": "a3d7410fd39b379bd5d5703b4e5ad9ab16ae7d45e73c404d321eddce4908b503",
+      "scope": "Controlled test data; no live financial transaction."
+    },
+    {
+      "command": "npm run test:testnet-api",
+      "status": "PASS",
+      "passed": 9,
+      "failed": 0,
+      "stdoutSha256": "0ea29e2080109e5d2ad1c76b7522dfbbf3aee9c400c2adabea89a257aa105d9b",
+      "scope": "Controlled test data; no live financial transaction."
+    }
+  ],
+  "documentation": {
+    "command": "node scripts/verify-design-docs.mjs",
+    "status": "PASS",
+    "checks": 38
+  },
+  "dependencyAudit": {
+    "command": "npm audit --omit=dev --json",
+    "reportedVulnerabilities": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "meaning": "Known advisory lookup only; not an independent security audit."
+  },
+  "liveReadOnly": {
+    "command": "node scripts/check-arc-network.mjs",
+    "status": "PASS",
+    "chainId": 5042002,
+    "observedBlock": "74261173",
+    "nativeDecimals": 18,
+    "estimatedGas": "0x6270",
+    "estimatedFeeBaseUnits": "1260000000000000",
+    "nativeValue": "0xe8d4a51000",
+    "signedOrBroadcast": false
+  },
+  "deferred": {
+    "ownerInstruction": "Implement and test; leave the funded check pending",
+    "fundedPayment": "NOT_RUN",
+    "realPaymentHash": null,
+    "realCheckpointPublication": "NOT_RUN",
+    "realCheckpointHash": null,
+    "independentCredentialCustody": "NOT_RUN",
+    "independentSecurityAudit": "NOT_RUN",
+    "physicalDeviceInstall": "NOT_RUN",
+    "humanEfficacyStudy": "NOT_RUN"
+  },
+  "priorFindings": [
+    {
+      "run": "72-case integration",
+      "passed": 70,
+      "failed": 2,
+      "finding": "Manual wallet rejection could reopen authorization. Fixed permanent authorization marker, terminal rejection and UI disabling; restart/expiry regression added."
+    },
+    {
+      "run": "75-case integration",
+      "passed": 73,
+      "failed": 2,
+      "finding": "Mobile graph long wallet-address overflow. Fixed wrapping and added overflow assertions."
+    },
+    {
+      "run": "first audit subprocess inside restricted sandbox",
+      "passed": 4,
+      "failed": 1,
+      "finding": "Standalone verifier subprocess could not run in sandbox. Same suite passed 5/5 with process permission."
+    }
+  ],
+  "limits": [
+    "Local unanchored records are unsigned observations. A compromised recorder can suppress observations or rewrite unanchored history.",
+    "CounterSign, wallet signing, receipt confirmation and audit anchoring are separate evidence.",
+    "Independent rollback checks require a newer head and identities pinned outside the recorder.",
+    "The verifier depends on the fixed public Arc RPC; it does not implement consensus verification.",
+    "Private sources/keys stay off-chain; their availability and separate device control are not proven.",
+    "After authorization but before receiving a hash, wallet outcome can be unknown; no automatic retry occurs."
+  ],
+  "sourceSha256": {
+    ".github/workflows/design-verification.yml": "ae00f56e673ea2d00b1607b59eede8c8b133eb2d89fd81cdaae66ddeb05a9bbb",
+    "apps/api/serve.ps1": "977a76508eb2ebbdd34b449def99fe1902443e4cf77cdbf2b220ea9266e17308",
+    "apps/api/src/audit.js": "032ae672e41e227e4a3c05b536f415f97da6bace0f2f42092add46f907f5e41b",
+    "apps/api/src/gateway-http.js": "efe3c5fcb6f1fce2b6b756756e403d63b60cfe70bf8ef49d6be63c3c293fea51",
+    "apps/api/src/gateway.js": "7b23ee8272c40e576c81f1a54344b4925f73ca2622e9fde5ae6b3a2a34100709",
+    "apps/api/src/server.js": "d8ff13e3fb1a9332c46ff0c808723cbac279522859d6bf658322766914f97988",
+    "apps/api/src/testnet.js": "f48412f74b7e65d4593dc39d592d8b795b9b00c1becd4307402ed541e2287349",
+    "apps/web/app.css": "9bc426f406d44fa8c2da342961b51a6406431eb428897ac03a47c441016fe581",
+    "apps/web/app.js": "01ddb93235201f329b1df04395f225345d72fdc9fda9f62937d33743ba311b9e",
+    "apps/web/audit-ui.js": "ff231fdf1c5dd26d97a0fdfb7ac734d98ed771c233f2f2babad606efd87f9224",
+    "apps/web/icon-192.png": "7e816ded26501344c5e1e3035c045a4d099a7c5d4f78f99a69d94c05af04ff53",
+    "apps/web/icon-512.png": "4ec1152019456d6f57a8544139e92740ca96c1300e69c222b16daa429c073830",
+    "apps/web/icon.svg": "c99368a8e5290903376769614ee21cb9e32358b29aa856dee9ef669d94f1f31c",
+    "apps/web/index.html": "0f66e65260f2804444e9bc6c1d0f6281b0bbff460bd238e3d37fd6dc48695f78",
+    "apps/web/investigate.css": "36fc6843bb64954c6d7a71908a420096d31dfd2a1f202a187b9412e5b6b57f42",
+    "apps/web/investigate.js": "44ffa8fb42af5e3c9adbb7b823a2cf7ad3aa2486af7713b0798eec2360282b55",
+    "apps/web/live-graph.js": "df3063375b31c100d0b10f0fbf6773d245dcc19e4031a9338e6913c2c657b186",
+    "apps/web/manifest.webmanifest": "439b47a91902762842f974d2139321be8d67bf1414c6909849a990eeab08bb4c",
+    "apps/web/mvp.css": "7956c4de018e9221dd3c1ff080465fc9e0bd5905de086a3f85ee91aae7f15a99",
+    "apps/web/notebook.css": "da8ee19412dc49154986a46e84a7e88a8229e74c919b65eec82e0299254555cc",
+    "apps/web/notebook.js": "893cdbf5f130ec0044e5636837a3ba52d1aa0c18606315b002a6dd2d2bd0baa4",
+    "apps/web/sw.js": "a5b08d730fc89fca0b2feb3384e92e479cf9cc7ccb90e790c01dd8dcea328967",
+    "package-lock.json": "8478e3a6dd68c3e2966d2c3bec28717f50598c5bf0bd22127820dec1e374d904",
+    "package.json": "45815182e0da8ac8f5cd56a016072e65d3c17f87b1d86338261a6881bb632a9c",
+    "packages/agent/src/extractor.ts": "28292ad61c37a3953374c2e7e726ef2d5da5c0bf4c1eb50386e62c22fee7b35d",
+    "packages/agent/src/grounding.ts": "ddc29c1c6f1e6fadb0244709480e3309189581253d893db8e559c99c8a46f1c3",
+    "packages/audit/src/proof.js": "c9431fd5a8616a3d0d5a2fd102e0531e787d701195fb2e672b0131f6a07336ad",
+    "packages/chain/src/arc.ts": "7705976392bb4c0be73b405aac23bd5b4ad067c2b1dd69cb5195659f8631ddce",
+    "packages/chain/src/payment-adapter.ts": "bcf6f522f5171d0a4f99072b2b74063a441824bb5fc84466ebedbf72c91f11f7",
+    "packages/chain/src/simulator.ts": "e03370b97b6b87da248fc6a347575683df818ff60fd5df7aee453b211162d7ec",
+    "packages/consent/src/broker.js": "ee1c1444e24e531d5d14d1cde602a05be38c5401afbad94ae9457dbfe528bb3a",
+    "packages/core/src/investigations.js": "d7fe1aa089647b37ef1c46cb7875deec901c194534630d64bb1e562d2f554dc2",
+    "packages/core/src/policy.ts": "3bec39c0bfc718675410b74593e71657aacfef30b839c4a4acfa5a0106a81dfc",
+    "packages/core/src/schemas.ts": "e8b044a36105de7eabf1014af03da41095db4fc99697fc50d85a893730c34149",
+    "packages/core/src/simulation-policy.js": "09fbf4263567fa1ed947e435d98357a27e76c5e37294caff9647a7303aab1bf9",
+    "packages/journal/schema/event-trace-v1.json": "51cef0315784f565053cbbf2101f6e4e07e50af0ec871db0a817a704fa618864",
+    "packages/journal/src/contract.js": "dab6bcf151b6e18588424f31eaecfda4929ae51ee029b36a25665d363bc59648",
+    "packages/journal/src/digest.js": "4b911652c2069bc2316b0ffb08c88393a58517e14e1ed3ff89ddf231fffe4e11",
+    "packages/journal/src/journal.js": "647372ea50b3c083729e826fd935eb0002e68b76f3bba07c7ff8d737db911b47",
+    "packages/payments/src/transfer.js": "8e4263285842d3d9ac59696238d00770c4a0cfa1dbfa038a1dc51cc45ef76ad4",
+    "packages/provenance/src/graph.ts": "a9e4860a3bbf3d84675b05fc63e764746aefce55286d3b03e34c7ccc55f51a76",
+    "packages/provenance/src/hash.ts": "9d46812a717cba4f81b9a78171b0094947ac719d20f3a6860db35f050adb21d4",
+    "packages/provenance/src/live.js": "96ff6a1fa7e763d11dbbfa2bd27bf1baf115c47166a5254fdb201499937f28c5",
+    "packages/provenance/src/merkle.ts": "05139c1ffe593b1baebd70810a4a992d7b656045e52383410e247c607fd71dda",
+    "packages/provenance/src/notebook.js": "3af7b3bdd704655c4779f5135b560e23e441066c8b11f84df1953cb326293472",
+    "playwright.config.js": "32f7119905df1385943f29344de2afb003cd00983ff3090d484020cbac611086",
+    "scripts/agent-tool.mjs": "37a2d4a2413a7a5cfddf20a2b417c183f53ea465a195391dd349f4cbb2774cdd",
+    "scripts/build-web.mjs": "ad0b7b8467710e679230f67517c2509759c3666bcaa4a4b078c22442a755cef5",
+    "scripts/check-arc-network.mjs": "2050d7b918a30bf9783bb7689a71b282dbb7d048b7c6ad2910cc5f9c3eb85924",
+    "scripts/review-consent.mjs": "7aff80e9b59a50f9a496733a82071cdd5bcc227971f4ed1a7fa5a7b4a1ef7e26",
+    "scripts/smoke-api.mjs": "89178be26562258e638f3c324552543ddcf573d5d688868c220e78710a32baa9",
+    "scripts/test-consent-api.mjs": "0373ba0f9b69202b092d6fbf0e930d1ac248c306ef630cc40ca57884fcb64870",
+    "scripts/test-mvp.mjs": "cae7e406097b30f7826053cdd04e467d9967f763aa7f0f6a46bf9185d887e7fc",
+    "scripts/test-testnet-api.mjs": "bdfd0174ebbb60b79f131c687d12a77b8ec8bb4895b4d2c40e4ca2d4d9291455",
+    "scripts/verify-audit.mjs": "4cc11a2f9bd2a1d9ae8243623d5e0d6ade1f4aa17d34b92f2ee94c8216ab198e",
+    "scripts/verify-design-docs.mjs": "9f9654de63d3fe33d0528be1aa81c6acb7ceaefcace852c49ecd2c6b913a3e74",
+    "tests/audit.test.js": "df3f66553e6904f4f759a8613fbf28f045e3427ba431145fd172681a339c7327",
+    "tests/browser/gateway-fixture.js": "254f95b812626ca204413139479e8bfcc0221498091503989249e7869984d5a6",
+    "tests/browser/investigation.spec.js": "4cb4ef4b90f75e385f99d448809c1da88dc50a2c5d3f9c2817bb20d42660964b",
+    "tests/browser/notebook.spec.js": "3ad129dcb7ad28d280775d4de35e3da9d2e5cc1841270bc706a0397d1acfa9e6",
+    "tests/browser/payments.spec.js": "966cfb59f592897c250563ffbcc89c737db9cee7de173bccdc9e1c6279707bc8",
+    "tests/browser/pwa.spec.js": "8b34f8ccffe88d71abb1a14214a6be01b27cda08bce12e10df0c653b5fa7a80e",
+    "tests/chain-safety.test.mjs": "114e40fc0c8995d94fe1c8f52d5e8bdc76016680152ea9d349102664598a1376",
+    "tests/consent.test.js": "7e0d91010944e0aa9ba3aae6c60a30ebf0a5e2f15f3f8753920894e4431ccbed",
+    "tests/event-contract.test.js": "7bf735708f6c0eb0ae3a61ac9aa8a61fcd28841ebd496b331bc6c3ac79b27027",
+    "tests/gateway.test.js": "9a653eaebe80d662d7f2b74c92ec19e2564839cdec771f7b66145ed39e6f3a6b",
+    "tests/investigations.test.js": "268703541e62c6a7a1ce56285c2fbfe870f96f147efcda8a2e00afb06bf76f29",
+    "tests/journal.test.js": "96fc8a57dabef11d716c0aa09a06f05ac633746e002f5825e73400ffd1c1ce0b",
+    "tests/live-graph.test.js": "0d5daa40faaf05469ccbce1b4e1d6e8149a4d6765dde94aa83b7cfc460382540",
+    "tests/mvp-http.test.js": "2741be15143225898a864f602cc03c982e2e2073e75e381d8b9d29e39972df08",
+    "tests/notebook.test.js": "64dbf93e949294bae28639a1c59f0090c28835e37ab8d4b5c90fa54137f9d654",
+    "tests/payments.test.js": "c421ede4619ea09c2cc558fdc1203f2671e8cb3a288d30dc7a2d31cfdb4facaa",
+    "tests/run-all.js": "28ebd743502c91c002032230c11b5d39a9bcc75eba5bfed97ef5d76c86612285",
+    "tests/run-tests.ps1": "9acfc103e16e59a0c1f088cf370654bcb4539509a222aef3b416fa1464a56ce5"
+  }
+}

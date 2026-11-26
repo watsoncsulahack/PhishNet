@@ -65,3 +65,26 @@ Implemented separately keyed Ed25519 checkpoints, prefix Merkle inclusion proofs
 The owner explicitly selected **“Implement and test; leave the funded check pending.”** No human seed, funded signing account or fabricated receipt has been substituted. A live read-only Arc check succeeded: chain 5042002, observed block 74261173; 0.000001 native USDC estimate returned gas `0x6270`, maximum fee budget `1260000000000000` base units. This sent no payment or anchor. Actual funded CounterSign→wallet→receipt→checkpoint proof is **NOT_RUN / owner-deferred**, as are independent credential-custody validation, a security audit, physical-device installation and human efficacy testing.
 
 A remaining recovery limit is explicit: after a recorded authorization but before a wallet-returned hash is available, PhishNet cannot infer whether the external wallet broadcast. It preserves AUTHORIZATION_REQUESTED and refuses replay; the human must reconcile wallet/explorer history. Browser recovery retries only journal recording of a returned hash, never a transaction. Private-source availability requires encrypted-content/key backups. The local recorder cannot prove observations it never received.
+
+## Final automated verification (implementation `f4d72b4`)
+
+The release browser run used the final navigation and graph source: **75 passed, 0 failed, 0 skipped, 0 flaky**, 76.425 seconds, started 2026-11-26T20:22:48.051Z. It includes 15 payment/agent/audit cases, 6 synthetic investigation cases, 3 notebook cases and 1 PWA case at each of 320×740 touch, 390×844 touch and 1440×1000 desktop. Separate navigation verification also passed 3/3 after ensuring tab changes return to the top.
+
+| Command | Actual result | Scope / remaining boundary |
+|---|---|---|
+| `npm run test:mvp` | 6 suites; **25/25** tests pass | Contract 4, journal 5, gateway 7, graph 3, audit 5, actual HTTP workflow 1; controlled credentials/readers |
+| `npm run test:browser` | **75/75** pass | Actual journal/gateway and real test signatures; wallet/RPC doubles; no live settlement |
+| `npm test` | **15/15** pass | Existing simulation API regressions |
+| `npm run test:unit` | **4/4** pass | Synthetic source/authorization fixtures |
+| `npm run test:payments` | **7/7** pass | Production amount/address/reader logic with controlled RPC |
+| `npm run test:chain` | **4/4** safety checks pass | Legacy autonomous signer remains disabled |
+| `npm run test:notebook` | **3/3** pass | Synthetic notebook model/filter regressions |
+| `npm run test:consent` | **6/6** pass | Actual official CounterSign library; controlled keys |
+| `npm run test:consent-api` | **6/6** actual HTTP checks pass | Human test signing key outside the spawned service |
+| `npm run test:testnet-api` | **9/9** actual HTTP checks pass | Origin/Host/body/chain and no-signing boundary |
+| `node scripts/verify-design-docs.mjs` | PASS | Structure, not financial security; rerun after this log update |
+| `npm run build` | PASS (also run by browser web server) | Local bundle and retained license notices |
+| `npm audit --omit=dev --json` | **0** known reported vulnerabilities | Advisory lookup, not independent security verification |
+| `node scripts/check-arc-network.mjs` | PASS live **read-only** | Block/chain/native fee estimate; no signing/broadcast |
+
+Machine-readable [results](../../evaluation/mvp-results.json) contain every browser outcome, all 25 MVP test names, exact denominators, final source SHA-256 hashes and deferred gates. CI is configured but no hosted CI run is claimed. Verified incremental commits: M0 `970e14b`, M1 `13fdb43`, M2 `3793083`, integrated M3–M5 software `f4d72b4`; this results entry is committed separately. Funded M6 and a real externally verified Arc anchor remain explicitly deferred, not passed.
