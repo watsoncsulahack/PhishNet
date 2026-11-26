@@ -157,3 +157,16 @@ Scope: [mvp-scope.md](mvp-scope.md). Code/results: [milestone log](mvp-progress.
 | MVP-13 | All prior actual API/unit/consent/payment/chain and demo browser coverage retained; MVP 25 tests and full browser run recorded | Hosted CI, security audit and VC-10 human efficacy study NOT_RUN |
 
 M0 (contract), M1 (journal), M2 (server human-gated agent), M3 (canonical PWA), and M4 (real graph) have executed scoped automated evidence. M5 software is implemented/tested against controlled readers; its real Arc-anchored gate is deferred alongside the owner's explicitly deferred funded M6 run. These statuses do not certify independent security or live settlement.
+
+## Owner-requested Chat workspace extension
+
+The latest owner request extends bottom navigation to Wallet / Activity / **Chat** / Graph / Settings. Upstream README change `181881a` was pulled with a fast-forward before implementation. See [scope, contract and design reference](chat-workspace.md).
+
+| Acceptance | New implementation / verification | Boundary |
+|---|---|---|
+| MVP-01, MVP-06, MVP-08 | Structured `chat.respond`, encrypted agent-message journal events, stable conversation traces, original source references | Agent-reported text/items, no fabricated reasoning or inventory |
+| MVP-02–04 | Item proposal references must match agent/wallet/trace; review uses existing CounterSign/wallet gate; dedicated browser no-signing check | No purchase, fulfillment or auto-payment capability added |
+| MVP-09, MVP-11 | Wallet-scoped context and selected-item resolution; credential stored only in ignored local configuration; account-switch/dialog clearing tests | No private chat or supplied capability in on-chain data or public bundle |
+| MVP-12–13 | Five-tab mobile/desktop Chat UI, accessible menu/history, product details/comparison, existing PWA/cache and full regression checks | A capability authenticates a local agent; it does not start a model |
+
+Actual denominators and source hashes: [Chat workspace results](../../evaluation/chat-workspace-results.json). Prior funded M6 and live audit-anchor deferrals still apply.

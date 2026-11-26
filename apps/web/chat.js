@@ -1,0 +1,88 @@
+import {assertReply,safeProductURL} from '../../packages/chat/src/reply.js';
+const element=(tag,text,className)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;};
+const messageTypes=new Set(['chat.user.submitted','agent.plan.reported','agent.message.reported','payment.proposed']);
+const reviewable=new Set(['PROPOSED','PENDING_APPROVAL','APPROVED']);
+export function mountChat({send,source,review,inspect,connect,notice,sync}){
+  const $=id=>document.getElementById(id);
+  let props={events:[],history:[],agents:[],wallet:null,signedIn:false,connected:false};
+  let trace=null,generation=0,ticket=0,busy=false,cache=new Map(),inflight=new Map(),selected=new Map(),viewKey='',historyKey='';
+  const setStatus=text=>{$('conversation-status').textContent=text;};
+  function closeMenu(focus=false){$('chat-menu').hidden=true;$('chat-menu-toggle').setAttribute('aria-expanded','false');if(focus)$('chat-menu-toggle').focus();}
+  function closeHistory(){ $('chat-workspace').classList.remove('history-open');$('toggle-chat-history').setAttribute('aria-expanded','false'); }
+  function newChat(){trace=null;selected.clear();$('conversation-input').value='';$('conversation-input').style.height='';viewKey='';setStatus('');closeHistory();closeMenu();draw();$('conversation-scroll').scrollTop=0;$('conversation-input').focus();}
+  function menuItems(){return [...$('chat-menu').querySelectorAll('[role=menuitem]')];}
+  $('chat-menu-toggle').onclick=()=>{const open=$('chat-menu').hidden;$('chat-menu').hidden=!open;$('chat-menu-toggle').setAttribute('aria-expanded',String(open));if(open)menuItems()[0].focus();};
+  $('chat-menu').onkeydown=e=>{const items=menuItems(),index=items.indexOf(document.activeElement);if(e.key==='Escape'){e.preventDefault();closeMenu(true);}if(['ArrowDown','ArrowUp','Home','End'].includes(e.key)){e.preventDefault();const next=e.key==='Home'?0:e.key==='End'?items.length-1:(index+(e.key==='ArrowDown'?1:-1)+items.length)%items.length;items[next].focus();}if(e.key==='Tab')closeMenu();};
+  document.addEventListener('pointerdown',e=>{if(!e.target.closest('.composer-menu-wrap'))closeMenu();});
+  $('chat-menu').addEventListener('click',e=>{if(e.target.closest('a'))closeMenu();});
+  $('chat-menu-new').onclick=newChat;$('new-conversation').onclick=newChat;$('new-conversation-top').onclick=newChat;
+  $('toggle-chat-history').onclick=()=>{const open=$('chat-workspace').classList.toggle('history-open');$('toggle-chat-history').setAttribute('aria-expanded',String(open));if(open)$('conversation-search').focus();};
+  $('close-chat-history').onclick=()=>{closeHistory();$('toggle-chat-history').focus();};
+  $('chat-history').addEventListener('keydown',e=>{if(e.key==='Escape'){closeHistory();$('toggle-chat-history').focus();}});
+  $('conversation-search').oninput=()=>{historyKey='';draw();};
+  $('chat-connect-wallet').onclick=connect;
+  $('conversation-graph').onclick=()=>{if(trace)inspect(trace);};
+  $('close-item-dialog').onclick=()=>$('item-dialog').close();
+  $('conversation-input').oninput=()=>{const input=$('conversation-input');input.style.height='auto';input.style.height=Math.min(input.scrollHeight,160)+'px';status();};
+  $('conversation-input').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&matchMedia('(pointer:fine)').matches){e.preventDefault();if(!$('conversation-send').disabled)$('conversation-form').requestSubmit();}};
+  document.querySelectorAll('[data-chat-prompt]').forEach(b=>b.onclick=()=>{$('conversation-input').value=b.dataset.chatPrompt;$('conversation-input').dispatchEvent(new Event('input'));$('conversation-input').focus();});
+  function status(){
+    const recent=props.agents.some(a=>a.lastSeen&&Date.now()-Date.parse(a.lastSeen)<30000);
+    $('conversation-agent-status').textContent=!props.signedIn?'Sign in with your wallet':recent?'Local agent · recently active':'Local agent · awaiting connection';
+    $('chat-connect-wallet').hidden=props.signedIn;$('chat-connect-wallet').textContent=props.connected?'Sign in to your wallet':'Connect wallet to chat';
+    $('conversation-send').disabled=!props.signedIn||busy||!$('conversation-input').value.trim();
+    $('conversation-graph').disabled=!trace||!props.signedIn;
+    $('send-chat').disabled=!props.signedIn||busy;
+    $('conversation-input').placeholder=props.signedIn?'Message your agent':'Connect and sign in to start a conversation';
+  }
+  function rootEvents(){const roots=new Map();for(const e of props.events)if(e.eventType==='chat.user.submitted'&&!roots.has(e.traceId))roots.set(e.traceId,e);return [...roots.values()].reverse();}
+  async function load(ref){
+    if(cache.has(ref))return cache.get(ref);if(inflight.has(ref))return inflight.get(ref);
+    const version=generation,wallet=props.wallet;
+    const request=source(ref).then(result=>{if(version===generation&&wallet===props.wallet)cache.set(ref,result.text);return result.text;}).finally(()=>{if(version===generation)inflight.delete(ref);});
+    inflight.set(ref,request);return request;
+  }
+  function selectTrace(id){trace=id;selected.clear();viewKey='';closeHistory();closeMenu();setStatus('');update(props);}
+  function sourceDetails(event){const tools=element('div',undefined,'chat-message-source');const details=element('details');details.append(element('summary','Message source'));const dl=element('dl');for(const [label,value] of [['Event ID',event.eventId],['Recorded at',event.recordedAt],['Actor',event.actor.id],['Verification',event.verification.state],['Privacy',event.privacy]])dl.append(element('dt',label),element('dd',value));details.append(dl);const graph=element('button','View in graph');graph.onclick=()=>{$('item-dialog').close();inspect(event.traceId);};tools.append(details,graph);return tools;}
+  function visual(item,large=false){const e=element('div',undefined,large?'item-dialog-visual':'chat-item-visual');if(item.imageDataUrl){const image=element('img');image.src=item.imageDataUrl;image.alt=item.title;image.loading='lazy';e.append(image);}else{const blank=element('div',undefined,'chat-item-placeholder');blank.append(element('span','◇'),element('small','Image not provided'));e.append(blank);}return e;}
+  function price(item){return item.price?`${item.price.currency} ${item.price.amount}`:'Price not provided';}
+  function openItem(item,event){
+    $('item-dialog-title').textContent=item.title;const body=$('item-dialog-body');body.replaceChildren(visual(item,true));body.append(element('strong',price(item)),element('p','Agent-provided information · price and merchant are unverified.'));
+    if(item.merchant)body.append(element('p',item.merchant));if(item.description)body.append(element('p',item.description));
+    if(item.features?.length){const list=element('ul');item.features.forEach(f=>list.append(element('li',f)));body.append(list);}
+    if(item.url){const url=safeProductURL(item.url),link=element('a','Visit '+new URL(url).hostname);link.href=url;link.target='_blank';link.rel='noopener noreferrer';body.append(link);}
+    const select=element('button',selected.has(event.eventId+':'+item.id)?'Remove from comparison':'Add to comparison');select.onclick=()=>{toggleItem(item,event);$('item-dialog').close();};body.append(select);
+    const p=props.history.find(p=>p.id===item.proposalId&&p.traceId===event.traceId);if(p){const button=element('button','Review payment');button.disabled=!reviewable.has(p.status);button.onclick=()=>{$('item-dialog').close();review(p.id).catch(e=>notice(e.message,true));};body.append(button);}
+    body.append(sourceDetails(event));$('item-dialog').showModal();
+  }
+  function toggleItem(item,event){const key=event.eventId+':'+item.id;if(selected.has(key))selected.delete(key);else{if(selected.size>=3)return setStatus('Compare up to three items at a time.');selected.set(key,{item,eventId:event.eventId});}viewKey='';draw();}
+  function selection(){const target=$('chat-selected-items');target.hidden=!selected.size;target.replaceChildren(...[...selected.entries()].map(([key,{item}])=>{const pill=element('span',undefined,'chat-selected-pill');const label=element('span',item.title.length>35?item.title.slice(0,32)+'…':item.title);const remove=element('button','×');remove.type='button';remove.setAttribute('aria-label','Remove '+item.title+' from comparison');remove.onclick=()=>{selected.delete(key);viewKey='';draw();};pill.append(label,remove);return pill;}));}
+  function itemCards(items,event){const list=element('div',undefined,'chat-items');list.setAttribute('aria-label','Agent-provided items');for(const item of items){const card=element('article',undefined,'chat-item');const picture=visual(item),pick=element('button',selected.has(event.eventId+':'+item.id)?'✓':'+','item-select');pick.setAttribute('aria-label','Select '+item.title+' for comparison');pick.setAttribute('aria-pressed',String(selected.has(event.eventId+':'+item.id)));pick.onclick=()=>toggleItem(item,event);picture.append(pick);const info=element('div',undefined,'chat-item-info');const title=element('button',item.title,'chat-item-title');title.onclick=()=>openItem(item,event);const details=element('button','View details ↗','chat-item-details');details.onclick=()=>openItem(item,event);info.append(element('small',item.merchant||'Merchant not provided'),title,element('p',price(item),'chat-item-price'),element('p','Agent-reported price','chat-item-disclaimer'),details);card.append(picture,info);list.append(card);}return list;}
+  function payment(event){const p=props.history.find(p=>p.id===event.payload.proposalId&&p.traceId===event.traceId);if(!p)return null;const card=element('article',undefined,'chat-payment'),top=element('div',undefined,'chat-payment-top');top.append(element('h3','Payment proposal'),element('span',p.status,'pill '+p.status));card.append(top,element('p',p.input.amount+' USDC','chat-payment-amount'),element('p','To '+p.input.to),element('p',p.purpose||'An unsigned proposal from your agent.'));const button=element('button',reviewable.has(p.status)?'Review payment':'View payment activity');button.onclick=()=>reviewable.has(p.status)?review(p.id).catch(e=>notice(e.message,true)):location.assign('#activity');card.append(button,element('p','Arc Testnet · CounterSign and your external wallet approval are required.'),sourceDetails(event));return card;}
+  function message(event){if(event.eventType==='payment.proposed')return payment(event);const user=event.eventType==='chat.user.submitted',note=event.eventType==='agent.plan.reported',article=element('article',undefined,'chat-message '+(user?'user':note?'note':'agent'));article.dataset.eventId=event.eventId;const head=element('div',undefined,'chat-message-head'),time=element('time',new Date(event.recordedAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));time.dateTime=event.recordedAt;head.append(element('span',user?'○':'✧','chat-avatar'),element('strong',user?'You':note?'Agent-reported note':'Local agent'),time);article.append(head);const raw=cache.get(event.payload.contentRef);if(raw===undefined){article.append(element('p','Loading protected message…','chat-message-text'));}else if(event.eventType==='agent.message.reported'){try{const reply=assertReply(JSON.parse(raw));if(reply.text)article.append(element('p',reply.text,'chat-message-text'));if(reply.items.length)article.append(itemCards(reply.items,event),element('p','Select items to ask a follow-up. Item details are agent-provided, not independently verified.','chat-items-note'));}catch{article.append(element('p','This response could not be displayed. Inspect its recorded source for details.','chat-message-text'));}}else article.append(element('p',raw,'chat-message-text'));if(user&&event.payload.selectedItemRefs?.length){const choices=element('div',undefined,'chat-sent-items');for(const ref of event.payload.selectedItemRefs){let title='Selected item';try{const original=props.events.find(e=>e.eventId===ref.eventId);title=assertReply(JSON.parse(cache.get(original.payload.contentRef))).items.find(i=>i.id===ref.itemId)?.title||title;}catch{}choices.append(element('span',title,'chat-selected-pill'));}article.append(choices);}article.append(sourceDetails(event));return article;}
+  function draw(){
+    status();const roots=rootEvents(),query=$('conversation-search').value.toLowerCase();
+    const hKey=JSON.stringify([props.wallet,trace,query,roots.map(e=>[e.eventId,cache.get(e.payload.contentRef)])]);
+    if(hKey!==historyKey){historyKey=hKey;const filtered=roots.filter(e=>!query||(cache.get(e.payload.contentRef)||'').toLowerCase().includes(query));$('conversation-list').replaceChildren(...filtered.slice(0,30).map(e=>{const button=element('button',undefined,'conversation-choice');button.setAttribute('aria-current',String(trace===e.traceId));button.append(element('strong',(cache.get(e.payload.contentRef)||'Private conversation').slice(0,85)),element('small',new Date(e.recordedAt).toLocaleDateString()));button.onclick=()=>selectTrace(e.traceId);return button;}));if(!filtered.length)$('conversation-list').append(element('p',props.signedIn?'Your conversations will appear here.':'Sign in to see your conversations.','chat-history-empty'));}
+    const relevant=props.events.filter(e=>e.traceId===trace&&messageTypes.has(e.eventType));const key=JSON.stringify([props.wallet,trace,relevant.map(e=>[e.eventId,cache.get(e.payload.contentRef)]),props.history.map(p=>[p.id,p.status]),[...selected.keys()]]);
+    if(key===viewKey)return;viewKey=key;selection();const area=$('conversation-scroll'),atBottom=area.scrollHeight-area.scrollTop-area.clientHeight<100;$('chat-welcome').hidden=!!trace;$('conversation-messages').replaceChildren(...relevant.map(message).filter(Boolean));
+    if(trace&&relevant.length){const lastUser=relevant.findLast(e=>e.eventType==='chat.user.submitted');const hasAnswer=relevant.some(e=>e.sequence>lastUser.sequence&&['agent.message.reported','agent.plan.reported','payment.proposed'].includes(e.eventType));if(!hasAnswer){const queued=element('div',undefined,'chat-pending');queued.append(element('span'),element('p','Message queued. Waiting for your local agent to respond.'));$('conversation-messages').append(queued);}}
+    if(atBottom)requestAnimationFrame(()=>{if(trace)area.scrollTop=area.scrollHeight;});
+  }
+  async function update(next){
+    if(props.wallet!==next.wallet){generation++;cache.clear();inflight.clear();selected.clear();trace=null;viewKey='';historyKey='';$('conversation-input').value='';$('conversation-search').value='';$('chat-input').value='';$('item-dialog').close();$('item-dialog-body').replaceChildren();setStatus('');closeMenu();closeHistory();}
+    props=next;draw();if(!props.signedIn||!props.wallet)return;
+    const version=generation,turn=++ticket,refs=new Set([...rootEvents().slice(0,30),...props.events.filter(e=>e.traceId===trace&&messageTypes.has(e.eventType)).slice(-100)].map(e=>e.payload.contentRef).filter(Boolean));
+    const list=[...refs];for(let offset=0;offset<list.length;offset+=4){if(version!==generation||turn!==ticket)return;await Promise.allSettled(list.slice(offset,offset+4).map(load));}
+    if(version===generation&&turn===ticket)draw();
+  }
+  async function submit(text,quick=false){
+    if(busy||!text.trim())return;if(!props.signedIn){setStatus('Connect and sign in with your wallet before sending a message.');return;}
+    const wallet=props.wallet,version=generation,from=trace;const full=text.trim(),refs=quick?[]:[...selected.values()].map(({item,eventId})=>({eventId,itemId:item.id}));
+    if(full.length>8000){setStatus('Your message and selected item references exceed 8000 characters.');return;}
+    busy=true;status();setStatus('Sending…');
+    try{const result=await send(full,quick?null:from,refs);if(version!==generation||wallet!==props.wallet)return;trace=result.traceId;selected.clear();if(quick)$('chat-input').value='';else if($('conversation-input').value===text)$('conversation-input').value='';$('conversation-input').style.height='';location.hash='chat';setStatus('Message queued for your local agent.');$('chat-status').textContent='QUEUED · '+result.chatId+'. Awaiting your separately managed local agent; no payment has been initiated.';await sync();await update(props);$('conversation-scroll').scrollTop=$('conversation-scroll').scrollHeight;}catch(e){if(version===generation){setStatus(e.message+' Check the conversation before retrying.');$('chat-status').textContent=e.message;}}finally{busy=false;status();}
+  }
+  $('conversation-form').onsubmit=e=>{e.preventDefault();submit($('conversation-input').value);};$('chat-form').onsubmit=e=>{e.preventDefault();submit($('chat-input').value,true);};
+  draw();return {update,activate(){status();requestAnimationFrame(()=>{if(trace)$('conversation-scroll').scrollTop=$('conversation-scroll').scrollHeight;});},currentTrace:()=>trace};
+}

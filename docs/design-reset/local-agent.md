@@ -58,3 +58,7 @@ Graph defaults to the selected wallet and the last seven days. Transaction Flow 
 Install through the browser menu on HTTPS/localhost. The service worker caches only the public shell, manifest/icons and scripts/styles. It never caches API/private journal responses. Offline signing and verification are unavailable; balance is never invented. Voice input is explicitly disabled. Chromium manifest/offline-shell checks are automated; no physical-device installation or hardware integration is claimed.
 
 See [audit format and verification](audit-checkpoints.md), [milestone results](mvp-progress.md), and [traceability](traceability.md).
+
+## Dedicated Chat workspace update
+
+The owner added a fifth bottom tab, **Chat**, with conversation history, a larger composer and structured item comparisons. See [the chat workspace and reply contract](chat-workspace.md). `npm run dev` and the local CLI load ignored `.env.local`; `npm run agent:tool -- status` validates the configured capability without consuming jobs. `chat.respond` is the structured form of the existing agent content-reporting permission. Replies and selected-item references stay off-chain and never authorize payment.

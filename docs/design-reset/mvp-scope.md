@@ -1,5 +1,7 @@
 # PhishNet MVP Scope — Wallet, Agent Proposal, Human Authorization and Auditable Graph
 
+> **Later owner instruction:** add a dedicated **Chat** tab, giving Wallet / Activity / Chat / Graph / Settings, plus an expanded conversation and generic item-comparison interface. See [the approved extension and implementation contract](chat-workspace.md). The original four-tab sketch references below remain historical design provenance. Merchant fulfillment, autonomous signing and the other security exclusions remain unchanged.
+
 **Status:** Approved design scope for the next implementation increment; **not** a claim that all features exist.  
 **Source:** Product-owner instructions and two hand-drawn PWA wallet concepts (November 26, 2026).  
 **Repository baseline inspected:** main commit 6f0a80b7fb0ff49bb0e0be1727f8dc0bc28160bd.  

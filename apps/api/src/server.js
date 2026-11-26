@@ -695,7 +695,7 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
-    const assets = {'/mvp.css':['mvp.css','text/css'], '/sw.js':['sw.js','text/javascript'], '/manifest.webmanifest':['manifest.webmanifest','application/manifest+json'], '/icon.svg':['icon.svg','image/svg+xml'], '/icon-192.png':['icon-192.png','image/png'], '/icon-512.png':['icon-512.png','image/png'], '/app.js':['build/app.js','text/javascript'], '/app.css':['app.css','text/css'], '/notebook.css':['notebook.css','text/css'], '/app.js.LEGAL.txt':['build/app.js.LEGAL.txt','text/plain'], '/investigate.js': ['investigate.js', 'text/javascript'], '/investigate.css': ['investigate.css', 'text/css']};
+    const assets = {'/chat.css':['chat.css','text/css'], '/mvp.css':['mvp.css','text/css'], '/sw.js':['sw.js','text/javascript'], '/manifest.webmanifest':['manifest.webmanifest','application/manifest+json'], '/icon.svg':['icon.svg','image/svg+xml'], '/icon-192.png':['icon-192.png','image/png'], '/icon-512.png':['icon-512.png','image/png'], '/app.js':['build/app.js','text/javascript'], '/app.css':['app.css','text/css'], '/notebook.css':['notebook.css','text/css'], '/app.js.LEGAL.txt':['build/app.js.LEGAL.txt','text/plain'], '/investigate.js': ['investigate.js', 'text/javascript'], '/investigate.css': ['investigate.css', 'text/css']};
     if (req.method === 'GET' && assets[pathname]) {
       const [file, type] = assets[pathname];
       res.writeHead(200, {'Content-Type': type + '; charset=utf-8'});
