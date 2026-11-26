@@ -138,11 +138,22 @@ See [scope, protocol sources, setup and actual verification](notebook-and-consen
 
 ## Authoritative MVP increment (supersedes historical implementation gaps above)
 
-| Acceptance | Implementation / evidence | Current gate |
+Scope: [mvp-scope.md](mvp-scope.md). Code/results: [milestone log](mvp-progress.md), [machine-readable execution](../../evaluation/mvp-results.json), [agent setup](local-agent.md), [proof format](audit-checkpoints.md).
+
+| Acceptance | Implementation and executed evidence | Current verification boundary |
 |---|---|---|
-| MVP-01, MVP-03 | gateway typed capabilities; durable broker; gateway 5/5, HTTP 1/1; existing consent HTTP 6/6 | Server implemented; canonical UI pending; real separate credential enrollment is operator responsibility |
-| MVP-02, MVP-04, MVP-05 | Immutable scoped proposals, one-time authorization, recorded rejection and exact existing RPC reader | Server integration tested with controlled reader; live funded run pending |
-| MVP-06–09 | Strict EventTraceV1 / encrypted scoped journal; schema 4/4, journal 5/5 | Real projection / UI pending |
-| MVP-10–11 | Private content references, encrypted store | Signed checkpoint / independent Arc verification pending |
-| MVP-12 | Existing manual external wallet path preserved in source | Sketch-led PWA pending |
-| MVP-13 | Existing API 15/15; consent HTTP 6/6; new gateway and HTTP suites | Full browser regression will be rerun after UI integration |
+| MVP-01 | Typed revocable local-agent tools; actual gateway/HTTP integration and browser chat→unsigned proposal | No signing/approval tool; no built-in or tested proprietary model |
+| MVP-02 | Immutable native-transfer proposal; shared manual/agent exact review; real CounterSign binding tests and changed-term rejection | Full addresses, asset, chain, calldata, fee and asserted purpose shown; human comprehension not measured |
+| MVP-03 | Persisted keyed intent/resolution/consumption; gateway restart/rejection/expiry/replay tests; consent unit 6/6 and HTTP 6/6 | Real cryptography with controlled credentials; independent real credential custody not demonstrated |
+| MVP-04 | Explicit cancellation and wallet rejection in journal; permanent authorization marker prevents reopening after expiry/restart | External wallet is a browser test double; funded user cancellation/receipt pending |
+| MVP-05 | Production Arc reader exact tx/receipt/canonical block checks (7/7 payment tests); actual live read-only Arc check | Funded transfer and actual payment receipt NOT_RUN / owner-deferred |
+| MVP-06 | Shared EventTraceV1 journal feeds Activity/timeline/map; manual transactions never get agent events; untrusted imports explicit | Projection tests 3/3 and real-journal browser flows; completeness before recording not claimed |
+| MVP-07 | Independent Transaction Flow and Decision History checkboxes; four states; trace/date/scope/search; preserved selection | Browser tests at 320px/390px/desktop plus projection unit tests |
+| MVP-08 | Click timeline/map/index/relationship for original IDs/times/scope/verification/confidence/privacy and protected sources; progressive raw JSON | Agent explanations AGENT_REPORTED; links are observed references, not inferred private thought; proof verification is separate |
+| MVP-09 | Signed one-time wallet challenge; scoped HttpOnly/SameSite cookie + wallet header; account switch clears private content; explicit untrusted history migration | Gateway and actual HTTP isolation tests + mobile/desktop account-switch browser checks; no complete incoming index claim |
+| MVP-10 | Signed prefix checkpoint, inclusion paths, sequence/wallet completeness, required externally pinned head and standalone CLI | Audit tests 5/5 including tamper/omission/reorder/signature/rollback; live finalized Arc anchor remains pending |
+| MVP-11 | Protected AES-GCM off-chain sources; Arc descriptor contains only 84 bytes hashes/range metadata and zero value; separate audit publisher | Actual encoding/export/privacy checks; no real publication or source availability assurance claimed |
+| MVP-12 | Manifest/icons/service worker, four-tab PWA, balance/Send/Receive/Chat, optional offline agent, disabled labeled mic | Automated Chromium manifest/offline-shell tests pass; physical-device installation NOT_RUN |
+| MVP-13 | All prior actual API/unit/consent/payment/chain and demo browser coverage retained; MVP 25 tests and full browser run recorded | Hosted CI, security audit and VC-10 human efficacy study NOT_RUN |
+
+M0 (contract), M1 (journal), M2 (server human-gated agent), M3 (canonical PWA), and M4 (real graph) have executed scoped automated evidence. M5 software is implemented/tested against controlled readers; its real Arc-anchored gate is deferred alongside the owner's explicitly deferred funded M6 run. These statuses do not certify independent security or live settlement.

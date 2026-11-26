@@ -18,7 +18,10 @@
     "test:testnet-api": "node scripts/test-testnet-api.mjs",
     "test:consent": "node tests/consent.test.js",
     "test:notebook": "node tests/notebook.test.js",
-    "test:consent-api": "node scripts/test-consent-api.mjs"
+    "test:consent-api": "node scripts/test-consent-api.mjs",
+    "test:mvp": "node scripts/test-mvp.mjs",
+    "agent:tool": "node scripts/agent-tool.mjs",
+    "verify:audit": "node scripts/verify-audit.mjs"
   },
   "keywords": [
     "agentic-payments",
@@ -45,5 +48,8 @@
   },
   "overrides": {
     "nodemailer": "10.1.4"
+  },
+  "engines": {
+    "node": ">=22.13.0"
   }
 }

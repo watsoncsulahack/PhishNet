@@ -1,5 +1,7 @@
 # PhishNet — Staged Implementation Plan
 
+> Current implementation authority: [mvp-scope.md](mvp-scope.md). See [M0–M6 results](mvp-progress.md), [local-agent setup](local-agent.md) and [audit verification](audit-checkpoints.md). Earlier stages/results below are historical where the MVP explicitly supersedes them.
+
 **Authority:** [requirements.md](requirements.md) provides only user/system requirements; [dfd-level-0.mmd](dfd-level-0.mmd) defines the context boundary; [normalization.md](normalization.md) explains 1NF→2NF→3NF; [erd-3nf.mmd](erd-3nf.mmd) is the **initial database migration target**, subject to constraint review. Existing baseline: \`main\` at \`ab57d519\`.
 
 ## Visualization-related design inputs

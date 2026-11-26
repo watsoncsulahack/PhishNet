@@ -1,5 +1,7 @@
 # PhishNet — Requirements
 
+> Current implementation authority: [mvp-scope.md](mvp-scope.md). See [M0–M6 results](mvp-progress.md), [local-agent setup](local-agent.md) and [audit verification](audit-checkpoints.md). Earlier stages/results below are historical where the MVP explicitly supersedes them.
+
 **Version:** 1.0-draft | **Date:** 2026-11-25 | **Baseline:** `watsoncsulahack/PhishNet`, `main` at `ab57d519` | **Status:** Proposed target requirements, not claims of implemented features.
 
 ## 1. User Requirements

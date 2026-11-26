@@ -42,6 +42,7 @@
         "agent.connector.changed",
         "audit.checkpoint.created",
         "audit.checkpoint.published",
+        "audit.checkpoint.checked",
         "audit.checkpoint.verified"
       ]
     },
@@ -1107,6 +1108,53 @@
               "checkpointId",
               "txHash",
               "status"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "audit.checkpoint.checked"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "checkpointId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "txHash": {
+                "type": "string",
+                "pattern": "^0x[0-9a-fA-F]{64}$"
+              },
+              "status": {
+                "const": "UNVERIFIED"
+              },
+              "reasonCode": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              }
+            },
+            "required": [
+              "checkpointId",
+              "txHash",
+              "status",
+              "reasonCode"
             ],
             "additionalProperties": false
           }

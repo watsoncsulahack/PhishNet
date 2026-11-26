@@ -1,0 +1,11 @@
+/** A projection of recorded observations, never a reconstruction of hidden reasoning. */
+const flow=new Set(['payment.proposed','wallet.submission.observed','chain.receipt.checked','history.imported']);
+export function projectJournal(events,{wallet,from='',through='',trace='',transactionFlow=true,decisionHistory=true,query=''}={}){
+ const scoped=events.filter(e=>e.walletScope.address===wallet&&(!from||e.recordedAt>=from)&&(!through||e.recordedAt<=through)&&(!trace||e.traceId===trace));
+ const visible=scoped.filter(e=>((transactionFlow&&flow.has(e.eventType))||(decisionHistory&&!['history.imported','wallet.submission.observed','chain.receipt.checked'].includes(e.eventType)))&&(!query||JSON.stringify(e).toLowerCase().includes(query.toLowerCase())));
+ const nodes=visible.map(e=>({id:e.eventId,eventId:e.eventId,event:e,label:e.eventType,kind:e.eventType==='payment.proposed'?'proposal':e.eventType.startsWith('countersign.')?'consent':e.eventType.startsWith('chain.')?'receipt':e.eventType.startsWith('agent.')?'agent':'event',layers:[...(flow.has(e.eventType)?['transaction']:[]),...(!['history.imported','wallet.submission.observed','chain.receipt.checked'].includes(e.eventType)?['decision']:[])]}));
+ const ids=new Set(nodes.map(n=>n.id));const edges=[];
+ for(const e of visible)for(const [i,r] of e.relations.entries())if(ids.has(r.eventId))edges.push({id:'relation:'+e.eventId+':'+i,source:r.eventId,target:e.eventId,kind:r.kind,evidenceIds:r.evidenceIds,event:e});
+ if(transactionFlow){for(const e of visible.filter(e=>['payment.proposed','history.imported'].includes(e.eventType))){for(const [role,value] of [['sender',e.payload.from],['recipient',e.payload.recipient],['asset','native-USDC']]){const id=role==='asset'?'asset:5042002:native-USDC':'wallet:5042002:'+value;const existing=nodes.find(n=>n.id===id);if(existing){if(!existing.evidence.includes(e.eventId))existing.evidence.push(e.eventId);}else nodes.push({id,label:value,kind:role==='asset'?'asset':'wallet',eventId:e.eventId,event:e,evidence:[e.eventId],layers:['transaction']});edges.push({id:'context:'+e.eventId+':'+role,source:role==='sender'?id:e.eventId,target:role==='sender'?e.eventId:id,kind:'RECORDED_'+role.toUpperCase(),evidenceIds:[e.eventId],event:e});}}}
+ return {nodes,edges,events:visible,total:scoped.length,hiddenLayers:!transactionFlow&&!decisionHistory};
+}

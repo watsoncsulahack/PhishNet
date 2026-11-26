@@ -31,6 +31,7 @@ const payloads={
  'agent.connector.changed':object({agentId:id,action:{enum:['issued','revoked']}}),
  'audit.checkpoint.created':object({checkpointId:id,firstSequence:{type:'integer',minimum:1},lastSequence:{type:'integer',minimum:1},root:digest,checkpointDigest:digest}),
  'audit.checkpoint.published':object({checkpointId:id,txHash:hash,status:{const:'BROADCAST'}}),
+ 'audit.checkpoint.checked':object({checkpointId:id,txHash:hash,status:{const:'UNVERIFIED'},reasonCode:id}),
  'audit.checkpoint.verified':object({checkpointId:id,txHash:hash,blockNumber:uint,status:{const:'ANCHORED'}}),
 };
 export const eventSchema={

@@ -1,5 +1,7 @@
 # PhishNet: Testing and Verification Plan
 
+> Current implementation authority: [mvp-scope.md](mvp-scope.md). See [M0–M6 results](mvp-progress.md), [local-agent setup](local-agent.md) and [audit verification](audit-checkpoints.md). Earlier stages/results below are historical where the MVP explicitly supersedes them.
+
 **Safety boundary:** a passing documentation check does NOT establish that money is safe or an AI agent is secure. The existing test harness contains copied policy logic and self-confirming expected labels.
 
 ## Test tiers
@@ -76,3 +78,9 @@ Run `npm run test:payments` for strict native-unit/address and actual public-rea
 ## Notebook and keyed-consent verification
 
 `npm run test:notebook` executes the actual canonical note/filter model; `npm run test:consent` executes the official counter-sign library and broker; `npm run test:consent-api` keeps the simulated human private key in the external test process while exercising the actual server. The browser suite now includes canvas click/zoom, wiki-link navigation, type/search/replay, keyboard alternatives and configured-consent allow/block flows. Actual results: 3 notebook model tests, 6 consent tests, 6 consent HTTP checks and 63 browser cases pass. Browser wallet/RPC/receipt imports are controlled mocks; real signature tests are separate. See [protocol scope and hardware limits](notebook-and-consent.md). No physical device, live agent connector, funded two-stage transfer or VC-10 human study has been tested.
+
+## Authoritative MVP execution
+
+`npm run test:mvp` runs six suites (25 tests): EventTraceV1 4, SQLite journal 5, gateway/consent/session 7, real graph projection 3, signed checkpoint/verifier 5, actual HTTP agent workflow 1. Browser tests run the actual gateway/journal and actual cryptographic signatures behind an isolated test proxy, with explicit external-wallet and RPC doubles; they do not establish separate credential custody or live settlement. `tests/browser/pwa.spec.js` checks manifest/raster icons, service-worker control, public-only caches and offline shell. CI now runs these suites with Node 22.23.0. A configured workflow is not an observed hosted CI run.
+
+Refer to [the milestone log](mvp-progress.md) and [machine-readable execution report](../../evaluation/mvp-results.json) for actual pass/fail counts, prior failures/fixes, source hashes and deferred gates. Historical 63-case results above describe the previous UI. All current scenarios preserve the synthetic demo acceptance checks and maintain the distinction between observed references, agent-reported assertions, cryptographic consent and chain verification. Real funded M6 and live audit publication remain owner-deferred.

@@ -3,8 +3,8 @@ import fs from 'node:fs';import path from 'node:path';
 import {createHash,randomBytes,randomUUID,createCipheriv,createDecipheriv} from 'node:crypto';
 import {generateKeypair} from '@countersignlabs/counter-sign';
 import {assertEvent,canonical,VERSION,PROFILE} from './contract.js';
-export const sha=value=>createHash('sha256').update(value).digest('hex');
-export function eventDigest(event){const copy=structuredClone(event);delete copy.integrity.eventDigest;return sha('phishnet.event.v1\n'+canonical(copy));}
+import {sha,eventDigest} from './digest.js';
+export {sha,eventDigest} from './digest.js';
 const rules={
  'chat.user.submitted':['ui-gateway','user-ui','LOCAL_OBSERVATION'],
  'agent.tool.requested':['agent-gateway','agent-runtime','AGENT_REPORTED'],
@@ -24,6 +24,7 @@ const rules={
  'agent.connector.changed':['ui-gateway','user-ui','LOCAL_OBSERVATION'],
  'audit.checkpoint.created':['audit-publisher','audit-publisher','LOCAL_OBSERVATION'],
  'audit.checkpoint.published':['audit-publisher','wallet-provider','WALLET_REPORTED'],
+ 'audit.checkpoint.checked':['audit-publisher','chain-rpc','UNKNOWN'],
  'audit.checkpoint.verified':['audit-publisher','chain-rpc','RPC_VERIFIED']
 };
 export class Journal{
@@ -71,5 +72,5 @@ export class Journal{
    for(const relation of event.relations)this.db.prepare('INSERT INTO relations VALUES(?,?,?,?)').run(relation.eventId,event.eventId,relation.kind,canonical(relation.evidenceIds));return event;
  });}
  events(wallet,{traceId=null,after=0,limit=1000}={}){if(!Number.isSafeInteger(after)||after<0||!Number.isSafeInteger(limit)||limit<1||limit>5000)throw Error('Invalid journal range.');return this.db.prepare('SELECT event_json FROM events WHERE wallet=? AND sequence>? AND (? IS NULL OR trace_id=?) ORDER BY sequence LIMIT ?').all(wallet,after,traceId,traceId,limit).map(r=>JSON.parse(r.event_json));}
- verifyLocal(){const rows=this.db.prepare('SELECT * FROM events ORDER BY sequence').all();let previous='0'.repeat(64),sequence=0;for(const row of rows){const e=JSON.parse(row.event_json);assertEvent(e);if(e.sequence!==++sequence||row.sequence!==sequence||row.digest!==e.integrity.eventDigest||e.integrity.previousDigest!==previous||eventDigest(e)!==row.digest)throw Error('Local journal integrity check failed. External checkpoint verification is required for tamper/rollback assurance.');previous=row.digest;}return {count:sequence,head:previous,authentication:'unsigned-local',independentlyAnchored:false};}
+ verifyLocal(){const rows=this.db.prepare('SELECT * FROM events ORDER BY sequence').all();let previous='0'.repeat(64),sequence=0;for(const row of rows){const e=JSON.parse(row.event_json);assertEvent(e);if(e.sequence!==++sequence||row.sequence!==sequence||row.wallet!==e.walletScope.address||row.trace_id!==e.traceId||row.event_id!==e.eventId||row.event_type!==e.eventType||row.digest!==e.integrity.eventDigest||e.integrity.previousDigest!==previous||eventDigest(e)!==row.digest)throw Error('Local journal integrity check failed. External checkpoint verification is required for tamper/rollback assurance.');previous=row.digest;}return {count:sequence,head:previous,authentication:'unsigned-local',independentlyAnchored:false};}
 }

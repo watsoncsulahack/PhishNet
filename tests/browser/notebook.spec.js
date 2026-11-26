@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-test.beforeEach(async({page})=>{await page.goto('/#explore');await expect(page.locator('#note-title')).toHaveText('Recipient change introduced');await expect(page.locator('#knowledge-map canvas').first()).toBeAttached();});
+test.beforeEach(async({page})=>{await page.goto('/#explore');await page.locator('#graph-source').selectOption('demo');await expect(page.locator('#note-title')).toHaveText('Recipient change introduced');await expect(page.locator('#knowledge-map canvas').first()).toBeAttached();});
 test('typed notes, backlinks, search and chronological replay share one record model',async({page})=>{
   await page.locator('#node-type').selectOption('rationale');await expect(page.locator('#note-kind')).toContainText('RECORDED RATIONALE');await expect(page.locator('#detail')).toContainText('not a transcript of private model reasoning');await expect(page.locator('#map-summary')).toContainText('1 of');
   await page.locator('#node-type').selectOption('all');await page.locator('#node-search').fill('nothing-matches-this');await expect(page.locator('#map-summary')).toContainText('No notes match');await expect(page.locator('#note-title')).toHaveText('No matching note');

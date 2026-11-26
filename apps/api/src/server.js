@@ -5,7 +5,9 @@ import { investigations } from '../../../packages/core/src/investigations.js';
 import { testnet } from './testnet.js';
 import { Journal } from '../../../packages/journal/src/journal.js';
 import { createGateway } from './gateway.js';
+import {localOrigin} from './gateway-http.js';
 import { gatewayHandler } from './gateway-http.js';
+import {createAudit} from './audit.js';
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
@@ -20,6 +22,7 @@ const PORT = process.env.PORT || 3001;
 const HOST = process.env.HOST || '127.0.0.1';
 const journal = new Journal(process.env.PHISHNET_DATA_DIR || path.join(ROOT_DIR, '.data'));
 const gateway = createGateway({journal});
+gateway.audit=createAudit(gateway);
 const consentBroker = gateway.consent;
 const handleGateway = gatewayHandler(gateway);
 
@@ -347,10 +350,9 @@ const server = http.createServer(async (req, res) => {
   if(await handleGateway(req,res))return;
   // Wallet signing stays in the user's wallet. These routes only read Arc public data.
   if (req.url?.startsWith('/v1/testnet/')) {
-    const origin = `http://${req.headers.host}`;
-    const localHost = /^(localhost|127\.0\.0\.1|\[::1\])(:[0-9]+)?$/.test(req.headers.host || '');
+    let origin;try{origin=localOrigin(req,process.env.PHISHNET_PUBLIC_ORIGIN||'');}catch{res.writeHead(403,{'Content-Type':'application/json','Cache-Control':'no-store'});return res.end(JSON.stringify({error:'Use this API from the configured PhishNet origin.'}));}
     const reply = (status, body) => {res.writeHead(status, {'Content-Type':'application/json', 'Cache-Control':'no-store'});res.end(JSON.stringify(body));};
-    if(!localHost || (req.headers.origin && req.headers.origin !== origin)) return reply(403,{error:'Use this API from the local PhishNet app.'});
+
     if(Date.now()-testnetWindow.start>60000)testnetWindow={start:Date.now(),count:0};
     if(++testnetWindow.count>180)return reply(429,{error:'Too many requests. Wait one minute and retry.'});
     try {
@@ -693,7 +695,7 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
-    const assets = {'/app.js':['build/app.js','text/javascript'], '/app.css':['app.css','text/css'], '/notebook.css':['notebook.css','text/css'], '/app.js.LEGAL.txt':['build/app.js.LEGAL.txt','text/plain'], '/investigate.js': ['investigate.js', 'text/javascript'], '/investigate.css': ['investigate.css', 'text/css']};
+    const assets = {'/mvp.css':['mvp.css','text/css'], '/sw.js':['sw.js','text/javascript'], '/manifest.webmanifest':['manifest.webmanifest','application/manifest+json'], '/icon.svg':['icon.svg','image/svg+xml'], '/icon-192.png':['icon-192.png','image/png'], '/icon-512.png':['icon-512.png','image/png'], '/app.js':['build/app.js','text/javascript'], '/app.css':['app.css','text/css'], '/notebook.css':['notebook.css','text/css'], '/app.js.LEGAL.txt':['build/app.js.LEGAL.txt','text/plain'], '/investigate.js': ['investigate.js', 'text/javascript'], '/investigate.css': ['investigate.css', 'text/css']};
     if (req.method === 'GET' && assets[pathname]) {
       const [file, type] = assets[pathname];
       res.writeHead(200, {'Content-Type': type + '; charset=utf-8'});

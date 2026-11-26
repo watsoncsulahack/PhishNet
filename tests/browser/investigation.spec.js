@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-test.beforeEach(async({page})=>{await page.goto('/#explore');await expect(page.locator('#decision')).toHaveText('DENIED');});
+test.beforeEach(async({page})=>{await page.goto('/#explore');await page.locator('#graph-source').selectOption('demo');await expect(page.locator('#decision')).toHaveText('DENIED');});
 test('VC-01/06/07 transaction is legible, exact and explicitly simulated',async({page,context})=>{
   await expect(page.locator('.amount')).toHaveText('250.00 USDC');await expect(page.locator('#change')).toContainText('Recipient changed');
   await expect(page.locator('#decision')).toBeInViewport();await expect(page.locator('.amount')).toBeInViewport();await expect(page.locator('#change')).toBeInViewport();
@@ -37,4 +37,4 @@ test('VC-10 recording infrastructure measures input, not fabricated study outcom
   await page.getByRole('button',{name:'Record response',exact:true}).click();await expect(page.locator('#task-result')).toContainText('Decision incorrect; source incorrect');
   const downloadPromise=page.waitForEvent('download');await page.locator('#download-study').click();const download=await downloadPromise;const stream=await download.createReadStream();const chunks=[];for await(const c of stream)chunks.push(c);const rows=JSON.parse(Buffer.concat(chunks).toString());expect(rows).toHaveLength(1);expect(rows[0]).toMatchObject({decisionCorrect:false,sourceCorrect:false,confidencePercent:95,incorrectConfidencePercent:95,inputErrors:2,condition:'timeline'});expect(rows[0].elapsedMs).toBeGreaterThan(0);
 });
-test('failed case loading is visible and does not present stale authorization',async({page})=>{await page.route('**/v1/investigations',route=>route.fulfill({status:503,body:'unavailable'}));await page.reload();await expect(page.locator('#error')).toContainText('Cases could not be loaded');await expect(page.locator('#case')).toBeDisabled();expect(await page.locator('#decision').count()).toBe(0);});
+test('failed case loading is visible and does not present stale authorization',async({page})=>{await page.route('**/v1/investigations',route=>route.fulfill({status:503,body:'unavailable'}));await page.reload();await page.locator('#graph-source').selectOption('demo');await expect(page.locator('#error')).toContainText('Cases could not be loaded');await expect(page.locator('#case')).toBeDisabled();expect(await page.locator('#decision').count()).toBe(0);});
