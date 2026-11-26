@@ -90,3 +90,7 @@ The read-only case replay does not complete Stage 1 persistence or Stage 4 produ
 | UR-09, UR-11; SR-004, SR-016, SR-017, SR-019 | simulation-policy.js / API | Shared simulation policy; full authorization remains open | 15 API smoke checks; fixture DENY/ALLOW and signature rejection |
 | UR-13, UR-18; SR-011, SR-026 | investigations.js | Two synthetic cases; independently keyed fixture check plus new signed mandate / exact proposal; real identity open | 4 fixture tests; no execution capability added |
 | UR-02–05; SR-007–010 | investigations.js | Canonical event, claim, mention and typed-edge IDs for this read-only slice; database integrity / arbitrary ingest open | Fixture reference / chronology test |
+
+| Requirements | Module | Increment status | Verification |
+|---|---|---|---|
+| UR-12, UR-23; SR-001–002, SR-036 | packages/chain/src/arc.ts | Legacy fabricated SETTLED branch removed; live opt-in fails closed. All adapters remain simulation only; genuine settlement NOT_IMPLEMENTED | `npm run test:chain`: 4 adapter safety checks pass |

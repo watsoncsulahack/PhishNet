@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {ArcTestnetAdapter} from '../packages/chain/src/arc.ts';
+assert.throws(()=>new ArcTestnetAdapter({allowLiveTestnet:true,privateKey:'fixture-not-a-key'}),/LIVE_EXECUTION_DISABLED/);
+assert.throws(()=>new ArcTestnetAdapter({allowLiveTestnet:true}),/LIVE_EXECUTION_DISABLED/);
+const adapter=new ArcTestnetAdapter();
+const proposal={requestId:'chain-fixture',recipient:'0x'+'1'.repeat(40),assetContract:'USDC',amountBaseUnits:'20000'};
+const receipt=await adapter.executePayment(proposal,{decision:'ALLOW'});
+assert.equal(receipt.status,'SIMULATED');assert.equal(receipt.isSimulated,true);assert.equal(receipt.explorerUrl,undefined);
+await assert.rejects(adapter.executePayment(proposal,{decision:'DENY',reasonCodes:['RECIPIENT_MISMATCH']}),/POLICY REFUSAL/);
+console.log('PASS 4 adapter safety checks: live with/without key disabled; receipt simulated; DENY refused');
