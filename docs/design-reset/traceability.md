@@ -1,6 +1,6 @@
 # Requirements traceability baseline
 
-Baseline: `1f7fe05`. Status is conservative: existing prototype behavior is not evidence of acceptance. The smoke test exercises the HTTP server but does not establish security or settlement. Requirement text and acceptance criteria are in [requirements.md](requirements.md).
+Baseline: `1f7fe05`. Investigation increment and verification overrides follow the baseline table below. Status is conservative: existing prototype behavior is not evidence of acceptance. The smoke test exercises the HTTP server but does not establish security or settlement. Requirement text and acceptance criteria are in [requirements.md](requirements.md).
 
 | Requirement | Priority | Target area / stage | Status | Evidence or next test |
 |---|---|---|---|---|
@@ -94,3 +94,17 @@ The read-only case replay does not complete Stage 1 persistence or Stage 4 produ
 | Requirements | Module | Increment status | Verification |
 |---|---|---|---|
 | UR-12, UR-23; SR-001–002, SR-036 | packages/chain/src/arc.ts | Legacy fabricated SETTLED branch removed; live opt-in fails closed. All adapters remain simulation only; genuine settlement NOT_IMPLEMENTED | `npm run test:chain`: 4 adapter safety checks pass |
+
+
+## UI acceptance override for the baseline inventory
+
+These rows supersede “acceptance not established” only for the two synthetic read-only cases. All unlisted requirements and full-production interpretations remain open. Browser command: `npm run test:browser`, 18/18 passing. Detailed VC-01–10 mapping, environment and limitations: [investigation-results.md](investigation-results.md). Component selection: [interface-architecture.md](interface-architecture.md).
+
+| UR / SR | Module | Status | Actual evidence |
+|---|---|---|---|
+| UR-01, UR-06; SR-014 | apps/web/investigate.js | Implemented for fixture terms; general comparison API open | Exact addresses, amount, asset, chain, purpose and validity displayed; VC-01/06 browser test |
+| UR-02–05; SR-008, SR-010, SR-012–013 | investigations.js; investigate.js | Implemented read-only fixture navigation | VC-02/03/04/08 tests: chronology, shared selection, one-source repeats, typed uncertainty |
+| UR-08, UR-11–13; SR-001–002, SR-016, SR-019 | shared policy, case verifier, UI | Simulation slice verified; real independent authority open | Counterexample DENY/ALLOW; simulation status / no explorer; signature tamper tests |
+| UR-15–16; SR-024–025, SR-030 | investigate.js / .css | Scoped browser checks pass | 320px/390px, touch/Enter/focus, full addresses, hostile source rendered as text |
+| UR-13, UR-21; SR-028, SR-042 | Local review form | Instrumentation only; human comparison NOT_RUN | VC-10 form/download test verifies incorrect responses and confidence; zero real reviewers |
+| SR-027, SR-029 | tests/browser, investigations.test.js, chain-safety.test.mjs, README, CI | Repeatable actual-code checks added | 18 browser + 4 fixture + 4 adapter + 15 API checks; no efficacy claim |

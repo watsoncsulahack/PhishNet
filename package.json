@@ -8,7 +8,10 @@
     "dev": "node apps/api/src/server.js",
     "test": "node tests/run-all.js",
     "test:native": "powershell -ExecutionPolicy Bypass -File tests/run-tests.ps1",
-    "serve": "powershell -ExecutionPolicy Bypass -File apps/api/serve.ps1"
+    "serve": "powershell -ExecutionPolicy Bypass -File apps/api/serve.ps1",
+    "test:unit": "node tests/investigations.test.js",
+    "test:browser": "playwright test",
+    "test:chain": "node --experimental-strip-types tests/chain-safety.test.mjs"
   },
   "keywords": [
     "agentic-payments",
@@ -21,5 +24,8 @@
     "financial-authorization"
   ],
   "author": "PhishNet Team",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@playwright/test": "1.65.1"
+  }
 }

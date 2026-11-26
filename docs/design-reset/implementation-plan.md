@@ -48,3 +48,7 @@ Create and maintain a requirements traceability matrix. For each stage, include 
 7. Update the requirements, diagrams and plan when architecture changes, before adding incompatible code.
 
 **Stage 0 is the next task. No production payment service should be deployed from this prototype.**
+
+## 2026-11-26 investigation increment
+
+The user's transaction/timeline/provenance priority is implemented as a read-only vertical slice alongside the existing simulation API. See [architecture and component selection](interface-architecture.md) and [actual results](investigation-results.md). This is an intentional scoped advance into Stage 2, not a claim that Stage 1 persistence or Stage 4 production authorization passed. Native controls and an original fixed graph avoid introducing React for six events; the canonical model permits a later React Flow renderer. Stage 2 remains partial: signed synthetic counterexample passes, real trusted identity/signing and human study VC-10 are open.

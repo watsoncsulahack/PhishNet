@@ -64,3 +64,7 @@ The ten requirements in [visualization-design-strategy.md](visualization-design-
 5. Test offline only with explicitly authorized redacted read-only case data. Never sign or imply confirmed payment while offline.
 
 **Metrics to report from actual tests:** task completion numerator/denominator, decision correctness, source-identification correctness, incorrect confidence, time-to-answer and tap/keyboard errors. All source-based numbers and graphs must disclose fixture or real-data provenance.
+
+## Executed investigation UI increment
+
+The first two canonical cases now have executable checks in `tests/browser/investigation.spec.js` and `tests/investigations.test.js`. Run `npm ci`, `npx playwright install chromium`, `npm run test:unit`, `npm run test:chain`, `npm test`, and `npm run test:browser`. See [actual results and VC matrix](investigation-results.md). VC-01–09 pass the scoped synthetic browser flows; VC-10 measurement infrastructure is tested but human observations remain NOT_RUN. These results supersede the earlier “future tests” statement only for this narrow slice.

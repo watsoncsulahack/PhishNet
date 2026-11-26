@@ -6,14 +6,22 @@ on:
       - 'scripts/verify-design-docs.mjs'
       - 'scripts/smoke-api.mjs'
       - '.github/workflows/design-verification.yml'
-      - 'apps/api/src/server.js'
+      - 'apps/**'
+      - 'packages/**'
+      - 'tests/**'
+      - 'package*.json'
+      - 'playwright.config.js'
   pull_request:
     paths:
       - 'docs/design-reset/**'
       - 'scripts/verify-design-docs.mjs'
       - 'scripts/smoke-api.mjs'
       - '.github/workflows/design-verification.yml'
-      - 'apps/api/src/server.js'
+      - 'apps/**'
+      - 'packages/**'
+      - 'tests/**'
+      - 'package*.json'
+      - 'playwright.config.js'
 jobs:
   docs-and-smoke:
     runs-on: ubuntu-latest
@@ -28,3 +36,13 @@ jobs:
         run: node scripts/verify-design-docs.mjs
       - name: Smoke test the actual Node API
         run: node scripts/smoke-api.mjs
+      - run: npm ci
+      - run: npm run test:unit
+      - run: npm run test:chain
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-results
+          path: test-results/

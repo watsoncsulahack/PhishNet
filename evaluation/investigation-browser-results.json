@@ -1,0 +1,133 @@
+{
+  "source": "Executed Playwright JSON reporter; automated synthetic tests, not human observations",
+  "stats": {
+    "startTime": "2026-11-26T08:12:39.116Z",
+    "duration": 3320.986,
+    "expected": 18,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "tests": [
+    {
+      "title": "VC-01/06/07 transaction is legible, exact and explicitly simulated",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 446
+    },
+    {
+      "title": "VC-01/06/07 transaction is legible, exact and explicitly simulated",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 449
+    },
+    {
+      "title": "VC-01/06/07 transaction is legible, exact and explicitly simulated",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 497
+    },
+    {
+      "title": "VC-02/03/04/08 shared selection and source detail with typed relationships",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 399
+    },
+    {
+      "title": "VC-02/03/04/08 shared selection and source detail with typed relationships",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 376
+    },
+    {
+      "title": "VC-02/03/04/08 shared selection and source detail with typed relationships",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 365
+    },
+    {
+      "title": "VC-05 signed benign counterexample differs without live execution",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 323
+    },
+    {
+      "title": "VC-05 signed benign counterexample differs without live execution",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 321
+    },
+    {
+      "title": "VC-05 signed benign counterexample differs without live execution",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 347
+    },
+    {
+      "title": "VC-09 keyboard/touch, reduced motion and inert untrusted text",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 441
+    },
+    {
+      "title": "VC-09 keyboard/touch, reduced motion and inert untrusted text",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 483
+    },
+    {
+      "title": "VC-09 keyboard/touch, reduced motion and inert untrusted text",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 449
+    },
+    {
+      "title": "VC-10 recording infrastructure measures input, not fabricated study outcomes",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 475
+    },
+    {
+      "title": "VC-10 recording infrastructure measures input, not fabricated study outcomes",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 446
+    },
+    {
+      "title": "VC-10 recording infrastructure measures input, not fabricated study outcomes",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 470
+    },
+    {
+      "title": "failed case loading is visible and does not present stale authorization",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 304
+    },
+    {
+      "title": "failed case loading is visible and does not present stale authorization",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 285
+    },
+    {
+      "title": "failed case loading is visible and does not present stale authorization",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 268
+    }
+  ],
+  "sha256": {
+    "apps/web/index.html": "1f0401486e166a3bf16096f0bdb180205d5a14b3741a6d422a4cf51e3dc4fe0a",
+    "apps/web/investigate.js": "3452c26ead1d9099b5143857c888c481afe63b76b5cfeb8488c5669a01d981f1",
+    "apps/web/investigate.css": "36fc6843bb64954c6d7a71908a420096d31dfd2a1f202a187b9412e5b6b57f42",
+    "apps/api/src/server.js": "9451f7a8261bcd803f299e8e7cce31fab16ad802953957796c7f67095234ed61",
+    "packages/core/src/investigations.js": "bc3a5b04c59e65ef39b9c2e86c4708067c643ee3d2530958cb0b4ecf7f159ec9",
+    "packages/core/src/simulation-policy.js": "09fbf4263567fa1ed947e435d98357a27e76c5e37294caff9647a7303aab1bf9",
+    "tests/browser/investigation.spec.js": "e2ac117a925b72fe4d8d0ec98bd1f78efb5508743d8172a8a1e08d3c4102d72e",
+    "playwright.config.js": "d3946ad7f9a7ce8bb7655b30cd00863f4748d8789919deea58381fd5cbf37459",
+    "package-lock.json": "d39f89f3fee66dcf06d1723c16a014a5e7f39680b2519b2e9929af22ad8d95d4"
+  },
+  "humanReviewers": 0
+}
