@@ -5,11 +5,11 @@
 ## Reading order
 
 1. [requirements.md](requirements.md) — **only** user requirements (26) and system requirements (50), priority-tagged with stable IDs.
-2. [dfd-level-0.mmd](dfd-level-0.mmd) — Level 0 context data-flow diagram, with one PhishNet system process and six external entities.
+2. [dfd-level-0.mmd](dfd-level-0.mmd) ([SVG](dfd-level-0.svg)) — Level 0 context data-flow diagram, with one PhishNet system process and six external entities.
 3. [normalization.md](normalization.md) — functional dependencies and the exact 1NF→2NF→3NF decomposition.
-4. [erd-1nf.mmd](erd-1nf.mmd) — atomic **1NF** wide relations with deliberately retained partial-key dependencies.
-5. [erd-2nf.mmd](erd-2nf.mmd) — **2NF** decomposition removing partial dependencies while retaining documented transitive dependencies.
-6. [erd-3nf.mmd](erd-3nf.mmd) and [erd-3nf-notes.md](erd-3nf-notes.md) — previous ERD correctly relabeled as a **3NF-oriented** migration candidate.
+4. [erd-1nf.mmd](erd-1nf.mmd) ([SVG](erd-1nf.svg)) — atomic **1NF** wide relations with deliberately retained partial-key dependencies.
+5. [erd-2nf.mmd](erd-2nf.mmd) ([SVG](erd-2nf.svg)) — **2NF** decomposition removing partial dependencies while retaining documented transitive dependencies.
+6. [erd-3nf.mmd](erd-3nf.mmd) ([SVG](erd-3nf.svg)) and [erd-3nf-notes.md](erd-3nf-notes.md) — previous ERD correctly relabeled as a **3NF-oriented** migration candidate.
 7. [diagrams.md](diagrams.md) — Mermaid-rendered previews of DFD and all three ERD levels.
 8. [implementation-plan.md](implementation-plan.md) — staged engineering roadmap and acceptance criteria.
 
