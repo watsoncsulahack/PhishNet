@@ -1,0 +1,7 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {investigations} from '../packages/core/src/investigations.js';
+import {notebookModel,visibleNotes} from '../packages/provenance/src/notebook.js';
+test('typed notebook keeps original evidence, reported rationale, consent and settlement separate',()=>{const m=notebookModel(investigations[0]);for(const type of ['source','interaction','rationale','proposal','policy','consent','settlement'])assert.ok(m.notes.some(n=>n.kind===type));assert.ok(m.notes.find(n=>n.kind==='rationale').text.includes('not a transcript of private model reasoning'));assert.equal(m.notes.find(n=>n.kind==='settlement').trust,'SIMULATED; no network receipt');});
+test('type, search and replay filter same canonical IDs without inventing events',()=>{const m=notebookModel(investigations[0]);assert.deepEqual(visibleNotes(m,{type:'rationale'}).map(n=>n.eventId),['rationale']);assert.deepEqual(visibleNotes(m,{through:0}).map(n=>n.eventId),['mandate']);assert.ok(visibleNotes(m,{query:'billing desk'}).some(n=>n.eventId==='origin'));assert.equal(visibleNotes(m,{query:'no matching record'}).length,0);});
+test('missing references, duplicate IDs and invalid timestamps are rejected',()=>{const c=investigations[0];assert.throws(()=>notebookModel({...c,events:[...c.events,c.events[0]]}));assert.throws(()=>notebookModel({...c,edges:[{from:'missing',to:'origin',kind:'Observed reference'}]}));assert.throws(()=>notebookModel({...c,events:[{...c.events[0],timestamp:'invalid'}]}));});

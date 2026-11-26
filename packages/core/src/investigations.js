@@ -42,9 +42,17 @@ function build(legitimate) {
     event('agent-1','03','Procurement agent','agent message','First agent repeats claim',`Source origin says the vendor wallet is ${B}.`, 'Observed reference; truth unverified','wallet-change'),
     event('agent-2','04','Payment agent','agent message','Second agent repeats claim',`Using the recipient from origin: ${B}.`, 'Observed reference; truth unverified','wallet-change'),
   ];
+  events.push({...event('rationale','04','Payment agent','recorded rationale','Proposed rationale', 'The agent reports that it reused the wallet named in the vendor message. This is a synthetic, recorded explanation; it is not a transcript of private model reasoning and does not verify the recipient.', 'Agent-reported explanation; unverified'), timestamp: '2026-11-26T09:04:30Z'});
   if (legitimate) events.push(event('verification','05','Independent reviewer + human owner','fixture verification','Independent check and new signed mandate',`A separate directory callback verifies ${B}; owner issues mandate-updated and signs the exact proposal. Method: fixture-directory-callback. Verifier: fixture-independent-reviewer.`, 'Fixture signatures verified; synthetic identities'));
   events.push(event('proposal','06','Payment agent','proposal','Exact payment proposed',`250 USDC to ${B}, chain 5042002; vendor-invoice.`, 'Observed proposal; not settlement'));
+  events.push(event('policy','07','Deterministic policy','policy evaluation','Policy decision',`${decision.decision}: ${decision.reasonCodes.join(', ')}. Policy ${decision.policyVersion}. Explanation is advisory; policy does not establish the source claim as true.`, 'Observed fixture policy result'));
+  events.push(event('consent','08','Human approval boundary','authorization','Human consent boundary',legitimate?'Independent synthetic verifier and owner signatures checked for the fixture. No production human identity was enrolled.':'No human countersignature authorizes this changed recipient. The request stays denied; silence grants no permission.',legitimate?'Fixture signatures only':'No approval'));
+  events.push(event('execution','09','Simulation adapter','settlement','Execution record','No on-chain transfer was initiated by this sample. SIMULATED is not BROADCAST or CONFIRMED.', 'SIMULATED; no network receipt'));
   const edges = [
+    {from:'agent-2',to:'rationale',kind:'Observed reference',why:'The fixture records this explanation alongside the agent message; it is a reported rationale, not hidden model cognition.'},
+    {from:'proposal',to:'policy',kind:'Observed reference',why:'The deterministic policy evaluated this exact fixture proposal.'},
+    {from:'policy',to:'consent',kind:'Observed reference',why:'The case records the authorization boundary separately from the policy decision.'},
+    {from:'consent',to:'execution',kind:'Observed reference',why:'Execution remains simulation-only regardless of the fixture consent state.'},
     {from:'origin',to:'agent-1',kind:'Observed reference',why:'Recorded source ID origin in the fixture.'},
     {from:'origin',to:'agent-2',kind:'Observed reference',why:'Both repetitions explicitly cite origin; one source.'},
     {from:'agent-1',to:'agent-2',kind:'Inferred influence',why:'Temporal proximity only; direct influence is not established.',confidence:'Low; heuristic hypothesis',method:'fixture-hypothesis-v1'},

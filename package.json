@@ -15,7 +15,10 @@
     "build": "node scripts/build-web.mjs",
     "predev": "npm run build",
     "test:payments": "node tests/payments.test.js",
-    "test:testnet-api": "node scripts/test-testnet-api.mjs"
+    "test:testnet-api": "node scripts/test-testnet-api.mjs",
+    "test:consent": "node tests/consent.test.js",
+    "test:notebook": "node tests/notebook.test.js",
+    "test:consent-api": "node scripts/test-consent-api.mjs"
   },
   "keywords": [
     "agentic-payments",
@@ -34,6 +37,11 @@
     "esbuild": "0.28.2"
   },
   "dependencies": {
+    "@countersignlabs/counter-sign": "0.2.0",
+    "cytoscape": "3.35.0",
     "viem": "2.58.7"
+  },
+  "overrides": {
+    "nodemailer": "10.1.4"
   }
 }

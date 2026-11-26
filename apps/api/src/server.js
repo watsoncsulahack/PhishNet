@@ -3,6 +3,7 @@
 import { evaluateDeterministicPolicy as evaluateSimulationPolicy } from '../../../packages/core/src/simulation-policy.js';
 import { investigations } from '../../../packages/core/src/investigations.js';
 import { testnet } from './testnet.js';
+import { consentBroker } from '../../../packages/consent/src/broker.js';
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
@@ -347,12 +348,19 @@ const server = http.createServer(async (req, res) => {
     if(++testnetWindow.count>180)return reply(429,{error:'Too many requests. Wait one minute and retry.'});
     try {
       const endpoint = new URL(req.url,origin);
+      if(req.method==='GET' && endpoint.pathname==='/v1/testnet/consent/config')return reply(200,consentBroker.config());
+      if(req.method==='POST' && ['/v1/testnet/consent/intent','/v1/testnet/consent/receipt','/v1/testnet/consent/consume'].includes(endpoint.pathname)){
+        if(!req.headers['content-type']?.startsWith('application/json'))return reply(415,{error:'JSON body required.'});
+        const input=await parseJsonBody(req);
+        if(endpoint.pathname.endsWith('/intent'))return reply(200,consentBroker.create(input));
+        return reply(200,endpoint.pathname.endsWith('/receipt')?consentBroker.accept(input):consentBroker.consume(input));
+      }
       if(req.method==='GET' && endpoint.pathname==='/v1/testnet/network')return reply(200,await testnet.network());
       if(req.method==='GET' && endpoint.pathname==='/v1/testnet/balance')return reply(200,await testnet.balance(endpoint.searchParams.get('address')));
       if(req.method==='POST' && ['/v1/testnet/quote','/v1/testnet/receipt'].includes(endpoint.pathname)) {
         if(!req.headers['content-type']?.startsWith('application/json'))return reply(415,{error:'JSON body required.'});
         const body=await parseJsonBody(req);
-        return reply(200,await (endpoint.pathname.endsWith('/quote')?testnet.quote(body):testnet.receipt(body)));
+        return reply(200,endpoint.pathname.endsWith('/quote')?{...await testnet.quote(body),consentRequired:consentBroker.config().configured}:await testnet.receipt(body));
       }
       return reply(404,{error:'Testnet route not found.'});
     } catch(error) {return reply(400,{error:error.message || 'Testnet request failed.'});}
@@ -678,7 +686,7 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
-    const assets = {'/app.js':['build/app.js','text/javascript'], '/app.css':['app.css','text/css'], '/app.js.LEGAL.txt':['build/app.js.LEGAL.txt','text/plain'], '/investigate.js': ['investigate.js', 'text/javascript'], '/investigate.css': ['investigate.css', 'text/css']};
+    const assets = {'/app.js':['build/app.js','text/javascript'], '/app.css':['app.css','text/css'], '/notebook.css':['notebook.css','text/css'], '/app.js.LEGAL.txt':['build/app.js.LEGAL.txt','text/plain'], '/investigate.js': ['investigate.js', 'text/javascript'], '/investigate.css': ['investigate.css', 'text/css']};
     if (req.method === 'GET' && assets[pathname]) {
       const [file, type] = assets[pathname];
       res.writeHead(200, {'Content-Type': type + '; charset=utf-8'});

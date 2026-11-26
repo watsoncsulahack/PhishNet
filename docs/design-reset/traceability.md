@@ -125,3 +125,13 @@ Scope: [testnet-payments.md](testnet-payments.md). The owner authorized direct w
 | UR-02–05, UR-08, UR-13; SR-008, SR-010, SR-012–013, SR-024 | Visualizations + recorded payment trail | Shared fixture selection and actual wallet/RPC source inspection; sample cases labeled synthetic | Existing 18 investigation browser checks pass in new tab; payment provenance navigation passes; no fabricated agent evidence added to direct payments |
 | UR-23; SR-002, SR-036 | Public-RPC receipt reader / local activity journal | Implemented verification path; real funded user transfer NOT_RUN in agent session | 7 production payment tests plus mock-wallet browser checks; live RPC/read-only gas estimate passed; saved statuses rechecked and RPC failure shown UNVERIFIED |
 | SR-044 | server.js testnet routes | Local-origin/Host, method/body gates, rate cap, no broadcast endpoint and security headers implemented for new routes | 9/9 actual HTTP boundary tests; legacy production hardening still open |
+
+## Decision notebook and independent counter-sign profile
+
+See [scope, protocol sources, setup and actual verification](notebook-and-consent.md). The agent must not have the human key or enrollment-administration authority; local deployment does not attest that isolation.
+
+| Requirements | Module | Status | Executed evidence |
+|---|---|---|---|
+| UR-02–05, UR-07–08, UR-15; SR-008, SR-010, SR-012–013, SR-024, SR-030 | notebook model / UI / case fixtures | Linked notebook/map, typed rationale vs sources/interactions/proposal/policy/consent/settlement, search/filter/replay and backlinks implemented for synthetic cases. No private cognition or live agent-ingest claim | 3 model tests + 9 notebook browser checks; existing 18 VC regressions pass |
+| UR-11, UR-17–18; SR-016, SR-019–021, SR-032–034 | consent broker; independent human helper; wallet gate | Real counter-sign 0.2 keyed-Ed25519 profile; pinned public enrollment, reject-on-silence, exact transfer commitment, receipt/time/one-time checks. Raw-key file route implemented; OS isolation, org-root registry, WebAuthn/card and durable receipt store remain open | 6 broker tests + 6 actual HTTP signature tests; 6 additional browser gate checks with mocks |
+| UR-12, UR-19, UR-23; SR-002, SR-036, SR-038 | notebook / wallet journal | Human receipt, wallet approval and network settlement remain distinct; no hardware attestation or synthetic CONFIRMED | Original payment regressions and typed-event tests; real funded/device end-to-end NOT_RUN |
