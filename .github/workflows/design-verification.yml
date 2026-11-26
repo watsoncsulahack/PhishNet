@@ -40,6 +40,9 @@ jobs:
       - run: npm run test:unit
       - run: npm run test:chain
       - run: npm run test:payments
+      - run: npm run test:notebook
+      - run: npm run test:consent
+      - run: npm run test:consent-api
       - run: npm run test:testnet-api
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser

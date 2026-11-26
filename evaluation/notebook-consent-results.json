@@ -1,0 +1,429 @@
+{
+  "source": "Executed Chromium Playwright reporter; controlled browser wallet/RPC responses; real protocol signatures checked separately",
+  "stats": {
+    "startTime": "2026-11-26T17:38:39.470Z",
+    "duration": 25276.632,
+    "expected": 63,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "tests": [
+    {
+      "title": "VC-01/06/07 transaction is legible, exact and explicitly simulated",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 1160
+    },
+    {
+      "title": "VC-01/06/07 transaction is legible, exact and explicitly simulated",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 1032
+    },
+    {
+      "title": "VC-01/06/07 transaction is legible, exact and explicitly simulated",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 1039
+    },
+    {
+      "title": "VC-02/03/04/08 shared selection and source detail with typed relationships",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 1045
+    },
+    {
+      "title": "VC-02/03/04/08 shared selection and source detail with typed relationships",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 981
+    },
+    {
+      "title": "VC-02/03/04/08 shared selection and source detail with typed relationships",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 1175
+    },
+    {
+      "title": "VC-05 signed benign counterexample differs without live execution",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 983
+    },
+    {
+      "title": "VC-05 signed benign counterexample differs without live execution",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 901
+    },
+    {
+      "title": "VC-05 signed benign counterexample differs without live execution",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 922
+    },
+    {
+      "title": "VC-09 keyboard/touch, reduced motion and inert untrusted text",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 1148
+    },
+    {
+      "title": "VC-09 keyboard/touch, reduced motion and inert untrusted text",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 981
+    },
+    {
+      "title": "VC-09 keyboard/touch, reduced motion and inert untrusted text",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 1035
+    },
+    {
+      "title": "VC-10 recording infrastructure measures input, not fabricated study outcomes",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 974
+    },
+    {
+      "title": "VC-10 recording infrastructure measures input, not fabricated study outcomes",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 1030
+    },
+    {
+      "title": "VC-10 recording infrastructure measures input, not fabricated study outcomes",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 868
+    },
+    {
+      "title": "failed case loading is visible and does not present stale authorization",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 669
+    },
+    {
+      "title": "failed case loading is visible and does not present stale authorization",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 669
+    },
+    {
+      "title": "failed case loading is visible and does not present stale authorization",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 586
+    },
+    {
+      "title": "typed notes, backlinks, search and chronological replay share one record model",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 1237
+    },
+    {
+      "title": "typed notes, backlinks, search and chronological replay share one record model",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 1300
+    },
+    {
+      "title": "typed notes, backlinks, search and chronological replay share one record model",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 1451
+    },
+    {
+      "title": "canvas node selection, map zoom and native keyboard index work together",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 988
+    },
+    {
+      "title": "canvas node selection, map zoom and native keyboard index work together",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 926
+    },
+    {
+      "title": "canvas node selection, map zoom and native keyboard index work together",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 1239
+    },
+    {
+      "title": "consent profile and device boundary are visible without pretending hardware is attested",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 1112
+    },
+    {
+      "title": "consent profile and device boundary are visible without pretending hardware is attested",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 818
+    },
+    {
+      "title": "consent profile and device boundary are visible without pretending hardware is attested",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 1033
+    },
+    {
+      "title": "cohesive payment workspace and responsive tab navigation",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 1464
+    },
+    {
+      "title": "cohesive payment workspace and responsive tab navigation",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 1017
+    },
+    {
+      "title": "cohesive payment workspace and responsive tab navigation",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 1611
+    },
+    {
+      "title": "wallet-approved send has exact native amount, one broadcast, verified activity and provenance",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 1187
+    },
+    {
+      "title": "wallet-approved send has exact native amount, one broadcast, verified activity and provenance",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 1259
+    },
+    {
+      "title": "wallet-approved send has exact native amount, one broadcast, verified activity and provenance",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 1346
+    },
+    {
+      "title": "wallet rejection creates no submitted payment and leaves review editable",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 1094
+    },
+    {
+      "title": "wallet rejection creates no submitted payment and leaves review editable",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 919
+    },
+    {
+      "title": "wallet rejection creates no submitted payment and leaves review editable",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 985
+    },
+    {
+      "title": "network, account and review expiry changes prevent signing",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 984
+    },
+    {
+      "title": "network, account and review expiry changes prevent signing",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 1001
+    },
+    {
+      "title": "network, account and review expiry changes prevent signing",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 911
+    },
+    {
+      "title": "account change invalidates an open review",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 793
+    },
+    {
+      "title": "account change invalidates an open review",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 928
+    },
+    {
+      "title": "account change invalidates an open review",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 643
+    },
+    {
+      "title": "wrong amount and insufficient funds never reach wallet signing",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 828
+    },
+    {
+      "title": "wrong amount and insufficient funds never reach wallet signing",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 829
+    },
+    {
+      "title": "wrong amount and insufficient funds never reach wallet signing",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 648
+    },
+    {
+      "title": "repeated approval cannot create duplicate submissions",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 829
+    },
+    {
+      "title": "repeated approval cannot create duplicate submissions",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 743
+    },
+    {
+      "title": "repeated approval cannot create duplicate submissions",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 880
+    },
+    {
+      "title": "receipt mismatch never shows confirmed",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 769
+    },
+    {
+      "title": "receipt mismatch never shows confirmed",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 760
+    },
+    {
+      "title": "receipt mismatch never shows confirmed",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 717
+    },
+    {
+      "title": "stored confirmation is not trusted after reload and RPC failure",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 458
+    },
+    {
+      "title": "stored confirmation is not trusted after reload and RPC failure",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 349
+    },
+    {
+      "title": "stored confirmation is not trusted after reload and RPC failure",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 392
+    },
+    {
+      "title": "unknown Arc network is added with 18 native decimals and then switched",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 558
+    },
+    {
+      "title": "unknown Arc network is added with 18 native decimals and then switched",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 436
+    },
+    {
+      "title": "unknown Arc network is added with 18 native decimals and then switched",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 419
+    },
+    {
+      "title": "configured counter-sign cannot reach wallet submission without an independent receipt",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 1319
+    },
+    {
+      "title": "configured counter-sign cannot reach wallet submission without an independent receipt",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 832
+    },
+    {
+      "title": "configured counter-sign cannot reach wallet submission without an independent receipt",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 1335
+    },
+    {
+      "title": "rejected human receipt keeps the wallet signing boundary closed",
+      "project": "phone-390",
+      "status": "passed",
+      "durationMs": 1092
+    },
+    {
+      "title": "rejected human receipt keeps the wallet signing boundary closed",
+      "project": "narrow-320",
+      "status": "passed",
+      "durationMs": 728
+    },
+    {
+      "title": "rejected human receipt keeps the wallet signing boundary closed",
+      "project": "desktop",
+      "status": "passed",
+      "durationMs": 1058
+    }
+  ],
+  "sha256": {
+    "apps/web/index.html": "aa6e7f72d0a33ede6083731164484db382b0145a77c2169afe9a278bed96ac5f",
+    "apps/web/app.js": "abb6693f1f2d61b68233a013be5825670b6fbfb486e7dff4051f74c5b1c0d22b",
+    "apps/web/investigate.js": "44ffa8fb42af5e3c9adbb7b823a2cf7ad3aa2486af7713b0798eec2360282b55",
+    "apps/web/notebook.js": "893cdbf5f130ec0044e5636837a3ba52d1aa0c18606315b002a6dd2d2bd0baa4",
+    "apps/web/notebook.css": "da8ee19412dc49154986a46e84a7e88a8229e74c919b65eec82e0299254555cc",
+    "apps/api/src/server.js": "1341f26785347873ef7442708455df9268875fc89e22c59a8be2aa8491a56c48",
+    "packages/core/src/investigations.js": "d7fe1aa089647b37ef1c46cb7875deec901c194534630d64bb1e562d2f554dc2",
+    "packages/consent/src/broker.js": "323a1a4672fe4b7c28870a6bf98e2eac8722513434b6fbc7cf4ef9077d19103d",
+    "packages/provenance/src/notebook.js": "3af7b3bdd704655c4779f5135b560e23e441066c8b11f84df1953cb326293472",
+    "tests/consent.test.js": "7e0d91010944e0aa9ba3aae6c60a30ebf0a5e2f15f3f8753920894e4431ccbed",
+    "tests/notebook.test.js": "64dbf93e949294bae28639a1c59f0090c28835e37ab8d4b5c90fa54137f9d654",
+    "tests/browser/notebook.spec.js": "d64357f7745c2f11df1ca20719d94a58c076e3b4ea90036dedb4a468a1895dab",
+    "tests/browser/investigation.spec.js": "8667ab35bae775ed3cae56d5c8fb8fb115fb8350d15eb36e6c7638b49e4a8f07",
+    "tests/browser/payments.spec.js": "193c9098d491ab10ca600e37117b8650dbfdd55bc5176ebcffce86f957712ce6",
+    "scripts/review-consent.mjs": "7aff80e9b59a50f9a496733a82071cdd5bcc227971f4ed1a7fa5a7b4a1ef7e26",
+    "scripts/test-consent-api.mjs": "b77c9580760c09b2846e644f4debbf78de5268c4126596887a462c25c34d1d95",
+    "scripts/build-web.mjs": "ad0b7b8467710e679230f67517c2509759c3666bcaa4a4b078c22442a755cef5",
+    "package-lock.json": "051375b29baefc245ce5e484700305ef4d9d83cf508558996245af84e3ed4675"
+  },
+  "additionalExecuted": {
+    "consentUnitTestsPassed": 6,
+    "actualConsentHttpChecksPassed": 6,
+    "notebookUnitTestsPassed": 3,
+    "investigationFixtureTestsPassed": 4,
+    "legacyApiSmokePassed": 15,
+    "testnetHttpBoundaryChecksPassed": 9,
+    "build": "PASS",
+    "documentation": "PASS",
+    "npmAuditVulnerabilities": 0
+  },
+  "notRun": [
+    "Real human study VC-10",
+    "Physical card/hardware wallet attestation",
+    "Live agent log ingestion",
+    "Funded consent-plus-wallet end-to-end transfer",
+    "Production key/OS isolation certification"
+  ]
+}

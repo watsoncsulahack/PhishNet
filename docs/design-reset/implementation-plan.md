@@ -56,3 +56,7 @@ The user's transaction/timeline/provenance priority is implemented as a read-onl
 ## Direct wallet application update
 
 The owner subsequently requested actual testnet initiation. [testnet-payments.md](testnet-payments.md) defines the added manual wallet path and its tested controls. A human reviews and signs each native USDC transfer in an external browser wallet; the backend only reads public chain data and checks receipts. This changes the application default to Payments, Activity and Visualizations. It does **not** complete autonomous signing, institutional authorization, durable mandate accounting or the broader Stage 4/5 gates. The legacy Arc adapter stays disabled, and synthetic agent scenarios stay simulated. Real funded-wallet end-to-end verification requires the user's approval.
+
+## Owner's notebook and separate-device direction
+
+The new [decision notebook and consent profile](notebook-and-consent.md) supersede the initial simple fixed-graph renderer for Visualizations. Cytoscape provides an Obsidian-like map while the canonical case model retains original events and typed uncertainty. The counter-sign 0.2 raw-keyed profile is implemented behind operator-pinned human public enrollment; its file route never places the human key in the app. This is not completion of production credential governance, org-root enrollment, durable approval storage or physical-card attestation. Physical approval should remain a separate device boundary, with a tested receipt adapter and enrollment/recovery controls before enabling autonomous financial execution.

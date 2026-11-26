@@ -51,3 +51,19 @@ Legacy `/v1/ap2/*`, `/v1/x402/*` and generic policy endpoints remain **in-memory
 Runtime dependencies: viem 2.58.7 (MIT). Local build: esbuild 0.28.2 (MIT). Dependency licenses are retained; no remote JavaScript CDN is used.
 
 Apache-2.0.
+
+## Decision notebook and independent consent
+
+**Visualizations** now includes an Obsidian-inspired notebook: chronological notes, an original-source reader with wiki-style backlinks, and a draggable/zoomable graph. Filter source evidence, interactions, recorded rationale summaries, payment proposals, policy decisions, consent and settlement; replay the case chronologically. These agent examples remain synthetic and do not expose or reconstruct private model reasoning.
+
+An optional independently keyed **counter-sign 0.2** profile adds a second human-consent requirement before the wallet prompt. Configure only `COUNTERSIGN_APPROVER_PUBLIC_KEY`; keep the human signing seed on a separate human-controlled environment. The app exports a signed, exact-payment Intent and imports/verifies a keyed Resolution. Silence, rejection, altered terms and replay cannot authorize a transfer. Without that enrollment, the UI explicitly reports counter-sign unconfigured and ordinary manual wallet confirmation remains mandatory.
+
+[Consent setup, trust boundaries and hardware-card plan](docs/design-reset/notebook-and-consent.md). A hardware-backed wallet account can prototype final transaction signing, subject to device/network support; its EVM signature is not automatically a counter-sign receipt. No physical device is attested or tested here.
+
+```bash
+npm run test:notebook
+npm run test:consent
+npm run test:consent-api
+```
+
+The current suite passes 63 browser cases, 6 actual consent HTTP checks, 6 consent unit tests and 3 notebook-model tests. See [executed notebook/consent results](evaluation/notebook-consent-results.json). Human efficacy, physical-device and funded consent-plus-wallet end-to-end tests remain open.

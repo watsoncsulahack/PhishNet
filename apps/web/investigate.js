@@ -9,6 +9,7 @@ function selectEvent(id, focus=false){
   const e=current.events.find(e=>e.eventId===id); const detail=$('detail');detail.replaceChildren();
   fields(detail,[['Event ID',e.eventId],['Actor',e.actor],['Timestamp (UTC)',e.timestamp],['Channel',e.channel],['Source / verification state',e.trust],['Data provenance',current.dataOrigin]]);
   detail.append(el('blockquote',e.text));
+  document.dispatchEvent(new CustomEvent('phishnet:selection',{detail:{eventId:id}}));
   if(e.claimId){fields(detail,[['Shared claim ID',e.claimId],['Source convergence',current.claim.summary]]); const b=el('button','Open originating source');b.onclick=()=>selectEvent(current.claim.originEventId,true);detail.append(b);}
   const back=el('button','Back to selected timeline event');back.onclick=()=>{const target=document.querySelector(`#timeline [data-event="${id}"]`);target.focus();target.scrollIntoView({block:'center'});};detail.append(back);
   if(focus){$('source-title').focus();$('source').scrollIntoView({block:'start'});}
@@ -27,12 +28,14 @@ function render(){
   r.append(el('p','SIMULATED · No broadcast or confirmed settlement',{class:'small',id:'settlement'}));
   const comparison=el('div',null,{class:'comparison'});
   for(const [name,m,address] of [['Original mandate',current.originalMandate,current.originalMandate.allowedRecipient],['Proposed payment',current.proposal,current.proposal.recipient]]){const col=el('div',null);col.append(el('h3',name),el('code',address,{class:'address',tabindex:'0'}));const copy=el('button',`Copy ${name.toLowerCase()} address`);copy.onclick=async()=>{try{await navigator.clipboard.writeText(address);copy.textContent='Address copied';}catch{copy.textContent='Select full address above to copy';}};col.append(copy);fields(col,[['Amount',money(m.amountBaseUnits||m.amountMaxBaseUnits)],['Asset / chain',`${m.assetContract} / ${m.chainId} (simulated Arc)`],['Purpose',m.purposeCode],['Validity',m.validUntil||`Governing mandate until ${current.mandate.validUntil}`]]);comparison.append(col);}
-  r.append(comparison,el('p',`Policy ${current.decision.policyVersion} · ${current.decision.reasonCodes.join(', ')} · replay clock 2026-11-26 09:10 UTC`,{class:'small'}),el('p',`${current.authorization.method}. ${current.authorization.limitation}`,{class:'note'}),el('p',current.decision.decision==='DENY'?'Next safe action: independently verify the vendor and obtain a new signed mandate.':'Next safe action: inspect the independent evidence. Live execution remains unavailable.',{class:'next'}));
+  const terms=el('details',null,{id:'payment-comparison'});terms.append(el('summary','Exact payment terms and policy'));r.append(terms);
+  terms.append(comparison,el('p',`Policy ${current.decision.policyVersion} · ${current.decision.reasonCodes.join(', ')} · replay clock 2026-11-26 09:10 UTC`,{class:'small'}),el('p',`${current.authorization.method}. ${current.authorization.limitation}`,{class:'note'}),el('p',current.decision.decision==='DENY'?'Next safe action: independently verify the vendor and obtain a new signed mandate.':'Next safe action: inspect the independent evidence. Live execution remains unavailable.',{class:'next'}));
   $('timeline').replaceChildren();$('graph').replaceChildren();$('relations').replaceChildren();
   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('aria-hidden','true');$('graph').append(svg);
   for(const e of [...current.events].sort((a,b)=>a.timestamp.localeCompare(b.timestamp))){const li=el('li',null);const b=el('button',null,{'data-event':e.eventId,'aria-pressed':'false'});b.append(el('span',`${e.timestamp.slice(11,16)} UTC · ${e.actor}`),el('strong',e.title),el('span',`${e.eventId} · ${e.trust}`));b.onclick=()=>selectEvent(e.eventId,true);li.append(b);$('timeline').append(li);const node=el('button',`${e.eventId} · ${e.title}`,{'data-event':e.eventId,'aria-pressed':'false'});node.onclick=()=>selectEvent(e.eventId,true);$('graph').append(node);}
   $('convergence').textContent=current.claim.summary;
   for(const edge of current.edges){const b=el('button',`${edge.from} → ${edge.to} · ${edge.kind}`,{class:edge.kind==='Inferred influence'?'inferred':edge.kind==='Unknown'?'unknown':''});b.onclick=()=>{selectEvent(edge.to);fields($('detail'),[['Relationship',edge.kind],['Evidence / limitation',edge.why],['Confidence',edge.confidence||'No quantitative confidence assigned'],['Method',edge.method||'Explicit fixture reference']]);$('source-title').focus();$('source').scrollIntoView({block:'start'});};$('relations').append(b);}
+  document.dispatchEvent(new CustomEvent('phishnet:case',{detail:current}));
   selectEvent('origin'); applyCondition();
 }
 function applyCondition(){$('lineage').hidden=$('study-mode').value==='timeline';}
@@ -46,3 +49,5 @@ new ResizeObserver(drawEdges).observe($('graph'));
 try{const res=await fetch('/v1/investigations');if(!res.ok)throw Error('Unable to load cases');cases=await res.json();$('case').replaceChildren(...cases.map(c=>el('option',c.title,{value:c.id})));$('case').disabled=false;render();}catch(e){$('error').textContent='Cases could not be loaded. Reload to retry. '+e.message;}
 
 document.addEventListener('phishnet:select-event',event=>{if(current?.events.some(e=>e.eventId===event.detail))selectEvent(event.detail,true);});
+
+document.addEventListener('phishnet:notebook-ready',()=>{if(current){document.dispatchEvent(new CustomEvent('phishnet:case',{detail:current}));document.dispatchEvent(new CustomEvent('phishnet:selection',{detail:{eventId:selected}}));}});

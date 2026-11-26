@@ -72,3 +72,7 @@ The first two canonical cases now have executable checks in `tests/browser/inves
 ## Direct-wallet payment application
 
 Run `npm run test:payments` for strict native-unit/address and actual public-reader logic; `npm run test:testnet-api` for actual HTTP boundary checks; `npm run test:browser` for mock-wallet payment flows plus investigation regressions. `node scripts/check-arc-network.mjs` performs optional live read-only chain/decimals/gas-estimate checks. Browser mocks are not live settlement evidence. See [the scoped controls and actual results](testnet-payments.md). A funded user-wallet send remains NOT_RUN in this coding session, and VC-10 human efficacy testing remains open.
+
+## Notebook and keyed-consent verification
+
+`npm run test:notebook` executes the actual canonical note/filter model; `npm run test:consent` executes the official counter-sign library and broker; `npm run test:consent-api` keeps the simulated human private key in the external test process while exercising the actual server. The browser suite now includes canvas click/zoom, wiki-link navigation, type/search/replay, keyboard alternatives and configured-consent allow/block flows. Actual results: 3 notebook model tests, 6 consent tests, 6 consent HTTP checks and 63 browser cases pass. Browser wallet/RPC/receipt imports are controlled mocks; real signature tests are separate. See [protocol scope and hardware limits](notebook-and-consent.md). No physical device, live agent connector, funded two-stage transfer or VC-10 human study has been tested.

@@ -16,13 +16,18 @@ async function setup(page,options={}){
       throw Error('Unexpected method '+args.method);
     }};
   },{sender,hash,options});
+  let humanAccepted=false;
   await page.route('**/v1/testnet/**',async route=>{
     const path=new URL(route.request().url()).pathname;const body=route.request().postDataJSON();
+    if(path.endsWith('/consent/config'))return route.fulfill({json:{configured:!!options.requireConsent,detail:'Test consent profile'}});
+    if(path.endsWith('/consent/intent'))return route.fulfill({json:{intent:{intent_id:'test-intent',default:'reject'},status:'PENDING'}});
+    if(path.endsWith('/consent/receipt')){if(options.badReceipt)return route.fulfill({status:400,json:{error:'Unlisted human signing key'}});humanAccepted=true;return route.fulfill({json:{status:'APPROVED'}});}
+    if(path.endsWith('/consent/consume'))return route.fulfill(humanAccepted?{json:{status:'CONSUMED',intentId:'test-intent',transactionDigest:'test-commitment'}}:{status:400,json:{error:'Independent human approval missing'}});
     if(path.endsWith('/balance'))return route.fulfill({json:{address:sender,chainId:5042002,balanceBaseUnits:'10000000000000000000'}});
     if(path.endsWith('/quote')){
       if(options.quoteError)return route.fulfill({status:400,json:{error:options.quoteError}});
       if(options.quoteDelay)await new Promise(r=>setTimeout(r,options.quoteDelay));
-      return route.fulfill({json:{transaction:{from:body.from,to:body.to,value:'0x470de4df820000',chainId:'0x4cef52',data:'0x'},gas:'0x6270',maxFeePerGas:'0x77359400',estimatedFeeBaseUnits:'50400000000000',balanceBaseUnits:'10000000000000000000',expiresAt:Date.now()+(options.expired?-1:60000),checks:['Arc Testnet only','Complete recipient address','Balance covers amount and estimated fee']}});
+      return route.fulfill({json:{consentRequired:!!options.requireConsent,transaction:{from:body.from,to:body.to,value:'0x470de4df820000',chainId:'0x4cef52',data:'0x'},gas:'0x6270',maxFeePerGas:'0x77359400',estimatedFeeBaseUnits:'50400000000000',balanceBaseUnits:'10000000000000000000',expiresAt:Date.now()+(options.expired?-1:60000),checks:['Arc Testnet only','Complete recipient address','Balance covers amount and estimated fee']}});
     }
     if(path.endsWith('/receipt')){
       if(options.rpcOffline)return route.fulfill({status:400,json:{error:'RPC unavailable'}});
@@ -57,3 +62,11 @@ test('repeated approval cannot create duplicate submissions',async({page})=>{awa
 test('receipt mismatch never shows confirmed',async({page})=>{await setup(page,{receiptStatus:'MISMATCH'});await page.goto('/');await connect(page);await review(page);await page.locator('#approve-payment').click();await expect(page.locator('#all-activity .pill')).toHaveText('MISMATCH');await expect(page.locator('#all-activity')).toContainText('differs from the reviewed payment');});
 test('stored confirmation is not trusted after reload and RPC failure',async({page})=>{await setup(page,{rpcOffline:true});await page.addInitScript(({sender,recipient,hash})=>localStorage.setItem('phishnet.testnet.payments.v1',JSON.stringify([{hash,input:{from:sender,to:recipient,amount:'0.02'},status:'CONFIRMED',submittedAt:'2026-11-26T10:00:00Z',note:'<img src=x onerror=alert(1)>'}])) ,{sender,recipient,hash});await page.goto('/#activity');await expect(page.locator('#all-activity .pill')).toHaveText('UNVERIFIED');expect(await page.locator('#all-activity img').count()).toBe(0);await expect(page.locator('#all-activity')).toContainText('do not resend');});
 test('unknown Arc network is added with 18 native decimals and then switched',async({page})=>{await setup(page,{initialChain:'0x1',unknownChain:true});await page.goto('/');await connect(page);const added=await page.evaluate(()=>window.__added);expect(added).toMatchObject({chainId:'0x4cef52',nativeCurrency:{name:'USDC',symbol:'USDC',decimals:18},rpcUrls:['https://rpc.testnet.arc.io']});});
+
+test('configured counter-sign cannot reach wallet submission without an independent receipt',async({page})=>{
+  await setup(page,{requireConsent:true});await page.goto('/');await connect(page);await review(page);await expect(page.locator('#consent-panel')).toBeVisible();await page.locator('#approve-payment').click();await expect(page.locator('#signing-status')).toContainText('countersignature required');expect(await page.evaluate(()=>window.__calls.filter(c=>c.method==='eth_sendTransaction').length)).toBe(0);
+  await page.locator('#request-consent').click();await expect(page.locator('#consent-status')).toContainText('PENDING');await page.locator('#consent-receipt').setInputFiles({name:'resolution.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({decision:'approve',policy:'approver',countersignatures:[]}))});await expect(page.locator('#consent-status')).toContainText('APPROVED');await page.locator('#approve-payment').click();await expect(page.locator('#all-activity .pill')).toHaveText('CONFIRMED');expect(await page.evaluate(()=>window.__calls.filter(c=>c.method==='eth_sendTransaction').length)).toBe(1);
+});
+test('rejected human receipt keeps the wallet signing boundary closed',async({page})=>{
+  await setup(page,{requireConsent:true,badReceipt:true});await page.goto('/');await connect(page);await review(page);await page.locator('#request-consent').click();await expect(page.locator('#consent-status')).toContainText('PENDING');await page.locator('#consent-receipt').setInputFiles({name:'forged.json',mimeType:'application/json',buffer:Buffer.from('{}')});await expect(page.locator('#consent-status')).toContainText('Unlisted human signing key');await page.locator('#approve-payment').click();await expect(page.locator('#signing-status')).toContainText('approval missing');expect(await page.evaluate(()=>window.__calls.filter(c=>c.method==='eth_sendTransaction').length)).toBe(0);
+});

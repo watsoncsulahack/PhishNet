@@ -1,3 +1,4 @@
+import './notebook.js';
 import {ARC,transfer,address,displayUSDC,validHash} from '../../packages/payments/src/transfer.js';
 const $=id=>document.getElementById(id);
 const node=(tag,text,classes)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(classes)n.className=classes;return n;};
@@ -96,11 +97,12 @@ $('payment-form').onsubmit=async event=>{
     if(r!==revision)throw Error('Payment or wallet changed during review. Review the updated payment again.');
     const expected=transfer(input);
     if(JSON.stringify(result.transaction)!==JSON.stringify(expected))throw Error('Payment check returned different transaction details. Please retry.');
-    quote={...result,input,note:$('payment-note').value.trim(),revision:r};
+    quote={...result,expiresAt:result.consentRequired?Date.now()+300000:result.expiresAt,input,note:$('payment-note').value.trim(),revision:r};
+    $('consent-panel').hidden=!quote.consentRequired;$('download-consent').hidden=true;$('consent-receipt').value='';$('consent-status').textContent='Awaiting a human decision. Silence rejects.';
     const target=$('transfer-review');target.replaceChildren(node('div',`${input.amount} USDC`,'dialog-total'));
     reviewField(target,'From',expected.from,true);reviewField(target,'Recipient',expected.to,true);reviewField(target,'Network',`${ARC.name} · ${ARC.chainId}`);reviewField(target,'Amount',`${input.amount} test USDC`);reviewField(target,'Estimated maximum fee',`${displayUSDC(result.estimatedFeeBaseUnits)} USDC`);
     if(quote.note)reviewField(target,'Note (browser only)',quote.note);
-    const checks=node('ul',undefined,'checks-list');result.checks.forEach(check=>checks.append(node('li',check)));target.append(checks,node('p','Recipient identity is unverified. Confirm the full address through a trusted channel. Your wallet will display the final transaction and network fee.','identity-warning'));
+    const checks=node('ul',undefined,'checks-list');result.checks.forEach(check=>checks.append(node('li',check)));target.append(checks,node('p','Recipient identity is unverified. Confirm the full address through a trusted channel. Your wallet will display the final transaction and network fee. For a hardware-backed account, also check its device screen; PhishNet does not attest hardware presence.','identity-warning'));
     $('signing-status').textContent='Nothing has been sent. Your wallet approval is required.';$('approve-payment').disabled=false;$('payment-dialog').showModal();
   }catch(error){$('payment-error').textContent=errorText(error);}
   finally{$('review-payment').disabled=false;$('review-payment').textContent='Review payment';}
@@ -122,18 +124,24 @@ $('approve-payment').onclick=async()=>{
     if(BigInt(fresh.estimatedFeeBaseUnits)>BigInt(approved.estimatedFeeBaseUnits))throw Error('Estimated fees increased. Close this review and review the updated fee.');
     const finalChain=await provider.request({method:'eth_chainId'});const finalAccounts=await provider.request({method:'eth_accounts'});
     if(approved.revision!==revision||finalChain.toLowerCase()!==ARC.hexChainId||finalAccounts?.[0]?.toLowerCase()!==approved.input.from.toLowerCase())throw Error('Your wallet changed. Review the payment again.');
+    if(fresh.consentRequired){
+      if(!approved.consent?.intent?.intent_id)throw Error('Independent human countersignature required before wallet approval.');
+      approved.consentProof=await api('consent/consume',{intentId:approved.consent.intent.intent_id,payment:approved.input});
+      if(approved.consentProof.status!=='CONSUMED')throw Error('Human approval was not verified.');
+      if(approved.revision!==revision)throw Error('Payment changed after human approval. Request a new review.');
+    }
     $('signing-status').textContent='Approve the exact payment in your wallet. Keep this page open.';
     const submittedAt=new Date().toISOString();
     const hash=await provider.request({method:'eth_sendTransaction',params:[{...approved.transaction,gas:fresh.gas,maxFeePerGas:fresh.maxFeePerGas,maxPriorityFeePerGas:'0x0'}]});
     if(!validHash(hash))throw Error('Wallet did not return a valid transaction hash. Check your wallet history before trying again.');
-    const record={hash,input:approved.input,note:approved.note,submittedAt,status:'BROADCAST',detail:'Wallet returned a transaction hash. Awaiting public RPC verification.',reviewedAt:new Date(approved.expiresAt-60000).toISOString(),estimatedFeeBaseUnits:approved.estimatedFeeBaseUnits,checks:approved.checks};
+    const record={hash,consentVerifiedThisSession:!!approved.consentProof,consentProof:approved.consentProof||null,input:approved.input,note:approved.note,submittedAt,status:'BROADCAST',detail:'Wallet returned a transaction hash. Awaiting public RPC verification.',reviewedAt:new Date(approved.expiresAt-60000).toISOString(),estimatedFeeBaseUnits:approved.estimatedFeeBaseUnits,checks:approved.checks};
     history=[record,...history.filter(p=>p.hash!==hash)].slice(0,50);saveHistory();renderHistory();quote=null;$('payment-dialog').close();$('payment-amount').value='';$('payment-note').value='';location.hash='activity';notice('Payment submitted to Arc Testnet. Waiting for a verified receipt.');
     pollReceipt(record);
   }catch(error){$('signing-status').textContent=errorText(error);}
   finally{signingUI(false);}
 };
 function saveHistory(){try{localStorage.setItem(storageKey,JSON.stringify(history.map(({status,detail,checkedAt,blockNumber,feeBaseUnits,...record})=>record)));}catch{notice('Browser storage is unavailable. Save your transaction hash from Activity before closing this page.',true);}}
-try{const saved=JSON.parse(localStorage.getItem(storageKey)||'[]');if(Array.isArray(saved))history=saved.slice(0,50).flatMap(r=>{try{if(!validHash(r.hash)||!r.input||!Number.isFinite(Date.parse(r.submittedAt)))return [];const tx=transfer(r.input);return [{hash:r.hash,input:{...r.input,from:tx.from,to:tx.to},note:String(r.note||'').slice(0,120),submittedAt:r.submittedAt,reviewedAt:r.reviewedAt,estimatedFeeBaseUnits:r.estimatedFeeBaseUnits,status:'VERIFYING',detail:'Saved hash; checking its network receipt.'}];}catch{return [];}});}catch{notice('Saved history could not be loaded. Your wallet and explorer still have the network record.',true);}
+try{const saved=JSON.parse(localStorage.getItem(storageKey)||'[]');if(Array.isArray(saved))history=saved.slice(0,50).flatMap(r=>{try{if(!validHash(r.hash)||!r.input||!Number.isFinite(Date.parse(r.submittedAt)))return [];const tx=transfer(r.input);return [{hash:r.hash,input:{...r.input,from:tx.from,to:tx.to},note:String(r.note||'').slice(0,120),consentProof:r.consentProof||null,consentVerifiedThisSession:false,submittedAt:r.submittedAt,reviewedAt:r.reviewedAt,estimatedFeeBaseUnits:r.estimatedFeeBaseUnits,status:'VERIFYING',detail:'Saved hash; checking its network receipt.'}];}catch{return [];}});}catch{notice('Saved history could not be loaded. Your wallet and explorer still have the network record.',true);}
 function activityList(records){
   if(!records.length){const empty=node('div',undefined,'empty-state');empty.append(node('div','◷','empty-icon'),node('h3','Your next payment starts the story.'),node('p','Payments you send here will appear with their verification status.'));const link=node('a','Make your first payment');link.href='#payments';empty.append(link);return empty;}
   const list=node('div',undefined,'activity-list');
@@ -154,6 +162,7 @@ function showLiveTrace(record,navigate=true){
   panel.hidden=false;panel.replaceChildren(node('p','YOUR PAYMENT · RECORDED EVENTS','eyebrow'),node('h2',`${record.input.amount} USDC · ${record.status}`),node('p','A direct wallet payment: no agent messages or inferred claim lineage were recorded.','muted'));
   const steps=node('div',undefined,'explain-strip');const detail=node('div',undefined,'live-trace-detail');detail.id='live-trace-detail';
   const events=[['Payment review','Browser review snapshot',record.reviewedAt||'Snapshot timestamp not available',`Sender: ${record.input.from}\nRecipient: ${record.input.to}\nAmount: ${record.input.amount} USDC\nChain: ${ARC.chainId}\nRecipient identity: unverified`],['Wallet submission','Wallet provider returned hash',record.submittedAt,`Transaction hash: ${record.hash}\nWallet approval is external to PhishNet. Submission is not settlement.`],['Network verification','Arc public RPC read',record.checkedAt||'Not checked',`${record.status}: ${record.detail}\nBlock: ${record.blockNumber||'not verified'}`]];
+  if(record.consentProof)events.splice(1,0,['Human countersignature',record.consentVerifiedThisSession?'counter-sign 0.2 keyed verifier':'Saved browser record; consent not reverified this session',record.consentProof.resolution?.countersignatures?.[0]?.timestamp||'Unknown',`Intent: ${record.consentProof.intentId}\nTransaction commitment: ${record.consentProof.transactionDigest}\nHuman-keyed receipt is separate from wallet signing and settlement. Hardware presence is not attested.`]);
   for(const event of events){const b=node('button',event[0]);b.dataset.step=String(events.indexOf(event));b.onclick=()=>{steps.querySelectorAll('button').forEach(n=>n.setAttribute('aria-pressed',String(n===b)));detail.replaceChildren();for(const [label,value] of [['Event',event[0]],['Source',event[1]],['Timestamp',event[2]]])reviewField(detail,label,value);detail.append(node('blockquote',event[3]));};steps.append(b);}
   const close=node('button','Close payment trail');close.onclick=()=>panel.hidden=true;panel.append(steps,detail,close);steps.querySelectorAll('button')[step].click();if(navigate){location.hash='explore';setTab();panel.scrollIntoView({block:'start'});}
 }
@@ -161,3 +170,7 @@ for(const button of document.querySelectorAll('[data-story-event]'))button.oncli
 walletUI();renderHistory();
 // Stored hashes never restore a trusted CONFIRMED label: each is rechecked against the network.
 if(history.length)$('refresh-activity').click();
+
+$('request-consent').onclick=async()=>{if(!quote||submitting)return;const expected=quote;try{const signed=await api('consent/intent',expected.input);if(quote!==expected)throw Error('Review changed. Request a new intent.');quote.consent=signed;$('download-consent').hidden=false;$('consent-status').textContent=`${signed.status} · ${signed.intent.intent_id} · reject on timeout. Download for the independent approver.`;}catch(error){$('consent-status').textContent=errorText(error);}};
+$('download-consent').onclick=()=>{if(!quote?.consent)return;const url=URL.createObjectURL(new Blob([JSON.stringify(quote.consent,null,2)],{type:'application/json'}));const link=document.createElement('a');link.href=url;link.download='phishnet-counter-sign-intent.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+$('consent-receipt').onchange=async()=>{const file=$('consent-receipt').files[0],expected=quote;if(!file||!expected?.consent)return;if(file.size>64000){$('consent-status').textContent='Receipt file is too large.';return;}try{const resolution=JSON.parse(await file.text());if(quote!==expected)throw Error('Review changed. Request a new intent.');const result=await api('consent/receipt',{intentId:expected.consent.intent.intent_id,payment:expected.input,resolution});$('consent-status').textContent=`${result.status} · Independent keyed receipt verified for this exact intent. Wallet approval is still required.`;}catch(error){$('consent-status').textContent=errorText(error);}};
