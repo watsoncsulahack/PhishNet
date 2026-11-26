@@ -1,5 +1,15 @@
 # PhishNet Design Reset — Agent Handoff
 
+## Current owner-approved MVP (November 26, 2026)
+
+**Read these first:**
+- **[MVP scope and acceptance gates](mvp-scope.md)** — agent proposal → human CounterSign approval → Arc Testnet wallet payment → shared journal → Transaction Flow / Decision History graph → minimal Arc checkpoint.
+- **[User-drawn concept UIs](concept-ui/README.md)** — simple Wallet / Send / Receive / Chat home and bottom navigation; first sketch available as a faithful-enough vector trace, second sketch's layout documented until its original upload is available.
+- **[Copy-ready coding agent prompt](mvp-agent-prompt.md)** — scope boundaries and staged implementation instructions.
+
+The bookstore is **external** and strictly outside PhishNet MVP; likewise ERC-8004, hardware wallets, and browser extensions are deferred. The generic local agent produces **unsigned proposals** only. The graph may show Transaction Flow and Decision History independently or together.
+
+
 **Status:** Proposed architecture. The code still requires security and functionality work. Initial audit baseline: ab57d519.
 
 ## Required reading order
