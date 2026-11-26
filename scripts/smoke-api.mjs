@@ -8,8 +8,9 @@ import path from 'node:path';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const port = 34000 + Math.floor(Math.random()*10000);
 const origin = 'http://127.0.0.1:' + port;
+const { HOST: _host, ...serverEnv } = process.env;
 const server = spawn(process.execPath, [path.join(root,'apps/api/src/server.js')], {
-  cwd: root, env: {...process.env, HOST:'127.0.0.1', PORT:String(port)}, stdio:['ignore','pipe','pipe']
+  cwd: root, env: {...serverEnv, PORT:String(port)}, stdio:['ignore','pipe','pipe']
 });
 let stderr='', stdout='';
 server.stderr.on('data',chunk=>{stderr+=chunk.toString()});

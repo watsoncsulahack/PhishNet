@@ -1,0 +1,9 @@
+# Stage 0 work log
+
+Baseline commit: `1f7fe05`. Environment: Linux, local Node; API test required loopback access outside the sandbox.
+
+Before changes: `node scripts/verify-design-docs.mjs` passed; `node scripts/smoke-api.mjs` failed with sandbox `EPERM`, then passed 9/9 with loopback access; `npm test` reported 14/14, but those results are invalid as evidence. Its evaluator and Merkle implementation were copies, its 16-case regression copied expected labels into predictions, its adversarial case supplied no adversarial prompt, and its perfect metrics were hard-coded. It also overwrote evaluation files. The documentation checker validates structural patterns, not actual normal forms or application behavior; the HTTP smoke test has no state mutation, signature, settlement or persistence checks.
+
+This increment changes the default bind address to loopback, replaces the self-confirming test runner with the existing actual-server smoke suite, and withdraws the fabricated evaluation report. After changes: documentation verification passed; `npm test` passed 9/9 with loopback access. The smoke test starts the server without a HOST override, but does not establish that other interfaces are inaccessible. Results apply to this increment's commit; see git history for the implementation SHA.
+
+Stage 0 remains incomplete. Existing API and UI still include fabricated explorer links and misleading settlement, approval, protocol and inference claims; client booleans affect simulated decisions; input validation and safe rendering need work. No security or efficacy metrics, independent authorization, genuine settlement, durable persistence, UI safety or database integrity have been established. Stages 1–6 have not been implemented or verified. The traceability matrix is a conservative initial inventory, not a detailed acceptance assessment.

@@ -22,7 +22,7 @@ const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '../../../');
 
 const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || '0.0.0.0';
+const HOST = process.env.HOST || '127.0.0.1';
 
 // Load fixtures
 const scenariosPath = path.join(ROOT_DIR, 'data/fixtures/scenarios.json');
