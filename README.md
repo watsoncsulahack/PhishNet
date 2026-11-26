@@ -1,6 +1,8 @@
 # PhishNet
 
-**Payments with perspective.** Send test USDC through your wallet, follow network receipts, and explore the evidence behind agent payment instructions.
+**Payments with perspective.** Send test USDC through your wallet, follow network receipts, and explore the evidence behind agent payment instructions. Each payment agent comes with its own knowledge map that allows a user to trace an agent's activity.
+
+<img width="2848" height="1692" alt="image" src="https://github.com/user-attachments/assets/cc6d0d92-5013-4944-b393-0d0ec5058849" />
 
 ## Run the app
 
