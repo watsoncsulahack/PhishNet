@@ -51,3 +51,16 @@
 The workflow .github/workflows/design-verification.yml runs node scripts/verify-design-docs.mjs for documentation structure and node scripts/smoke-api.mjs against a locally spawned actual Node HTTP server. These are baseline checks and do NOT verify signer isolation, durable spend, genuine AP2/x402, provenance accuracy or confirmed on-chain settlement. Build additional unit, API, database, mobile and signer test jobs as implementation progresses. A docs green check verifies only docs structure.
 
 Before each stage is declared complete, produce a requirements-to-tests matrix with command, actual output, pass/fail, code commit, and remaining blockers. No mainnet or uncontrolled third-party testing.
+
+## Visualization and mobile usability acceptance tests
+
+The ten requirements in [visualization-design-strategy.md](visualization-design-strategy.md) are tracked as **VC-01 through VC-10** (mobile first-screen decision, inspect source in two actions, cross-highlight, single-source convergence, benign counterexample, exact-address disclosure, simulated-vs-confirmed status, edge uncertainty labels, accessible input, measured user decisions).
+
+**Implementation stages:**
+1. At Stage 2, add deterministic Playwright or equivalent E2E cases for 390px and narrow 320px, touch/keyboard navigation and untrusted-text escaping. These are **future tests**, not currently passing tests.
+2. Record whether each reviewer identifies the originating evidence and the true payee difference correctly; compare timeline-only and timeline+graph in a controlled study with both harmful and legitimate scenarios.
+3. Confirm reduced motion/high contrast and text labels for status/edges; use live source detail instead of hover-only hints.
+4. For each open-source component, check LICENSE and any enterprise/subdirectory exception before copying source; include dependency scan and pinned version in pull requests.
+5. Test offline only with explicitly authorized redacted read-only case data. Never sign or imply confirmed payment while offline.
+
+**Metrics to report from actual tests:** task completion numerator/denominator, decision correctness, source-identification correctness, incorrect confidence, time-to-answer and tap/keyboard errors. All source-based numbers and graphs must disclose fixture or real-data provenance.

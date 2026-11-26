@@ -20,3 +20,22 @@ Source review date: 2026-11-25. Follow the linked primary sources; statements in
 | R14 | [RFC 9162](https://www.rfc-editor.org/rfc/rfc9162.html) | Transparency proof details; custom Merkle code does not imply conformance. |
 
 Use the original user-created fixtures as **synthetic development cases**, not real-world fraud prevalence. Real data requires provenance, consent, licensing, privacy controls, and family-disjoint evaluation.
+
+## Additional user-provided visualization / AI governance readings (2026-11-25)
+
+These six materials were supplied as reading inputs; [uploaded-source-notes.md](uploaded-source-notes.md) contains PhishNet-specific original summaries, citations and redistribution restrictions. **The PDFs and course slides themselves are not published to this public repo.**
+
+| ID | Source / access | Design implication |
+|---|---|---|
+| D01 | [Ellie Fields, *7 Best Practices for Mobile Business Intelligence* (Tableau)](https://www.tableau.com/learn/whitepapers/7-best-practices-mobile-business-intelligence) | Author-once responsive BI; first-screen answers, progressive exploration, mobile security, constrained offline access |
+| D02 | [*10 Best Practices for Building Effective Dashboards* (Tableau)](https://www.tableau.com/learn/whitepapers/building-effective-dashboards-it-user) | Audience-first, 2–3 coordinated views, focused interactivity and tooltips, usability testing |
+| D03 | *Data Visualization and Storytelling* (user-supplied slides; no verified public source URL) | Storyboards, appropriate visual encoding, contextualized, low-clutter communication |
+| D04 | [Nancy Duarte, *3 Ways to Help People Understand What Your Data Means* (HBR, 2019)](https://hbr.org/2019/08/3-ways-to-help-people-understand-what-your-data-means) | Human-understandable numerical scale and accurate analogies |
+| D05 | [Datar, Croll, Bowler, *Busbud: Building a Data Company* (HBS 118-011, 2017/rev. 2018)](https://store.hbr.org/product/busbud-building-a-data-company/118011) | Data quality/access before interface complexity, narrow end-to-end pilot, measured conversion to decision |
+| D06 | [Zoldi and Levine, *Using Blockchain to Build Customer Trust in AI* (HBR, Jan. 2025)](https://hbr.org/2025/01/using-blockchain-to-build-customer-trust-in-ai) | Interpretability, auditability, enforceability; standards before technology; seamless version/approval trace |
+
+**Licensing:** D04–D06 uploaded copies display course/individual-use restrictions; do not redistribute originals, page images or substantive passages in GitHub. D03's distribution rights are unverified. All summaries here are original short notes rather than source reproductions.
+
+## Open-source visualization examples
+
+See the separately researched [visualization-projects.md](visualization-projects.md) for **ranked code libraries and complete UI references**, links, verified license caveats, and a warning about current custom Blockscout licensing. The companion [visualization-design-strategy.md](visualization-design-strategy.md) maps those references to PhishNet screens and usability tests.
