@@ -25,7 +25,7 @@ for(let i=0;i<3;i++){
   test('diagram '+(i+1)+' has 20 crow-foot links',edges.length===20);
   test('diagram '+(i+1)+' known entity references',edges.every(([a,b])=>coreNames.has(a)&&coreNames.has(b)));
 }
-test('relationships consistent',getLinks(erds).length===0 ? false : JSON.stringify(getLinks(erds[0]))===JSON.stringify(getLinks(erds[1]))&&JSON.stringify(getLinks(erds[1]))===JSON.stringify(getLinks(erds[2])));
+test('relationships consistent',getLinks(erds[0]).length===0 ? false : JSON.stringify(getLinks(erds[0]))===JSON.stringify(getLinks(erds[1]))&&JSON.stringify(getLinks(erds[1]))===JSON.stringify(getLinks(erds[2])));
 test('1NF has no attribute blocks',getEntities(erds[0]).length===0);
 test('2NF has PK/FK notation',erds[1].includes(' PK')&&erds[1].includes(' FK'));
 test('2NF omits typed attributes',!/^\s+(uuid|bigint|datetime|string|text)\s+/m.test(erds[1]));
