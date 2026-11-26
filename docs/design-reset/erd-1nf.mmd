@@ -1,0 +1,116 @@
+%% PhishNet first normal form (1NF): atomic rows, partial dependencies deliberately retained
+%% Source of truth is normalization.md for functional dependencies; instructional model, not current database.
+erDiagram
+    ACTIVITY_LOG_1NF {
+        uuid session_id PK
+        uuid event_id PK
+        string session_title
+        uuid session_owner_id
+        string session_owner_name
+        uuid actor_id
+        string actor_name
+        datetime occurred_at
+        string event_type
+        string channel
+        text event_text
+        string event_digest
+    }
+    EVENT_LINK_1NF {
+        uuid session_id PK
+        uuid child_event_id PK
+        uuid parent_event_id PK
+        string session_title
+        string child_event_type
+        string edge_kind
+        string confidence
+    }
+    CLAIM_OCCURRENCE_1NF {
+        uuid session_id PK
+        uuid claim_id PK
+        uuid event_id PK
+        int mention_index PK
+        text claim_statement
+        string claim_truth_state
+        text exact_span
+        string actor_name
+    }
+    CLAIM_SUPPORT_1NF {
+        uuid claim_id PK
+        uuid evidence_id PK
+        text claim_statement
+        string evidence_type
+        string evidence_verification
+        string evidence_uri
+        string support_relation
+    }
+    FINDING_SOURCE_1NF {
+        uuid finding_id PK
+        uuid event_id PK
+        string finding_type
+        string assessment
+        string analyzer_version
+        text explanation
+        datetime event_occurred_at
+    }
+    MANDATE_PAYEE_1NF {
+        uuid mandate_id PK
+        string recipient_address PK
+        uuid owner_principal_id
+        string owner_display_name
+        uuid issuer_credential_id
+        string chain_id
+        string asset_id
+        bigint per_payment_limit
+        bigint total_budget
+        datetime valid_until
+        string signature_state
+    }
+    PROPOSAL_DECISION_REASON_1NF {
+        uuid proposal_id PK
+        uuid decision_id PK
+        string reason_code PK
+        uuid mandate_id
+        string proposed_recipient
+        bigint amount_base_units
+        string decision_result
+        string policy_version
+        datetime evaluated_at
+    }
+    APPROVAL_RECORD_1NF {
+        uuid proposal_id PK
+        uuid approval_id PK
+        uuid credential_id
+        string signer_key_id
+        string transaction_digest
+        string signed_challenge
+        datetime expires_at
+        string verification_status
+    }
+    EXECUTION_RECORD_1NF {
+        uuid execution_id PK
+        uuid proposal_id
+        uuid decision_id
+        string execution_mode
+        string execution_status
+        string transaction_hash
+        bigint amount_base_units
+        datetime updated_at
+    }
+    AUDIT_MEMBERSHIP_1NF {
+        uuid checkpoint_id PK
+        uuid event_id PK
+        string checkpoint_root
+        string checkpoint_signature
+        string algorithm_id
+        int leaf_index
+        string leaf_hash
+        string event_digest
+    }
+    ACTIVITY_LOG_1NF ||--o{ EVENT_LINK_1NF : parent_links
+    ACTIVITY_LOG_1NF ||--o{ CLAIM_OCCURRENCE_1NF : mentions
+    CLAIM_OCCURRENCE_1NF ||--o{ CLAIM_SUPPORT_1NF : evidence
+    ACTIVITY_LOG_1NF ||--o{ FINDING_SOURCE_1NF : observations
+    MANDATE_PAYEE_1NF ||--o{ PROPOSAL_DECISION_REASON_1NF : governs
+    PROPOSAL_DECISION_REASON_1NF ||--o{ APPROVAL_RECORD_1NF : approval
+    PROPOSAL_DECISION_REASON_1NF ||--o{ EXECUTION_RECORD_1NF : execution
+    ACTIVITY_LOG_1NF ||--o{ AUDIT_MEMBERSHIP_1NF : commitment

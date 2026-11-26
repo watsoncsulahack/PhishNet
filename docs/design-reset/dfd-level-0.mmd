@@ -1,0 +1,26 @@
+%% PhishNet Level 0 Data Flow Diagram (context diagram)
+%% PhishNet is represented as ONE process; stores and internal sub-processes are Level 1 concerns.
+flowchart LR
+  U["Human user / authorizer"]
+  A["Financial AI agent / developer client"]
+  X["External content and evidence sources"]
+  V["Independent identity / verification provider"]
+  P["Payment rail / testnet facilitator"]
+  R["Auditor / security investigator"]
+  S(("0: PhishNet Investigation and Payment Authorization System"))
+  U -->|"Decisions, signed mandates, consent, case requests"| S
+  S -->|"Payment comparison, warnings, evidence graph, approval challenge"| U
+  A -->|"Payment proposals and interaction events"| S
+  S -->|"Preflight ALLOW / HOLD / DENY, reasons, receipts"| A
+  X -->|"Referenced messages, documents, tool responses"| S
+  S -->|"Authorized source retrieval / verification requests"| X
+  S -->|"Identity, signature, recipient verification requests"| V
+  V -->|"Authenticated verification results"| S
+  S -->|"Authorized transaction only (future P1 testnet)"| P
+  P -->|"Confirmed transaction receipt / status"| S
+  R -->|"Investigation and audit-proof requests"| S
+  S -->|"Redacted evidence, lineage, decisions, audit results"| R
+  classDef system fill:#10304d,color:#ffffff,stroke:#2e9b93,stroke-width:3px;
+  classDef external fill:#f1f5f9,color:#0f172a,stroke:#94a3b8;
+  class S system;
+  class U,A,X,V,P,R external;
