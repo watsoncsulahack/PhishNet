@@ -1,0 +1,1160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://phishnet.local/schema/event-trace-v1",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": "phishnet.event.v1"
+    },
+    "eventId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9:._-]+$"
+    },
+    "traceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160,
+      "pattern": "^[A-Za-z0-9:._-]+$"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "eventType": {
+      "enum": [
+        "chat.user.submitted",
+        "agent.tool.requested",
+        "tool.result.observed",
+        "agent.plan.reported",
+        "payment.proposed",
+        "payment.validated",
+        "policy.evaluated",
+        "countersign.intent.created",
+        "countersign.resolution.verified",
+        "wallet.authorization.requested",
+        "wallet.submission.observed",
+        "wallet.rejected",
+        "chain.receipt.checked",
+        "history.imported",
+        "payment.status.changed",
+        "agent.connector.changed",
+        "audit.checkpoint.created",
+        "audit.checkpoint.published",
+        "audit.checkpoint.verified"
+      ]
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "recordedAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "recordedBy": {
+      "enum": [
+        "ui-gateway",
+        "agent-gateway",
+        "payment-gateway",
+        "consent-verifier",
+        "wallet-observer",
+        "chain-verifier",
+        "audit-publisher",
+        "import-gateway"
+      ]
+    },
+    "actor": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[A-Za-z0-9:._-]+$"
+        },
+        "type": {
+          "enum": [
+            "human",
+            "agent",
+            "service"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "origin": {
+      "enum": [
+        "user-ui",
+        "agent-runtime",
+        "payment-gateway",
+        "consent-verifier",
+        "wallet-provider",
+        "chain-rpc",
+        "audit-publisher",
+        "browser-import"
+      ]
+    },
+    "walletScope": {
+      "type": "object",
+      "properties": {
+        "chainId": {
+          "const": 5042002
+        },
+        "address": {
+          "type": "string",
+          "pattern": "^0x[0-9a-f]{40}$"
+        }
+      },
+      "required": [
+        "chainId",
+        "address"
+      ],
+      "additionalProperties": false
+    },
+    "links": {
+      "type": "object",
+      "properties": {
+        "proposalId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[A-Za-z0-9:._-]+$"
+        },
+        "consentIntentId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[A-Za-z0-9:._-]+$"
+        },
+        "txHash": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{64}$"
+        },
+        "toolCallId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[A-Za-z0-9:._-]+$"
+        },
+        "parentEventIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9:._-]+$"
+          },
+          "maxItems": 32,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "parentEventIds"
+      ],
+      "additionalProperties": false
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9:._-]+$"
+          },
+          "kind": {
+            "enum": [
+              "OBSERVED_REFERENCE",
+              "INFERRED_DEPENDENCY"
+            ]
+          },
+          "evidenceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "pattern": "^[A-Za-z0-9:._-]+$"
+            },
+            "maxItems": 32,
+            "uniqueItems": true
+          }
+        },
+        "required": [
+          "eventId",
+          "kind",
+          "evidenceIds"
+        ],
+        "additionalProperties": false
+      },
+      "maxItems": 32
+    },
+    "privacy": {
+      "enum": [
+        "private-reference",
+        "wallet-record",
+        "public-commitment"
+      ]
+    },
+    "verification": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "enum": [
+            "LOCAL_OBSERVATION",
+            "AGENT_REPORTED",
+            "WALLET_REPORTED",
+            "CRYPTOGRAPHICALLY_VERIFIED",
+            "RPC_VERIFIED",
+            "UNTRUSTED_IMPORT",
+            "UNKNOWN"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "confidence": {
+          "enum": [
+            "not_applicable",
+            "unknown",
+            "low",
+            "medium",
+            "high"
+          ]
+        }
+      },
+      "required": [
+        "state",
+        "method",
+        "confidence"
+      ],
+      "additionalProperties": false
+    },
+    "payload": {
+      "type": "object"
+    },
+    "integrity": {
+      "type": "object",
+      "properties": {
+        "profile": {
+          "const": "phishnet.sorted-json.v1"
+        },
+        "previousDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "eventDigest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "authentication": {
+          "const": "unsigned-local"
+        }
+      },
+      "required": [
+        "profile",
+        "previousDigest",
+        "eventDigest",
+        "authentication"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "traceId",
+    "sequence",
+    "eventType",
+    "observedAt",
+    "recordedAt",
+    "recordedBy",
+    "actor",
+    "origin",
+    "walletScope",
+    "links",
+    "relations",
+    "privacy",
+    "verification",
+    "payload",
+    "integrity"
+  ],
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "chat.user.submitted"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "contentRef": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "contentDigest": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            },
+            "required": [
+              "contentRef",
+              "contentDigest"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "agent.tool.requested"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "toolCallId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "tool": {
+                "enum": [
+                  "wallet.balance",
+                  "chat.read",
+                  "payment.propose",
+                  "plan.report"
+                ]
+              }
+            },
+            "required": [
+              "toolCallId",
+              "tool"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "tool.result.observed"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "toolCallId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "tool": {
+                "type": "string",
+                "maxLength": 500
+              },
+              "resultRef": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              }
+            },
+            "required": [
+              "toolCallId",
+              "tool",
+              "resultRef"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "agent.plan.reported"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "contentRef": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "contentDigest": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "sourceEventIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160,
+                  "pattern": "^[A-Za-z0-9:._-]+$"
+                },
+                "maxItems": 32,
+                "uniqueItems": true
+              }
+            },
+            "required": [
+              "contentRef",
+              "contentDigest",
+              "sourceEventIds"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "payment.proposed"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "proposalId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "from": {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{40}$"
+              },
+              "recipient": {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{40}$"
+              },
+              "amountBaseUnits": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,59})$"
+              },
+              "asset": {
+                "const": "native-USDC"
+              },
+              "decimals": {
+                "const": 18
+              },
+              "chainId": {
+                "const": 5042002
+              },
+              "initiator": {
+                "enum": [
+                  "human",
+                  "agent"
+                ]
+              },
+              "purposeRef": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              }
+            },
+            "required": [
+              "proposalId",
+              "from",
+              "recipient",
+              "amountBaseUnits",
+              "asset",
+              "decimals",
+              "chainId",
+              "initiator"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "payment.validated"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "proposalId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "transactionDigest": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "feeBaseUnits": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,59})$"
+              }
+            },
+            "required": [
+              "proposalId",
+              "transactionDigest"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "policy.evaluated"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "proposalId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "decision": {
+                "enum": [
+                  "ALLOW",
+                  "HOLD",
+                  "DENY"
+                ]
+              },
+              "reasonCodes": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160,
+                  "pattern": "^[A-Za-z0-9:._-]+$"
+                },
+                "minItems": 1,
+                "maxItems": 20
+              }
+            },
+            "required": [
+              "proposalId",
+              "decision",
+              "reasonCodes"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "countersign.intent.created"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "proposalId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "consentIntentId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "intentDigest": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            },
+            "required": [
+              "proposalId",
+              "consentIntentId",
+              "intentDigest"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "countersign.resolution.verified"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "proposalId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "consentIntentId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "decision": {
+                "enum": [
+                  "approve",
+                  "reject"
+                ]
+              },
+              "signer": {
+                "type": "string",
+                "maxLength": 500
+              }
+            },
+            "required": [
+              "proposalId",
+              "consentIntentId",
+              "decision",
+              "signer"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "wallet.authorization.requested"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "proposalId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "consentIntentId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              }
+            },
+            "required": [
+              "proposalId"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "wallet.submission.observed"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "proposalId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "txHash": {
+                "type": "string",
+                "pattern": "^0x[0-9a-fA-F]{64}$"
+              }
+            },
+            "required": [
+              "proposalId",
+              "txHash"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "wallet.rejected"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "proposalId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "reasonCode": {
+                "enum": [
+                  "USER_REJECTED",
+                  "CANCELLED",
+                  "REQUEST_FAILED"
+                ]
+              }
+            },
+            "required": [
+              "proposalId",
+              "reasonCode"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "chain.receipt.checked"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "proposalId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "txHash": {
+                "type": "string",
+                "pattern": "^0x[0-9a-fA-F]{64}$"
+              },
+              "status": {
+                "enum": [
+                  "BROADCAST",
+                  "CONFIRMED",
+                  "FAILED",
+                  "MISMATCH",
+                  "UNVERIFIED"
+                ]
+              },
+              "blockNumber": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,59})$"
+              },
+              "feeBaseUnits": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,59})$"
+              },
+              "verificationRef": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              }
+            },
+            "required": [
+              "proposalId",
+              "txHash",
+              "status"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "history.imported"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "txHash": {
+                "type": "string",
+                "pattern": "^0x[0-9a-fA-F]{64}$"
+              },
+              "from": {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{40}$"
+              },
+              "recipient": {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{40}$"
+              },
+              "amountBaseUnits": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,59})$"
+              }
+            },
+            "required": [
+              "txHash",
+              "from",
+              "recipient",
+              "amountBaseUnits"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "payment.status.changed"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "proposalId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "status": {
+                "enum": [
+                  "PROPOSED",
+                  "PENDING_APPROVAL",
+                  "REJECTED",
+                  "EXPIRED",
+                  "WALLET_REJECTED",
+                  "BROADCAST",
+                  "CONFIRMED",
+                  "FAILED",
+                  "UNVERIFIED"
+                ]
+              },
+              "reasonCode": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              }
+            },
+            "required": [
+              "proposalId",
+              "status",
+              "reasonCode"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "agent.connector.changed"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "agentId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "action": {
+                "enum": [
+                  "issued",
+                  "revoked"
+                ]
+              }
+            },
+            "required": [
+              "agentId",
+              "action"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "audit.checkpoint.created"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "checkpointId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "firstSequence": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "lastSequence": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "root": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "checkpointDigest": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            },
+            "required": [
+              "checkpointId",
+              "firstSequence",
+              "lastSequence",
+              "root",
+              "checkpointDigest"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "audit.checkpoint.published"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "checkpointId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "txHash": {
+                "type": "string",
+                "pattern": "^0x[0-9a-fA-F]{64}$"
+              },
+              "status": {
+                "const": "BROADCAST"
+              }
+            },
+            "required": [
+              "checkpointId",
+              "txHash",
+              "status"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "audit.checkpoint.verified"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "checkpointId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160,
+                "pattern": "^[A-Za-z0-9:._-]+$"
+              },
+              "txHash": {
+                "type": "string",
+                "pattern": "^0x[0-9a-fA-F]{64}$"
+              },
+              "blockNumber": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,59})$"
+              },
+              "status": {
+                "const": "ANCHORED"
+              }
+            },
+            "required": [
+              "checkpointId",
+              "txHash",
+              "blockNumber",
+              "status"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    }
+  ]
+}

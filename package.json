@@ -38,6 +38,8 @@
   },
   "dependencies": {
     "@countersignlabs/counter-sign": "0.2.0",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
     "cytoscape": "3.35.0",
     "viem": "2.58.7"
   },
