@@ -14,7 +14,9 @@ Source-observed information: large balance at top; two prominent rounded **SEND*
 
 The second sketch uploaded in the conversation shows the same top balance, Send/Receive, and Chat field, plus a horizontal separator with **four unlabeled icons** at the bottom. The rendered sketch visibly suggests wallet/account, activity or notes, a connected-node knowledge graph, and settings. **These semantic names are our proposed interpretation, not labels written on the original.**
 
-The second screenshot's underlying file bytes were not accessible in the runtime provided for this task. **Its original image has therefore not been uploaded**, and no invented substitute image is labeled as the original. Reattach the second file to replace this note with a faithful upload.
+The second screenshot's underlying file bytes were not accessible in the runtime provided for this task. **Its original image has therefore not been uploaded.** Instead, the following SVG is an **explicitly labeled interpreted reconstruction**, based on the user-visible sketch; it is not a substitute for the original image. Reattach the second file to replace this note with the original.
+
+![Interpreted redraw of the second concept sketch showing wallet, chat, and four-icon bottom navigation](wallet-navigation-interpreted.svg)
 
 ### Recommended implementation interpretation (subject to UX testing)
 
@@ -35,4 +37,4 @@ The graph's **Transaction Flow** and **Decision History** layers must each have 
 
 ## Design provenance
 
-Original design authored by the project owner and supplied directly in chat (November 26, 2026). This folder contains project-specific implementation guidance and one vector-traced reproduction; it is not a licensed third-party design kit.
+Original design authored by the project owner and supplied directly in chat (November 26, 2026). This folder contains project-specific implementation guidance, one vector-traced reproduction of the accessible original sketch, and one explicitly marked reconstruction of the second sketch; it is not a licensed third-party design kit.
