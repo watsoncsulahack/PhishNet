@@ -1,24 +1,26 @@
-# PhishNet Design Reset — Documentation Handoff
+# PhishNet Design Reset — Agent Handoff
 
-**Status:** proposed design targets (2026-11-25/26), not proof of implementation. Source repository: [watsoncsulahack/PhishNet](https://github.com/watsoncsulahack/PhishNet) (audited baseline \`main\` at \`ab57d519\`).
+**Status:** Proposed architecture. The code still requires security and functionality work. Initial audit baseline: ab57d519.
 
-## Reading order
+## Required reading order
 
-1. [requirements.md](requirements.md) — **only** user requirements (26) and system requirements (50), priority-tagged with stable IDs.
-2. [dfd-level-0.mmd](dfd-level-0.mmd) ([SVG](dfd-level-0.svg)) — Level 0 context data-flow diagram, with one PhishNet system process and six external entities.
-3. [normalization.md](normalization.md) — functional dependencies and the exact 1NF→2NF→3NF decomposition.
-4. [erd-1nf.mmd](erd-1nf.mmd) ([SVG](erd-1nf.svg)) — atomic **1NF** wide relations with deliberately retained partial-key dependencies.
-5. [erd-2nf.mmd](erd-2nf.mmd) ([SVG](erd-2nf.svg)) — **2NF** decomposition removing partial dependencies while retaining documented transitive dependencies.
-6. [erd-3nf.mmd](erd-3nf.mmd) ([SVG](erd-3nf.svg)) and [erd-3nf-notes.md](erd-3nf-notes.md) — previous ERD correctly relabeled as a **3NF-oriented** migration candidate.
-7. [diagrams.md](diagrams.md) — Mermaid-rendered previews of DFD and all three ERD levels.
-8. [implementation-plan.md](implementation-plan.md) — staged engineering roadmap and acceptance criteria.
+1. [research-context.md](research-context.md) — history, research findings, product motivation, and architectural decisions.
+2. [research-references.md](research-references.md) — primary citations and caveats.
+3. [requirements.md](requirements.md) — **26 user** and **50 system requirements**, and nothing beyond those sections.
+4. [dfd-level-0.mmd](dfd-level-0.mmd) — one-system Level 0 context data-flow diagram.
+5. [erd-1nf.mmd](erd-1nf.mmd) — **entities and crow's-foot links only**.
+6. [erd-2nf.mmd](erd-2nf.mmd) — same model **with primary and foreign keys**.
+7. [erd-3nf.mmd](erd-3nf.mmd) — same model **with attributes and datatypes**.
+8. [diagrams.md](diagrams.md) — rendered Mermaid previews for GitHub.
+9. [normalization.md](normalization.md) — clarifies visual-stage terminology versus formal relational 1NF/2NF/3NF.
+10. [schema-implementation-checklist.md](schema-implementation-checklist.md) — physical database integrity extensions omitted from simple diagrams.
+11. [testing.md](testing.md) — test tiers, concrete cases and readiness gates.
+12. [implementation-plan.md](implementation-plan.md) — stage-by-stage work.
 
-Mermaid sources are canonical editable diagrams. **Only the 3NF-oriented ERD is intended as a future implementation starting point; 1NF/2NF are teaching designs.** Final SQL still requires candidate-key, referential-integrity, security and migration review.
+**Notation caveat:** The labels 1NF, 2NF, and 3NF here denote the owner's desired *progressively detailed presentation layers*. Formally they mean atomicity, no partial functional dependencies, and additional functional-dependency constraints, respectively. Adding PKs or datatypes does not accomplish normalization. Do not mistake these concise views for production SQL.
 
-## Non-negotiable current-app facts
+The current prototype is simulation only. Existing fabricated testnet-like hashes, client Boolean approvals, heuristic analysis and self-referential tests are known gaps. Build real security boundaries and execute valid tests before any financial execution.
 
-Current Node server uses simulated money and fabricated testnet-like hashes, client-origin approval booleans, heuristic keyword analysis, an in-memory wallet and a flawed self-referential regression test. Cryptographic authorization, payment settlement, genuine model inference and reliable auditable event histories are **not** verified current capabilities. The MVP is simulation only.
+## Next task for coding agent
 
-## Phone agent entry point
-
-Start with [implementation-plan.md](implementation-plan.md) **Stage 0**. Audit the current code against SRs; make simulated features unmistakably simulated; ensure locally safe deployment; make automated tests call the actual shared implementation; then progress through durable provenance, UX and policy. Record evidence of each acceptance criterion before marking completed.
+Read all documents, make a requirement-to-code/test traceability matrix, run and inspect baseline tests, then begin Stage 0 of implementation-plan.md. Ensure fake transactions and unsupported AI claims are unambiguously labeled. Each stage requires source-code tests, observed results and an auditable commit.

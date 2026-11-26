@@ -2,6 +2,10 @@
 
 **Authority:** [requirements.md](requirements.md) provides only user/system requirements; [dfd-level-0.mmd](dfd-level-0.mmd) defines the context boundary; [normalization.md](normalization.md) explains 1NF→2NF→3NF; [erd-3nf.mmd](erd-3nf.mmd) is the **initial database migration target**, subject to constraint review. Existing baseline: \`main\` at \`ab57d519\`.
 
+## Required context and verification
+
+Read [research-context.md](research-context.md), [research-references.md](research-references.md), and [testing.md](testing.md) before editing. The simpler ERDs are visual presentation views; use [schema-implementation-checklist.md](schema-implementation-checklist.md) to construct and prove an actual normalized physical schema.
+
 ## Product boundary
 
 Build an evidence/provenance investigator and deterministic payment-authorization **simulator** first. Do not misrepresent fake transaction hashes as verified Arc settlement, client approval booleans as independent human approval, rule matching as Gemini inference, or a mock 402 flow as full AP2/x402 compliance. Real signing/testnet integration requires a separate later gate. Preserve existing useful application code where appropriate; refactor incrementally.
@@ -25,11 +29,15 @@ Build an evidence/provenance investigator and deterministic payment-authorizatio
 - Prompt-injection text claiming priority or approval → no permission increase.
 - Altered logged event vs independently signed checkpoint → proof verification fails.
 
+## Required evidence per stage
+
+Create and maintain a requirements traceability matrix. For each stage, include executed tests, observed outcomes, failures, environment, implementation SHA, and outstanding items. Documentation tests alone do not certify the app.
+
 ## Engineering protocol for phone agent
 
 1. Read all files in this folder and repository sources before edits; produce a \`UR/SR → module → status → test\` matrix.
 2. Implement one stage at a time. Write failing tests that exercise production code, not copied policy functions or expected labels.
-3. Migrate data using **3NF-oriented target**, not instructional 1NF/2NF; preserve fixture ids with documented mappings.
+3. Use the concise ERDs only as design input. Derive actual normalized physical tables using schema-implementation-checklist.md and requirements.md. Preserve fixture IDs with documented mappings.
 4. Use a small commit per coherent change; do not rewrite unrelated files or delete existing history.
 5. Keep model output advisory. Never expose signing keys, arbitrary shell access or authority-changing APIs to untrusted agent tools.
 6. Run tests, report actual results and remaining gaps; never fabricate security metrics or network receipts.

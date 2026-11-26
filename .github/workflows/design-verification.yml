@@ -1,0 +1,23 @@
+name: Verify design documentation
+on:
+  push:
+    paths:
+      - 'docs/design-reset/**'
+      - 'scripts/verify-design-docs.mjs'
+      - '.github/workflows/design-verification.yml'
+  pull_request:
+    paths:
+      - 'docs/design-reset/**'
+      - 'scripts/verify-design-docs.mjs'
+      - '.github/workflows/design-verification.yml'
+jobs:
+  design:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/verify-design-docs.mjs
