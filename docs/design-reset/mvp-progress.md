@@ -29,3 +29,9 @@ The recorder is a local-service trust boundary. A compromised OS/recorder can re
 Added a strict versioned EventTraceV1 JSON Schema with per-event payloads, canonical serialization, scope, typed relations, recorder-assigned verification and explicit unsigned-local event authentication. No raw chat field is accepted in journal payloads; private evidence uses protected references. The existing wallet path is unchanged at this milestone.
 
 M0 verification: `node tests/event-contract.test.js` passed 4/4 (strict payloads, authority injection, canonical values and schema parity). `npm test` baseline passed 15/15. AJV and ajv-formats installed LICENSE files are MIT. This is schema verification, not a completed journal or independent authorization gate.
+
+## M1a durable journal core
+
+Added SQLite/WAL/FULL-synchronous migrations, immutable event/relationship tables, ordered digests, scoped encrypted content references and persistence tables for proposals/consent/sessions/connectors/checkpoints. Recorder identity, verification state and sequence are assigned by component rules; callers cannot inject them. Parents must already exist in the same wallet and trace, preventing cycles and foreign references. Runtime keys/content encryption material live in owner-only files separate from event rows. This is single-host protection, not a defense against that host's administrator or a trusted external witness.
+
+`node tests/journal.test.js`: 5/5 passed (restart/key stability, privacy/scope, provenance injection, atomicity/append-only triggers and naive offline-tamper detection). Wallet route integration and untrusted browser-history migration follow next; M1's complete exit gate is not declared yet.
