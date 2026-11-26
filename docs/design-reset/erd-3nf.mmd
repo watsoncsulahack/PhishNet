@@ -1,23 +1,16 @@
-%% PhishNet 3NF-oriented target: prior diagram correctly relabeled
-%% Source of truth is normalization.md for functional dependencies; instructional model, not current database.
+%% PHISHNET 3NF VIEW: TYPED LOGICAL-SCHEMA DESIGN (PRESENTATION LAYER)
+%% Datatypes are illustrative; 3NF depends on functional dependencies, NOT type declarations.
+%% Physical SQL requires documented extensions and separate migration validation.
 erDiagram
-    PRINCIPAL {
-        uuid principal_id PK
-        string principal_kind
+    ACTOR {
+        uuid actor_id PK
+        string kind
         string display_name
-        string external_identity_ref
-    }
-    CREDENTIAL {
-        uuid credential_id PK
-        uuid principal_id FK
-        string key_id UK
-        string public_key
-        string credential_type
-        string status
+        string identity_status
     }
     SESSION {
         uuid session_id PK
-        uuid owner_principal_id FK
+        uuid owner_actor_id FK
         string title
         string environment
         datetime created_at
@@ -25,182 +18,110 @@ erDiagram
     EVENT {
         uuid event_id PK
         uuid session_id FK
-        uuid actor_principal_id FK
-        datetime occurred_at
-        string event_type
+        uuid actor_id FK
         string channel
-        string observation_status
+        string trust_state
         text content_text
-        string content_digest
+        datetime occurred_at
     }
-    EVENT_PARENT {
-        uuid child_event_id PK,FK
-        uuid parent_event_id PK,FK
-        string edge_kind
-        string edge_confidence
+    EVENT_DEPENDENCY {
+        uuid dependency_id PK
+        uuid source_event_id FK
+        uuid target_event_id FK
+        string basis
+        string verification_state
     }
     CLAIM {
         uuid claim_id PK
         uuid session_id FK
-        text normalized_statement
-        string truth_status
+        text statement
+        string assessment
     }
     CLAIM_MENTION {
         uuid mention_id PK
         uuid claim_id FK
         uuid event_id FK
-        text exact_span
-        string mention_kind
+        text quoted_span
     }
     EVIDENCE {
         uuid evidence_id PK
-        uuid source_event_id FK
-        string evidence_type
-        string verification_status
+        uuid event_id FK
+        string kind
+        string verification_state
         string content_digest
-        string source_uri
     }
     CLAIM_EVIDENCE {
         uuid claim_id PK,FK
         uuid evidence_id PK,FK
-        string support_relation
+        string relation_type
     }
     FINDING {
         uuid finding_id PK
         uuid session_id FK
-        string finding_type
-        string assessment
+        string indicator_type
         string analyzer_version
-        text explanation
-    }
-    FINDING_EVENT {
-        uuid finding_id PK,FK
-        uuid event_id PK,FK
+        string assessment
     }
     MANDATE {
         uuid mandate_id PK
-        uuid owner_principal_id FK
-        uuid issuer_credential_id FK
+        uuid authorizer_actor_id FK
+        string recipient_address
         string chain_id
         string asset_id
-        string purpose_code
         bigint per_payment_limit
-        bigint total_budget
-        datetime valid_after
+        bigint cumulative_budget
         datetime valid_until
-        string signature_status
+        string signature_reference
     }
-    MANDATE_RECIPIENT {
-        uuid mandate_id PK,FK
-        string recipient_address PK
-    }
-    PAYMENT_PROPOSAL {
+    PROPOSAL {
         uuid proposal_id PK
         uuid session_id FK
         uuid mandate_id FK
         string recipient_address
-        string chain_id
-        string asset_id
         bigint amount_base_units
-        string purpose_code
-        string request_nonce
-        datetime proposed_at
+        string nonce
+        datetime created_at
     }
-    PROPOSAL_EVENT {
-        uuid proposal_id PK,FK
-        uuid event_id PK,FK
-        string relevance_kind
-    }
-    HUMAN_APPROVAL {
+    APPROVAL {
         uuid approval_id PK
         uuid proposal_id FK
-        uuid credential_id FK
+        uuid approver_actor_id FK
         string transaction_digest
-        string signed_challenge
-        datetime expires_at
-        string verification_status
-    }
-    RECIPIENT_VERIFICATION {
-        uuid verification_id PK
-        uuid verifier_credential_id FK
-        uuid evidence_id FK
-        string recipient_address
-        string verification_method
-        datetime verified_at
+        string signature_reference
         datetime expires_at
     }
     POLICY_DECISION {
         uuid decision_id PK
         uuid proposal_id FK
-        string decision
+        string result
         string policy_version
-        datetime evaluated_at
+        string primary_reason_code
     }
-    DECISION_REASON {
-        uuid decision_id PK,FK
-        string reason_code PK
-    }
-    PAYMENT_EXECUTION {
+    EXECUTION {
         uuid execution_id PK
         uuid proposal_id FK
         uuid decision_id FK
-        string execution_mode
-        string execution_status
+        string mode
+        string status
         string transaction_hash
-        bigint amount_base_units
-        datetime updated_at
     }
-    CONSUMED_NONCE {
-        uuid mandate_id PK,FK
-        string nonce PK
-        uuid proposal_id FK
-        datetime consumed_at
-    }
-    AUDIT_CHECKPOINT {
-        uuid checkpoint_id PK
-        string root_hash
-        string signature
-        string algorithm_id
-        datetime created_at
-        string external_anchor_ref
-    }
-    AUDIT_LEAF {
-        uuid checkpoint_id PK,FK
-        uuid event_id PK,FK
-        int leaf_index
-        string leaf_hash
-    }
-    PRINCIPAL ||--o{ CREDENTIAL : owns
-    PRINCIPAL ||--o{ SESSION : initiates
-    PRINCIPAL ||--o{ EVENT : produces
+    ACTOR ||--o{ SESSION : owns
+    ACTOR ||--o{ EVENT : produces
     SESSION ||--o{ EVENT : contains
-    EVENT ||--o{ EVENT_PARENT : child
-    EVENT ||--o{ EVENT_PARENT : parent
+    EVENT ||--o{ EVENT_DEPENDENCY : source_for
+    EVENT ||--o{ EVENT_DEPENDENCY : references
     SESSION ||--o{ CLAIM : contains
-    CLAIM ||--o{ CLAIM_MENTION : mentioned_by
+    CLAIM ||--o{ CLAIM_MENTION : is_mentioned
     EVENT ||--o{ CLAIM_MENTION : mentions
-    EVENT ||--o{ EVIDENCE : sources
+    EVENT ||--o{ EVIDENCE : supplies
     CLAIM ||--o{ CLAIM_EVIDENCE : supported_by
-    EVIDENCE ||--o{ CLAIM_EVIDENCE : applies_to
+    EVIDENCE ||--o{ CLAIM_EVIDENCE : linked_to
     SESSION ||--o{ FINDING : assessed_in
-    FINDING ||--o{ FINDING_EVENT : cites
-    EVENT ||--o{ FINDING_EVENT : cited_by
-    PRINCIPAL ||--o{ MANDATE : authorizes
-    CREDENTIAL ||--o{ MANDATE : signs
-    MANDATE ||--o{ MANDATE_RECIPIENT : permits
-    SESSION ||--o{ PAYMENT_PROPOSAL : contains
-    MANDATE ||--o{ PAYMENT_PROPOSAL : governs
-    PAYMENT_PROPOSAL ||--o{ PROPOSAL_EVENT : depends_on
-    EVENT ||--o{ PROPOSAL_EVENT : referenced_by
-    PAYMENT_PROPOSAL ||--o{ HUMAN_APPROVAL : requires
-    CREDENTIAL ||--o{ HUMAN_APPROVAL : signs
-    CREDENTIAL ||--o{ RECIPIENT_VERIFICATION : verifies
-    EVIDENCE ||--o{ RECIPIENT_VERIFICATION : records
-    PAYMENT_PROPOSAL ||--o{ POLICY_DECISION : evaluated_by
-    POLICY_DECISION ||--o{ DECISION_REASON : provides
-    PAYMENT_PROPOSAL ||--o{ PAYMENT_EXECUTION : executed_as
-    POLICY_DECISION ||--o{ PAYMENT_EXECUTION : justifies
-    MANDATE ||--o{ CONSUMED_NONCE : accounts_for
-    PAYMENT_PROPOSAL ||--o{ CONSUMED_NONCE : consumes
-    AUDIT_CHECKPOINT ||--o{ AUDIT_LEAF : covers
-    EVENT ||--o{ AUDIT_LEAF : included_as
+    ACTOR ||--o{ MANDATE : authorizes
+    SESSION ||--o{ PROPOSAL : contains
+    MANDATE ||--o{ PROPOSAL : governs
+    ACTOR ||--o{ APPROVAL : signs
+    PROPOSAL ||--o{ APPROVAL : requires
+    PROPOSAL ||--o{ POLICY_DECISION : evaluated_by
+    PROPOSAL ||--o{ EXECUTION : executed_as
+    POLICY_DECISION ||--o{ EXECUTION : permits

@@ -1,56 +1,55 @@
-# PhishNet ERD Normalization: 1NF → 2NF → 3NF-oriented target
+# PhishNet — Progressive ERD Views and Formal Normalization
 
-This is a **design progression**, not three competing production schemas. Read the editable diagrams in this order: [1NF](erd-1nf.mmd), [2NF](erd-2nf.mmd), [3NF-oriented](erd-3nf.mmd). The current application still uses memory-backed JSON, not these tables. Use the **3NF-oriented diagram** as the initial migration candidate only after checking its keys and functional dependencies.
+## The three drawings requested for design review
 
-## Definitions
+The three files deliberately use a **progressive notation convention**:
 
-- **1NF:** each column value is atomic for its domain, each row has a key, and repeating groups are represented by separate rows rather than arrays or comma-separated lists. **Partial and transitive dependencies are still allowed.**
-- **2NF:** satisfies 1NF, and every non-prime attribute is fully functionally dependent on every candidate key, so no non-prime attribute depends only on part of a composite candidate key. **Transitive dependencies are still allowed.**
-- **3NF:** satisfies 2NF and each nontrivial dependency \`X → A\` has a superkey on the left or a prime attribute on the right. The final drawing is **3NF-oriented**, not a proof of all candidate keys, FDs, or BCNF.
-- It is normal for some tables shown in a 1NF diagram to also satisfy higher normal forms. Normal forms classify relations; their labels do not require every table to have a violation of the next form.
-- **Key scope:** the instructional 1NF composite identifiers are scoped to the parent where appropriate (e.g. event ID within a session; approval ID within a proposal). The 2NF/3NF designs introduce globally unique surrogate IDs where indicated. Do not mistake a non-minimal superkey for a candidate key.
-
-## 1NF: atomic but deliberately redundant
-
-The [1NF ERD](erd-1nf.mmd) contains 10 wide tables with single-valued fields and explicit rows for links, evidence, recipients, decision reasons and audit memberships. Examples of **partial dependencies** requiring decomposition:
-
-| 1NF table (composite key) | Partial dependency | Update anomaly |
+| Diagram | What is shown | Goal |
 |---|---|---|
-| \`ACTIVITY_LOG_1NF(session_id,event_id)\` | \`session_id → session_title,session_owner_id\` | Session title repeated for every event. |
-| \`EVENT_LINK_1NF(session_id,child_event_id,parent_event_id)\` | \`session_id → session_title\` | Session facts repeated for each link. |
-| \`CLAIM_OCCURRENCE_1NF(session_id,claim_id,event_id,mention_index)\` | \`(session_id,claim_id) → claim_statement,claim_truth_state\` | Claim description repeated at each occurrence. |
-| \`CLAIM_SUPPORT_1NF(claim_id,evidence_id)\` | \`claim_id → claim_statement\`; \`evidence_id → evidence_type,evidence_uri\` | Claim/evidence properties repeated across associations. |
-| \`FINDING_SOURCE_1NF(finding_id,event_id)\` | \`finding_id → finding_type,assessment,explanation\` | Repeated finding descriptions. |
-| \`MANDATE_PAYEE_1NF(mandate_id,recipient_address)\` | \`mandate_id → total_budget,valid_until,owner_principal_id\` | Each allowed recipient repeats all mandate attributes. |
-| \`PROPOSAL_DECISION_REASON_1NF(proposal_id,decision_id,reason_code)\` | \`proposal_id → amount_base_units,proposed_recipient\`; \`decision_id → decision_result,policy_version\` | Proposal and decision metadata copied per reason. |
-| \`AUDIT_MEMBERSHIP_1NF(checkpoint_id,event_id)\` | \`checkpoint_id → checkpoint_root,checkpoint_signature\`; \`event_id → event_digest\` | Checkpoint root repeated per included event. |
+| [1NF view](erd-1nf.mmd) | **Only entities and crow's-foot relationships** | See the business concepts, cardinality and system scope without technical clutter. |
+| [2NF view](erd-2nf.mmd) | The same entities/relationships **plus identifying fields, primary keys and referencing foreign keys** | Make records and their relationships addressable. Labels `id` and `ref` are descriptive placeholders, not SQL datatypes. |
+| [3NF view](erd-3nf.mmd) | The same core model **plus selected attributes and illustrative datatypes** | Provide a readable starting point for implementation schema design. |
 
-\`EXECUTION_RECORD_1NF\` uses a simple key and already satisfies 2NF; that is expected.
+**Technical caveat:** These are the user's *presentation-stage labels*, **not** the formal mathematical definitions of database normal forms. In relational theory, 1NF concerns atomic values; 2NF removes partial functional dependencies on candidate keys; 3NF constrains transitive dependencies (more precisely, every nontrivial FD has a superkey determinant or a prime RHS). Adding keys does not by itself achieve 2NF; adding datatypes does not achieve 3NF. An implementation agent must verify actual functional dependencies before declaring the SQL schema normalized.
 
-## 2NF: partial dependencies removed
+The former repository versions of these files were extensive (10 wide 1NF tables, 23 entity 2NF/3NF models). They were too detailed for the conceptual design step. These **14 core entities** deliberately focus on the MVP; a later physical data dictionary and subsystem diagrams can extend them.
 
-The [2NF ERD](erd-2nf.mmd) decomposes the wide relations: \`MANDATE_PAYEE\` becomes \`MANDATE\` and \`MANDATE_RECIPIENT\`; \`CLAIM_SUPPORT\` becomes \`CLAIM\`, \`EVIDENCE\` and \`CLAIM_EVIDENCE\`; \`PROPOSAL_DECISION_REASON\` becomes \`PAYMENT_PROPOSAL\`, \`POLICY_DECISION\` and \`DECISION_REASON\`. Child facts depend on the full primary/candidate key of their respective table.
+## Reading the crow's-foot relationships
 
-**Intentional transitive dependencies that remain legal under 2NF:**
+`ACTOR ||--o{ EVENT` means each event has **one** recorded actor and an actor may produce **zero or more** events. The same notation describes session ownership, claims, source evidence, signed mandates, and policy outcomes.
 
-- \`SESSION_2NF.session_id → owner_principal_id → owner_display_name\`
-- \`EVENT_2NF.event_id → actor_principal_id → actor_display_name\`
-- \`MANDATE_2NF.mandate_id → owner_principal_id → owner_display_name\`
-- \`HUMAN_APPROVAL_2NF.approval_id → credential_id → signer_key_id\`
-- \`POLICY_DECISION_2NF.decision_id → proposal_id → proposal_recipient_address\`
+Two appearances of `EVENT ||--o{ EVENT_DEPENDENCY` are intentional: `source_event_id` and `target_event_id` create a directed self-reference, allowing multiple origins and avoiding treating one repeated statement as independent evidence.
 
-Do **not** implement those deliberate display-name/key/recipient copies as authoritative storage in production; they illustrate the remaining step.
+`CLAIM_MENTION` links a claim to each observed appearance in an event. `CLAIM_EVIDENCE` links claims to one or more supporting/refuting evidence records. These are relationship entities, not separate product features; leaving them out would conceal the many-to-many provenance problem.
 
-## 3NF-oriented implementation target
+## Definition and enforcement boundaries
 
-The [3NF-oriented ERD](erd-3nf.mmd) is the previous diagram, correctly relabeled. It removes the intentional transitive copies: \`SESSION\`/ \`EVENT\`/ \`MANDATE\` link to \`PRINCIPAL\`; \`HUMAN_APPROVAL\` links to \`CREDENTIAL\`; \`POLICY_DECISION\` links to \`PAYMENT_PROPOSAL\`. Join tables model repeated relationships atomically. Consult [integrity notes](erd-3nf-notes.md) before writing SQL.
+- `ACTOR` includes human, agent or service. Display names and asserted roles are **not** authenticated authority.
+- `EVENT` represents observed or imported material. A reference or hash does **not** guarantee the log is complete or the source honest.
+- `EVENT_DEPENDENCY` records observed references or **explicitly inferred** influence; its verification state must distinguish them.
+- `CLAIM` is an assertion, not a verified truth. Repeated mentions do not imply independent corroboration.
+- `EVIDENCE` stores traceability and verification state; trust is established through independent processes outside the model.
+- `FINDING` is an advisory observation, not a transaction authorization.
+- `MANDATE` represents bounded human-delegated authority, requiring real signature verification before live use.
+- `PROPOSAL` is a requested payment; it never directly creates an executable transfer.
+- `APPROVAL` binds a signed exact transaction and independent human credential; a client-provided boolean is insufficient.
+- `POLICY_DECISION` is the non-LLM allow/hold/deny outcome; it must not trust forged upstream approvals.
+- `EXECUTION` distinguishes SIMULATED, BROADCAST, CONFIRMED and FAILED. Only a verified receipt can support CONFIRMED.
 
-**Security caveat:** normalization does not prove event truth, complete provenance, signed human authorization, tamper-evident independent audit history, or safe settlement. Those require additional constraints and enforcement under [requirements.md](requirements.md).
+## Implementation extensions deliberately omitted from the overview drawings
 
-## Guidance to implementation agent
+A **production-oriented** schema will need additional tables beyond the simple drawings. Examples: `CREDENTIAL` (public key, key issuer, status), `MANDATE_RECIPIENT` for multiple authorized payees, `DECISION_REASON` for multiple reasons, `CONSUMED_NONCE` for durable replay protection, budget reservations/accounting, `AUDIT_CHECKPOINT` and `AUDIT_LEAF`, `FINDING_EVIDENCE`, model/rule-version lineage, account or organization ownership, and tenant-level access controls.
 
-1. Treat 1NF and 2NF as explanatory models, **never as the target database**.
-2. Verify the 3NF diagram's candidate keys, dependencies, referential integrity, nullable fields, tenant boundaries, constraints and indexes before generating migrations.
-3. Preserve only facts the platform can actually verify; distinguish source claims from authority and observed from inferred dependency edges.
-4. Use integer payment units, durable replay state, atomic budget reservations, independent approval verification and simulated-only execution until P1 gates pass.
-5. Create migration tests and cite relevant \`UR-*\` / \`SR-*\` IDs in changes.
+Do **not** implement lists of recipient addresses, evidence IDs, ancestor IDs, or reason codes as comma-delimited strings simply to keep the drawing compact. Do not use a single `primary_reason_code` as a substitute for the full set of machine-readable decision reasons.
+
+The agent must maintain a separate [database implementation checklist](schema-implementation-checklist.md) and design normalized migrations from the requirements; diagram simplicity **never overrides** security or data-integrity requirements.
+
+## Modeling decisions to validate before database migrations
+
+1. Determine stable primary and candidate keys, uniqueness, and deletion behavior for all relationships.
+2. Enforce event session consistency and cycle detection for dependency edges.
+3. Model evidence and findings with source references and uncertainty.
+4. Protect signing credentials, allow mandate revocation, and bind approval to the canonical transaction.
+5. Use integer minor/base units, transaction-bound nonce/idempotency, and atomic budget debits/reservations.
+6. Preserve append-only event integrity and independently witnessed audit commitments; do not place private conversation content on public chains.
+7. Write migrations and real persistence tests for referential integrity, restart replay, concurrency and failure recovery.
