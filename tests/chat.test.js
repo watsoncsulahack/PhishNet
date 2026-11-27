@@ -1,5 +1,6 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';
 import {Journal} from '../packages/journal/src/journal.js';import {createGateway} from '../apps/api/src/gateway.js';import {assertReply,REPLY_VERSION} from '../packages/chat/src/reply.js';
+import {normalizeBackend,parseBackendOutput,buildPrompt,dispatchJob} from '../packages/agent/src/bridge.js';
 const wallet='0x'+'1'.repeat(40),other='0x'+'2'.repeat(40);
 function setup(){const dir=fs.mkdtempSync(os.tmpdir()+'/phishnet-chat-');let j=new Journal(dir),g=createGateway({journal:j});return {get g(){return g;},get j(){return j;},restart(){j.close();j=new Journal(dir);g=createGateway({journal:j});},close(){j.close();fs.rmSync(dir,{recursive:true,force:true});}};}
 function issued(s){const key=s.g.issueAgent(wallet);return {key,agent:s.g.agent(key.token)};}
@@ -11,3 +12,42 @@ test('foreign conversations and payment links cannot acquire fabricated consent 
 test('existing plan.report capabilities accept structured replies; read-only capabilities and revocation stay restricted',async()=>{const s=setup();try{const {key}=issued(s);const config=JSON.parse(s.j.db.prepare('SELECT record_json FROM agents WHERE id=?').get(key.agentId).record_json);config.capabilities=['chat.read','plan.report'];s.j.db.prepare('UPDATE agents SET record_json=? WHERE id=?').run(JSON.stringify(config),key.agentId);const agent=s.g.agent(key.token),chat=s.g.chat(wallet,{text:'Respond'});s.g.jobs(agent);await s.g.tool(agent,response(chat.chatId));config.capabilities=['wallet.balance'];s.j.db.prepare('UPDATE agents SET record_json=? WHERE id=?').run(JSON.stringify(config),key.agentId);await assert.rejects(()=>s.g.tool(s.g.agent(key.token),response(chat.chatId)),/not permitted/);s.g.revokeAgent(wallet,key.agentId);assert.throws(()=>s.g.agent(key.token));}finally{s.close();}});
 test('local connector checks validate the supplied capability without consuming jobs or exposing its secret across wallets',()=>{const s=setup();try{const {key}=issued(s),g=createGateway({journal:s.j,localAgentToken:key.token});g.chat(wallet,{text:'Do not claim this job during a status check'});const result=g.localAgentConnection(wallet);assert.equal(result.status,'CAPABILITY_VALID');assert.equal(result.recentlyActive,false);assert.equal(result.signingCapability,false);assert.ok(!JSON.stringify(result).includes(key.token));assert.equal(g.localAgentConnection(other).status,'UNAVAILABLE');assert.equal(s.j.db.prepare('SELECT status FROM chat_jobs').get().status,'QUEUED');assert.equal(g.agentStatus(wallet)[0].lastSeen,null);}finally{s.close();}});
 test('selected cards are immutable source references and cannot be forged or taken from another wallet',async()=>{const s=setup();try{const {agent}=issued(s),chat=s.g.chat(wallet,{text:'Options'});s.g.jobs(agent);const reply=await s.g.tool(agent,response(chat.chatId));const follow=s.g.chat(wallet,{text:'Compare this',traceId:chat.traceId,selectedItems:[{eventId:reply.eventId,itemId:item.id}]});const job=s.g.jobs(agent)[0];assert.equal(job.chatId,follow.chatId);assert.equal(job.text,'Compare this');assert.equal(job.selectedItems[0].item.title,item.title);assert.equal(job.selectedItems[0].sourceEventId,reply.eventId);assert.throws(()=>s.g.chat(other,{text:'Steal',selectedItems:[{eventId:reply.eventId,itemId:item.id}]}));assert.throws(()=>s.g.chat(wallet,{text:'Forge',traceId:chat.traceId,selectedItems:[{eventId:reply.eventId,itemId:'absent'}]}));assert.throws(()=>s.g.chat(wallet,{text:'Rewrite',traceId:chat.traceId,selectedItems:[{eventId:reply.eventId,itemId:item.id,price:'0'}]}));const event=s.g.events(wallet).find(e=>e.eventId===follow.eventId);assert.deepEqual(event.links.parentEventIds,[reply.eventId]);assert.equal(event.payload.selectedItemRefs[0].itemId,item.id);assert.ok(!JSON.stringify(event).includes(item.title));}finally{s.close();}});
+
+test('agent backend switching persists across restarts and bridge dispatches antigravity/codex outputs without signing authority',async()=>{
+  assert.equal(normalizeBackend('agy'),'antigravity');
+  assert.equal(normalizeBackend('gemini'),'antigravity');
+  assert.equal(normalizeBackend('codex'),'codex');
+  assert.throws(()=>normalizeBackend('evil'));
+  const agyOut=parseBackendOutput(JSON.stringify({result:'```json\n{"plan":"Checked balance","replyText":"Ready","items":[],"proposal":null}\n```'}),'antigravity');
+  assert.equal(agyOut.replyText,'Ready');
+  const codexOut=parseBackendOutput('{"type":"item.completed","item":{"type":"agent_message","text":"{\\"plan\\":\\"Codex plan\\",\\"replyText\\":\\"Codex reply\\",\\"items\\":[],\\"proposal\\":{\\"to\\":\\"0x'+'2'.repeat(40)+'\\",\\"amount\\":\\"0.02\\",\\"purpose\\":\\"Test\\"}}"}}','codex');
+  assert.equal(codexOut.proposal.amount,'0.02');
+  const s=setup();
+  try{
+    assert.equal(s.g.setBackend(wallet,'antigravity').backend,'antigravity');
+    s.restart();
+    assert.equal(s.g.backend(),'antigravity');
+    const {agent}=issued(s);
+    assert.equal(s.g.agentConnection(agent).backend,'antigravity');
+    const c=s.g.chat(wallet,{text:'Prepare 0.02 USDC to '+other});
+    const job=s.g.jobs(agent)[0];
+    const client={tool:(tool,argumentsObj)=>s.g.tool(agent,{tool,arguments:argumentsObj})};
+    const res=await dispatchJob(client,job,{backend:'antigravity',exec:async()=>JSON.stringify({result:JSON.stringify({plan:'Agent observed request',replyText:'Drafted unsigned proposal.',items:[],proposal:{to:other,amount:'0.02',purpose:'Bridge test'}})})});
+    assert.ok(res.proposalId);
+    assert.equal(s.g.proposal(wallet,res.proposalId).status,'PROPOSED');
+    assert.equal(s.g.proposal(wallet,res.proposalId).requiresConsent,true);
+    assert.equal(s.g.setBackend(wallet,'codex').backend,'codex');
+    assert.equal(s.g.agentConnection(agent).backend,'codex');
+    assert.throws(()=>s.g.setBackend(wallet,'unknown'));
+    const faucet='0x'+'9'.repeat(40);
+    s.g.emit(wallet,'chain-test','chain.transaction.observed',{txHash:'0x'+'e'.repeat(64),from:faucet,recipient:wallet,amountBaseUnits:'10000000000000000000',direction:'incoming',asset:'native-USDC',decimals:18,chainId:5042002,blockNumber:'55',source:'rpc-native-tx'},'chain-verifier',{id:'chain-rpc',type:'service'});
+    const txTool=await s.g.tool(agent,{tool:'wallet.transactions',arguments:{}});
+    assert.equal(txTool.recentTransactions[0].from,faucet);
+    const faucetChat=s.g.chat(wallet,{text:'Send 1 USDC back to the faucet address I received funds from'});
+    const faucetJob=s.g.jobs(agent)[0];
+    assert.equal(faucetJob.walletSnapshot.recentTransactions[0].from,faucet);
+    const renderedPrompt=buildPrompt(faucetJob);
+    assert.ok(renderedPrompt.includes(faucet));
+    const replyRes=await dispatchJob(client,faucetJob,{backend:'antigravity',exec:async()=>JSON.stringify({result:JSON.stringify({plan:'Found faucet sender in observed transfers.',replyText:'Drafted 1 USDC return to '+faucet,items:[],proposal:{to:faucet,amount:'1',purpose:'Return test funds to faucet'}})})});
+    assert.equal(s.g.proposal(wallet,replyRes.proposalId).input.to,faucet);
+  }finally{s.close();}});

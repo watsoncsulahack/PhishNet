@@ -14,7 +14,7 @@ const content={contentRef:id,contentDigest:digest};
 const proposal={proposalId:id};
 const payloads={
  'chat.user.submitted':object({...content,selectedItemRefs:{type:'array',items:object({eventId:id,itemId:id}),minItems:1,maxItems:3,uniqueItems:true}},['contentRef','contentDigest']),
- 'agent.tool.requested':object({toolCallId:id,tool:{enum:['wallet.balance','chat.read','payment.propose','plan.report','chat.respond']}}),
+ 'agent.tool.requested':object({toolCallId:id,tool:{enum:['wallet.balance','wallet.transactions','chat.read','payment.propose','plan.report','chat.respond']}}),
  'tool.result.observed':object({toolCallId:id,tool:text,resultRef:id}),
  'agent.message.reported':object({...content,chatId:id,replyId:id,format:{const:'phishnet.chat-reply.v1'}}),
  'agent.plan.reported':object({...content,sourceEventIds:refs}),
@@ -27,9 +27,10 @@ const payloads={
  'wallet.submission.observed':object({...proposal,txHash:hash}),
  'wallet.rejected':object({...proposal,reasonCode:{enum:['USER_REJECTED','CANCELLED','REQUEST_FAILED']}}),
  'chain.receipt.checked':object({...proposal,txHash:hash,status:{enum:['BROADCAST','CONFIRMED','FAILED','MISMATCH','UNVERIFIED']},blockNumber:uint,feeBaseUnits:uint,verificationRef:id},['proposalId','txHash','status']),
+ 'chain.transaction.observed':object({txHash:hash,from:address,recipient:address,amountBaseUnits:uint,direction:{enum:['incoming','outgoing','self']},asset:{const:'native-USDC'},decimals:{const:18},chainId:{const:5042002},blockNumber:uint,observedAt:{type:'string',format:'date-time',pattern:'Z$'},source:{enum:['rpc-native-tx','rpc-usdc-log','explorer-internal-tx']}},['txHash','from','recipient','amountBaseUnits','direction','asset','decimals','chainId','blockNumber','source']),
  'history.imported':object({txHash:hash,from:address,recipient:address,amountBaseUnits:uint}),
  'payment.status.changed':object({...proposal,status:{enum:['PROPOSED','PENDING_APPROVAL','APPROVED','AUTHORIZATION_REQUESTED','REJECTED','EXPIRED','WALLET_REJECTED','BROADCAST','CONFIRMED','FAILED','UNVERIFIED']},reasonCode:id}),
- 'agent.connector.changed':object({agentId:id,action:{enum:['issued','revoked']}}),
+ 'agent.connector.changed':object({agentId:id,action:{enum:['issued','revoked','backend_switched']},backend:{enum:['antigravity','codex','custom','manual']}},['agentId','action']),
  'audit.checkpoint.created':object({checkpointId:id,firstSequence:{type:'integer',minimum:1},lastSequence:{type:'integer',minimum:1},root:digest,checkpointDigest:digest}),
  'audit.checkpoint.published':object({checkpointId:id,txHash:hash,status:{const:'BROADCAST'}}),
  'audit.checkpoint.checked':object({checkpointId:id,txHash:hash,status:{const:'UNVERIFIED'},reasonCode:id}),

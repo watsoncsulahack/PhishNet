@@ -4,9 +4,11 @@ node_modules/
 
 # Environment and secrets
 .env
-.env.local
+.env.*
+!.env.example
 *.pem
 *.key
+phishnet-countersign-human-key*.json
 
 # Build outputs and temp
 dist/
@@ -27,5 +29,8 @@ playwright-report/
 
 apps/web/build/
 
-# Local private journal and recorder keys
+# Local private journal, exports, and recorder keys
 .data/
+*.sqlite
+*.sqlite-*
+*.zip

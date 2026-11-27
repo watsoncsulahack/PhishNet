@@ -38,6 +38,7 @@
         "wallet.submission.observed",
         "wallet.rejected",
         "chain.receipt.checked",
+        "chain.transaction.observed",
         "history.imported",
         "payment.status.changed",
         "agent.connector.changed",
@@ -383,6 +384,7 @@
               "tool": {
                 "enum": [
                   "wallet.balance",
+                  "wallet.transactions",
                   "chat.read",
                   "payment.propose",
                   "plan.report",
@@ -975,6 +977,88 @@
       "if": {
         "properties": {
           "eventType": {
+            "const": "chain.transaction.observed"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "type": "object",
+            "properties": {
+              "txHash": {
+                "type": "string",
+                "pattern": "^0x[0-9a-fA-F]{64}$"
+              },
+              "from": {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{40}$"
+              },
+              "recipient": {
+                "type": "string",
+                "pattern": "^0x[0-9a-f]{40}$"
+              },
+              "amountBaseUnits": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,59})$"
+              },
+              "direction": {
+                "enum": [
+                  "incoming",
+                  "outgoing",
+                  "self"
+                ]
+              },
+              "asset": {
+                "const": "native-USDC"
+              },
+              "decimals": {
+                "const": 18
+              },
+              "chainId": {
+                "const": 5042002
+              },
+              "blockNumber": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,59})$"
+              },
+              "observedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "Z$"
+              },
+              "source": {
+                "enum": [
+                  "rpc-native-tx",
+                  "rpc-usdc-log",
+                  "explorer-internal-tx"
+                ]
+              }
+            },
+            "required": [
+              "txHash",
+              "from",
+              "recipient",
+              "amountBaseUnits",
+              "direction",
+              "asset",
+              "decimals",
+              "chainId",
+              "blockNumber",
+              "source"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
             "const": "history.imported"
           }
         },
@@ -1094,7 +1178,16 @@
               "action": {
                 "enum": [
                   "issued",
-                  "revoked"
+                  "revoked",
+                  "backend_switched"
+                ]
+              },
+              "backend": {
+                "enum": [
+                  "antigravity",
+                  "codex",
+                  "custom",
+                  "manual"
                 ]
               }
             },

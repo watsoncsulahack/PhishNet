@@ -8,6 +8,7 @@ import { createGateway } from './gateway.js';
 import {localOrigin} from './gateway-http.js';
 import { gatewayHandler } from './gateway-http.js';
 import {createAudit} from './audit.js';
+import {dispatchJob} from '../../../packages/agent/src/bridge.js';
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
@@ -21,10 +22,83 @@ const ROOT_DIR = path.resolve(__dirname, '../../../');
 const PORT = process.env.PORT || 3001;
 const HOST = process.env.HOST || '127.0.0.1';
 const journal = new Journal(process.env.PHISHNET_DATA_DIR || path.join(ROOT_DIR, '.data'));
-const gateway = createGateway({journal});
+const gateway = createGateway({journal, allowDynamicConsent: true, requireUnenrolledAgentConsent: false, defaultAgentBackend: process.env.PHISHNET_AGENT_BACKEND || 'antigravity'});
 gateway.audit=createAudit(gateway);
 const consentBroker = gateway.consent;
 const handleGateway = gatewayHandler(gateway);
+
+const runtimeAgentTokens = new Map();
+const activeDispatchWallets = new Set();
+const queuedDispatchWallets = new Set();
+
+function resolveRuntimeAgent(wallet) {
+  const configured = (process.env.PHISHNET_AGENT_TOKEN || '').trim();
+  if (configured) {
+    try {
+      const a = gateway.agent(configured);
+      if (a.wallet === wallet) return a;
+    } catch {}
+  }
+  const cached = runtimeAgentTokens.get(wallet);
+  if (cached) {
+    try { return gateway.agent(cached); } catch { runtimeAgentTokens.delete(wallet); }
+  }
+  const issued = gateway.issueAgent(wallet);
+  runtimeAgentTokens.set(wallet, issued.token);
+  return gateway.agent(issued.token);
+}
+
+async function dispatchWalletChat(wallet) {
+  if (!wallet || process.env.PHISHNET_AUTO_AGENT === '0') return;
+  const backend = gateway.backend();
+  if (backend === 'manual') return;
+  if (activeDispatchWallets.has(wallet)) {
+    queuedDispatchWallets.add(wallet);
+    return;
+  }
+  activeDispatchWallets.add(wallet);
+  try {
+    do {
+      queuedDispatchWallets.delete(wallet);
+      const agent = resolveRuntimeAgent(wallet);
+      const client = { tool: (tool, args) => gateway.tool(agent, { tool, arguments: args }) };
+      const jobs = gateway.jobs(agent);
+      for (const job of jobs) {
+        const currentBackend = gateway.backend();
+        if (currentBackend === 'manual') break;
+        try {
+          gateway.emitAgentStatus(wallet, { traceId: job.traceId, phase: 'reading', backend: currentBackend, label: 'Reading wallet balance & faucet transactions…' });
+          try {
+            const txRes = await gateway.tool(agent, { tool: 'wallet.transactions', arguments: {} });
+            if (txRes) job.walletSnapshot = { ...job.walletSnapshot, ...txRes };
+          } catch {}
+          try {
+            const bal = await gateway.tool(agent, { tool: 'wallet.balance', arguments: {} });
+            if (bal?.balanceUSDC) job.walletSnapshot = { ...job.walletSnapshot, balanceBaseUnits: bal.balanceBaseUnits, balanceUSDC: bal.balanceUSDC };
+          } catch {}
+          gateway.emitAgentStatus(wallet, { traceId: job.traceId, phase: 'thinking', backend: currentBackend, label: `Thinking with ${currentBackend}…` });
+          await dispatchJob(client, job, { backend: currentBackend });
+          gateway.emitAgentStatus(wallet, { traceId: job.traceId, phase: 'idle', backend: currentBackend });
+        } catch (err) {
+          console.warn(`Local agent dispatch (${currentBackend}) error:`, err.message);
+          gateway.emitAgentStatus(wallet, { traceId: job.traceId, phase: 'idle', backend: currentBackend });
+          try {
+            await client.tool('chat.respond', {
+              chatId: job.chatId,
+              replyId: 'bridge-err-' + job.chatId,
+              text: `Local agent backend (${currentBackend}) could not complete this reply: ${err.message}. You can switch backends in Settings or connect via /v1/mcp.`,
+              items: []
+            });
+          } catch {}
+        }
+      }
+    } while (queuedDispatchWallets.has(wallet));
+  } catch (err) {
+    console.warn('Local agent dispatch loop error:', err.message);
+  } finally {
+    activeDispatchWallets.delete(wallet);
+  }
+}
 
 // Load fixtures
 const scenariosPath = path.join(ROOT_DIR, 'data/fixtures/scenarios.json');
@@ -308,15 +382,21 @@ function runAntigravityBehavioralInference(events) {
 // ==========================================
 function parseJsonBody(req) {
   return new Promise((resolve, reject) => {
+    let bytes = 0;
     let body = '';
+    let aborted = false;
     req.on('data', (chunk) => {
-      body += chunk;
-      if (body.length > 2 * 1024 * 1024) {
+      bytes += chunk.length;
+      if (bytes > 65536) {
+        aborted = true;
         req.destroy();
         reject(new Error('Body payload too large'));
+      } else {
+        body += chunk;
       }
     });
     req.on('end', () => {
+      if (aborted) return;
       if (!body.trim()) return resolve({});
       try {
         resolve(JSON.parse(body));
@@ -331,9 +411,7 @@ function parseJsonBody(req) {
 function sendJson(res, statusCode, data) {
   res.writeHead(statusCode, {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-PAYMENT, X-AP2-MANDATE'
+    'Cache-Control': 'no-store'
   });
   res.end(JSON.stringify(data, (key, value) => (typeof value === 'bigint' ? value.toString() : value), 2));
 }
@@ -347,8 +425,14 @@ const server = http.createServer(async (req, res) => {
   res.setHeader('Referrer-Policy','no-referrer');
   res.setHeader('X-Frame-Options','DENY');
   res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
-  if(await handleGateway(req,res))return;
-  // Wallet signing stays in the user's wallet. These routes only read Arc public data.
+  if(await handleGateway(req,res)){
+    if(req.method==='POST'&&req.url?.startsWith('/v1/gateway/chat')&&res.statusCode===201){
+      const wallet=String(req.headers['x-phishnet-wallet']||'').toLowerCase();
+      if(wallet)setImmediate(()=>void dispatchWalletChat(wallet));
+    }
+    return;
+  }
+  // Wallet signing stays in the user's wallet. These routes only read Arc public data or require wallet session auth for consent mutations.
   if (req.url?.startsWith('/v1/testnet/')) {
     let origin;try{origin=localOrigin(req,process.env.PHISHNET_PUBLIC_ORIGIN||'');}catch{res.writeHead(403,{'Content-Type':'application/json','Cache-Control':'no-store'});return res.end(JSON.stringify({error:'Use this API from the configured PhishNet origin.'}));}
     const reply = (status, body) => {res.writeHead(status, {'Content-Type':'application/json', 'Cache-Control':'no-store'});res.end(JSON.stringify(body));};
@@ -359,10 +443,15 @@ const server = http.createServer(async (req, res) => {
       const endpoint = new URL(req.url,origin);
       if(req.method==='GET' && endpoint.pathname==='/v1/testnet/consent/config')return reply(200,consentBroker.config());
       if(req.method==='POST' && ['/v1/testnet/consent/intent','/v1/testnet/consent/receipt','/v1/testnet/consent/consume'].includes(endpoint.pathname)){
+        const raw=req.headers.cookie?.match(/(?:^|;\s*)phishnet_session=([A-Za-z0-9_-]+)/)?.[1];
+        let wallet;try{wallet=gateway.session(raw,req.headers['x-phishnet-wallet']);}catch{return reply(401,{error:'Sign in with the selected wallet to manage CounterSign intents.'});}
         if(!req.headers['content-type']?.startsWith('application/json'))return reply(415,{error:'JSON body required.'});
         const input=await parseJsonBody(req);
-        if(endpoint.pathname.endsWith('/intent'))return reply(200,consentBroker.create(input));
-        return reply(200,endpoint.pathname.endsWith('/receipt')?consentBroker.accept(input):consentBroker.consume(input));
+        if(endpoint.pathname.endsWith('/intent')){
+          if(String(input?.from||'').toLowerCase()!==wallet)return reply(403,{error:'Consent intent sender must match the signed-in wallet.'});
+          return reply(200,consentBroker.create(input));
+        }
+        return reply(200,endpoint.pathname.endsWith('/receipt')?consentBroker.accept(input,wallet):consentBroker.consume(input,wallet));
       }
       if(req.method==='GET' && endpoint.pathname==='/v1/testnet/network')return reply(200,await testnet.network());
       if(req.method==='GET' && endpoint.pathname==='/v1/testnet/balance')return reply(200,await testnet.balance(endpoint.searchParams.get('address')));
@@ -374,13 +463,10 @@ const server = http.createServer(async (req, res) => {
       return reply(404,{error:'Testnet route not found.'});
     } catch(error) {return reply(400,{error:error.message || 'Testnet request failed.'});}
   }
-  // Handle CORS Preflight
+  try{localOrigin(req,process.env.PHISHNET_PUBLIC_ORIGIN||'');}catch{return sendJson(res,403,{error:'Use this API from the configured PhishNet origin.'});}
+  // Refuse preflighted cross-origin requests rather than exposing wildcard CORS.
   if (req.method === 'OPTIONS') {
-    res.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-PAYMENT, X-AP2-MANDATE'
-    });
+    res.writeHead(405, { 'Cache-Control': 'no-store' });
     res.end();
     return;
   }
@@ -689,7 +775,7 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/' || pathname === '/index.html') {
       const indexPath = path.join(ROOT_DIR, 'apps/web/index.html');
       if (fs.existsSync(indexPath)) {
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
         res.end(fs.readFileSync(indexPath, 'utf8'));
         return;
       }
@@ -698,7 +784,7 @@ const server = http.createServer(async (req, res) => {
     const assets = {'/chat.css':['chat.css','text/css'], '/mvp.css':['mvp.css','text/css'], '/sw.js':['sw.js','text/javascript'], '/manifest.webmanifest':['manifest.webmanifest','application/manifest+json'], '/icon.svg':['icon.svg','image/svg+xml'], '/icon-192.png':['icon-192.png','image/png'], '/icon-512.png':['icon-512.png','image/png'], '/app.js':['build/app.js','text/javascript'], '/app.css':['app.css','text/css'], '/notebook.css':['notebook.css','text/css'], '/app.js.LEGAL.txt':['build/app.js.LEGAL.txt','text/plain'], '/investigate.js': ['investigate.js', 'text/javascript'], '/investigate.css': ['investigate.css', 'text/css']};
     if (req.method === 'GET' && assets[pathname]) {
       const [file, type] = assets[pathname];
-      res.writeHead(200, {'Content-Type': type + '; charset=utf-8'});
+      res.writeHead(200, {'Content-Type': type + '; charset=utf-8', 'Cache-Control': 'no-cache'});
       return res.end(fs.readFileSync(path.join(ROOT_DIR, 'apps/web', file)));
     }
     // Default 404

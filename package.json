@@ -7,13 +7,13 @@
   "scripts": {
     "dev": "node --env-file-if-exists=.env.local apps/api/src/server.js",
     "test": "node tests/run-all.js",
-    "test:native": "powershell -ExecutionPolicy Bypass -File tests/run-tests.ps1",
-    "serve": "powershell -ExecutionPolicy Bypass -File apps/api/serve.ps1",
+    "serve": "node --env-file-if-exists=.env.local apps/api/src/server.js",
     "test:unit": "node tests/investigations.test.js",
     "test:browser": "playwright test",
     "test:chain": "node --experimental-strip-types tests/chain-safety.test.mjs",
     "build": "node scripts/build-web.mjs",
     "predev": "npm run build",
+    "preserve": "npm run build",
     "test:payments": "node tests/payments.test.js",
     "test:testnet-api": "node scripts/test-testnet-api.mjs",
     "test:consent": "node tests/consent.test.js",
@@ -21,6 +21,8 @@
     "test:consent-api": "node scripts/test-consent-api.mjs",
     "test:mvp": "node scripts/test-mvp.mjs",
     "agent:tool": "node scripts/agent-tool.mjs",
+    "agent:bridge": "node scripts/agent-bridge.mjs",
+    "agent:use": "node scripts/agent-tool.mjs use",
     "verify:audit": "node scripts/verify-audit.mjs"
   },
   "keywords": [

@@ -20,6 +20,7 @@ const rules={
  'wallet.submission.observed':['wallet-observer','wallet-provider','WALLET_REPORTED'],
  'wallet.rejected':['wallet-observer','wallet-provider','WALLET_REPORTED'],
  'chain.receipt.checked':['chain-verifier','chain-rpc','RPC_VERIFIED'],
+ 'chain.transaction.observed':['chain-verifier','chain-rpc','RPC_VERIFIED'],
  'history.imported':['import-gateway','browser-import','UNTRUSTED_IMPORT'],
  'payment.status.changed':['payment-gateway','payment-gateway','LOCAL_OBSERVATION'],
  'agent.connector.changed':['ui-gateway','user-ui','LOCAL_OBSERVATION'],
@@ -68,10 +69,73 @@ export class Journal{
    const event={schemaVersion:VERSION,eventId:'evt-'+randomUUID(),traceId:draft.traceId,sequence,eventType:draft.eventType,observedAt:now,recordedAt:now,recordedBy:component,actor:structuredClone(draft.actor),origin:rule[1],walletScope:structuredClone(draft.walletScope),links:{...draft.links,parentEventIds:parents},relations:parents.map(eventId=>({eventId,kind:'OBSERVED_REFERENCE',evidenceIds:[eventId]})),privacy:draft.eventType.startsWith('audit.')?'public-commitment':draft.eventType==='agent.message.reported'||draft.eventType==='agent.plan.reported'||draft.eventType==='chat.user.submitted'?'private-reference':'wallet-record',verification:{state:rule[2],method:component+'-v1',confidence:rule[2]==='AGENT_REPORTED'?'unknown':'not_applicable'},payload:structuredClone(draft.payload),integrity:{profile:PROFILE,previousDigest:head?.digest||'0'.repeat(64),eventDigest:'0'.repeat(64),authentication:'unsigned-local'}};
    if(draft.verification||draft.sequence||draft.recordedBy||draft.eventId||draft.integrity)throw Error('Recorder fields cannot be supplied by a caller.');
    if(draft.eventType==='chain.receipt.checked'&&['UNVERIFIED','BROADCAST','MISMATCH'].includes(draft.payload.status))event.verification={state:'UNKNOWN',method:component+'-v1',confidence:'unknown'};
+   if(draft.eventType==='chain.transaction.observed'&&draft.payload.source==='explorer-internal-tx')event.verification={state:'UNKNOWN',method:component+'-explorer-index-v1',confidence:'medium'};
    event.integrity.eventDigest=eventDigest(event);assertEvent(event);
    this.db.prepare('INSERT INTO events VALUES(?,?,?,?,?,?,?)').run(sequence,event.eventId,event.traceId,event.walletScope.address,event.eventType,canonical(event),event.integrity.eventDigest);
    for(const relation of event.relations)this.db.prepare('INSERT INTO relations VALUES(?,?,?,?)').run(relation.eventId,event.eventId,relation.kind,canonical(relation.evidenceIds));return event;
  });}
  events(wallet,{traceId=null,after=0,limit=1000}={}){if(!Number.isSafeInteger(after)||after<0||!Number.isSafeInteger(limit)||limit<1||limit>5000)throw Error('Invalid journal range.');return this.db.prepare('SELECT event_json FROM events WHERE wallet=? AND sequence>? AND (? IS NULL OR trace_id=?) ORDER BY sequence LIMIT ?').all(wallet,after,traceId,traceId,limit).map(r=>JSON.parse(r.event_json));}
+ exportWallet(wallet){
+  const list=[];let after=0;
+  for(;;){const page=this.events(wallet,{after,limit:5000});list.push(...page);if(page.length<5000)break;after=page.at(-1).sequence;}
+  const refs=new Set();
+  for(const e of list)for(const k of ['contentRef','purposeRef','resultRef','verificationRef'])if(e.payload?.[k])refs.add(e.payload[k]);
+  const proposals=this.db.prepare('SELECT record_json FROM proposals WHERE wallet=? ORDER BY rowid').all(wallet).map(r=>{const p=JSON.parse(r.record_json);delete p.authorizationHash;if(p.purposeRef)refs.add(p.purposeRef);return p;});
+  const contents={};for(const ref of refs)contents[ref]=this.content(wallet,ref);
+  return {version:'phishnet.journal-bundle.v1',wallet,chainId:5042002,exportedAt:new Date().toISOString(),events:list,contents,proposals};
+ }
+ importWallet(wallet,bundle){
+  if(!bundle||typeof bundle!=='object'||bundle.version!=='phishnet.journal-bundle.v1')throw Error('Unsupported encrypted journal bundle version.');
+  if(typeof bundle.wallet!=='string'||bundle.wallet.toLowerCase()!==wallet)throw Error('Imported journal belongs to another wallet ('+(bundle.wallet||'unknown')+').');
+  if(!Array.isArray(bundle.events)||bundle.events.length>10000)throw Error('Invalid or oversized journal event list.');
+  if(!bundle.contents||typeof bundle.contents!=='object'||Array.isArray(bundle.contents))throw Error('Invalid journal contents map.');
+  const sorted=[...bundle.events].sort((a,b)=>a.sequence-b.sequence);
+  for(const e of sorted){
+   assertEvent(e);
+   if(e.walletScope?.address!==wallet)throw Error('Bundle event scope mismatches selected wallet.');
+   if(eventDigest(e)!==e.integrity?.eventDigest)throw Error('Corrupted event digest in imported bundle: '+e.eventId);
+  }
+  const contentEntries=Object.entries(bundle.contents);
+  for(const [ref,text] of contentEntries){
+   if(!/^content-[A-Za-z0-9:._-]{1,152}$/.test(ref)||typeof text!=='string'||Buffer.byteLength(text)>32000)throw Error('Invalid encrypted content entry: '+ref);
+  }
+  const proposals=Array.isArray(bundle.proposals)?bundle.proposals:[];
+  for(const p of proposals){if(!p||typeof p!=='object'||p.wallet!==wallet||typeof p.id!=='string'||typeof p.traceId!=='string'||typeof p.status!=='string')throw Error('Invalid proposal entry in imported bundle.');}
+  return this.transaction(()=>{
+   for(const [ref,text] of contentEntries){
+    const existing=this.db.prepare('SELECT wallet FROM contents WHERE ref=?').get(ref);
+    if(existing){if(existing.wallet!==wallet)throw Error('Content reference collides with another wallet.');continue;}
+    const iv=randomBytes(12),cipher=createCipheriv('aes-256-gcm',Buffer.from(this.contentKey,'hex'),iv);
+    cipher.setAAD(Buffer.from(wallet));
+    const ciphertext=Buffer.concat([cipher.update(text,'utf8'),cipher.final()]);
+    const digest=sha(Buffer.concat([iv,cipher.getAuthTag(),ciphertext]));
+    this.db.prepare('INSERT INTO contents VALUES(?,?,?,?,?,?)').run(ref,wallet,iv.toString('hex'),cipher.getAuthTag().toString('hex'),ciphertext.toString('hex'),digest);
+   }
+   for(const p of proposals){
+    const clean={...p};delete clean.authorizationHash;
+    this.db.prepare('INSERT OR IGNORE INTO proposals VALUES(?,?,?,?,?)').run(clean.id,wallet,clean.traceId,clean.status,JSON.stringify(clean));
+   }
+   const head=this.db.prepare('SELECT sequence,digest FROM events ORDER BY sequence DESC LIMIT 1').get();
+   let seq=head?.sequence||0,prev=head?.digest||'0'.repeat(64);
+   let imported=0,skipped=0;const importedEvents=[];
+   for(const e of sorted){
+    const exists=this.db.prepare('SELECT wallet FROM events WHERE event_id=?').get(e.eventId);
+    if(exists){if(exists.wallet!==wallet)throw Error('Event ID collides with another wallet.');skipped++;continue;}
+    for(const parent of e.links?.parentEventIds||[]){
+     const pRow=this.db.prepare('SELECT wallet,trace_id FROM events WHERE event_id=?').get(parent);
+     if(!pRow||pRow.wallet!==wallet||pRow.trace_id!==e.traceId)throw Error('Missing or out-of-scope parent reference during import: '+parent);
+    }
+    const local=structuredClone(e);
+    local.sequence=++seq;
+    local.integrity={...local.integrity,previousDigest:prev,eventDigest:'0'.repeat(64)};
+    local.integrity.eventDigest=eventDigest(local);
+    assertEvent(local);
+    this.db.prepare('INSERT INTO events VALUES(?,?,?,?,?,?,?)').run(seq,local.eventId,local.traceId,wallet,local.eventType,canonical(local),local.integrity.eventDigest);
+    for(const rel of local.relations)this.db.prepare('INSERT OR IGNORE INTO relations VALUES(?,?,?,?)').run(rel.eventId,local.eventId,rel.kind,canonical(rel.evidenceIds));
+    prev=local.integrity.eventDigest;imported++;importedEvents.push(local);
+   }
+   return {imported,skipped,events:importedEvents};
+  });
+ }
  verifyLocal(){const rows=this.db.prepare('SELECT * FROM events ORDER BY sequence').all();let previous='0'.repeat(64),sequence=0;for(const row of rows){const e=JSON.parse(row.event_json);assertEvent(e);if(e.sequence!==++sequence||row.sequence!==sequence||row.wallet!==e.walletScope.address||row.trace_id!==e.traceId||row.event_id!==e.eventId||row.event_type!==e.eventType||row.digest!==e.integrity.eventDigest||e.integrity.previousDigest!==previous||eventDigest(e)!==row.digest)throw Error('Local journal integrity check failed. External checkpoint verification is required for tamper/rollback assurance.');previous=row.digest;}return {count:sequence,head:previous,authentication:'unsigned-local',independentlyAnchored:false};}
 }

@@ -13,3 +13,36 @@ test('browser imports remain untrusted chain observations, never invented agent 
 test('consumed authorization cannot become a fresh intent or expire into a resend after restart',async()=>{const s=setup();try{const p=s.g.createProposal(wallet,{payment});await s.g.quote(wallet,p.id);const a=approve(s,p);s.g.resolve(wallet,p.id,a.resolution);await s.g.authorize(wallet,p.id);s.restart();assert.throws(()=>s.g.intent(wallet,p.id),/finalized/);await assert.rejects(()=>s.g.quote(wallet,p.id));const future=createGateway({journal:s.j,reader,approverPublicKey:s.human.publicKey,clock:()=>Date.now()+3600000});assert.equal(future.proposal(wallet,p.id).status,'AUTHORIZATION_REQUESTED');await assert.rejects(()=>future.authorize(wallet,p.id));assert.throws(()=>future.intent(wallet,p.id));}finally{s.close();}});
 
 test('human rejection and silence expiry remain fail-closed in durable state across restart',async()=>{const s=setup();try{const rejected=s.g.createProposal(wallet,{payment});await s.g.quote(wallet,rejected.id);const req=s.g.intent(wallet,rejected.id);s.g.resolve(wallet,rejected.id,{decision:'reject',policy:'approver',countersignatures:[signDecision(req.intent,'reject','human:owner',s.human.secretKey)]});s.restart();assert.equal(s.g.proposal(wallet,rejected.id).status,'REJECTED');await assert.rejects(()=>s.g.authorize(wallet,rejected.id));const silent=s.g.createProposal(wallet,{payment});await s.g.quote(wallet,silent.id);s.g.intent(wallet,silent.id);s.restart();const future=createGateway({journal:s.j,reader,approverPublicKey:s.human.publicKey,clock:()=>Date.now()+3600000});assert.equal(future.proposal(wallet,silent.id).status,'EXPIRED');await assert.rejects(()=>future.authorize(wallet,silent.id));s.restart();assert.equal(s.g.proposal(wallet,silent.id).status,'EXPIRED');assert.equal(s.g.events(wallet).filter(e=>e.eventType==='wallet.submission.observed').length,0);}finally{s.close();}});
+
+test('syncChainTransactions records incoming faucet transfers once without duplicating proposals',async()=>{
+  const faucet='0x'+'9'.repeat(40),faucetHash='0x'+'f'.repeat(64),existingHash='0x'+'c'.repeat(64);
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'phishnet-sync-')),j=new Journal(dir);
+  const customReader={...reader,transactions:async()=>[
+    {txHash:faucetHash,from:faucet,recipient:wallet,amountBaseUnits:'10000000000000000000',direction:'incoming',asset:'native-USDC',decimals:18,chainId:5042002,blockNumber:'42',observedAt:'2026-11-26T12:00:00.000Z',source:'rpc-native-tx'},
+    {txHash:existingHash,from:wallet,recipient:to,amountBaseUnits:'20000000000000000',direction:'outgoing',asset:'native-USDC',decimals:18,chainId:5042002,blockNumber:'41',source:'rpc-native-tx'}
+  ]};
+  try{
+    const g=createGateway({journal:j,reader:customReader});
+    const p=g.createProposal(wallet,{payment});await g.quote(wallet,p.id);const a=await g.authorize(wallet,p.id);g.submitted(wallet,p.id,{hash:existingHash,executionToken:a.executionToken});
+    const first=await g.syncChainTransactions(wallet);assert.equal(first.added,1);assert.equal(first.events[0].eventType,'chain.transaction.observed');assert.equal(first.events[0].verification.state,'RPC_VERIFIED');
+    const second=await g.syncChainTransactions(wallet);assert.equal(second.added,0);
+    assert.equal(g.events(wallet).filter(e=>e.eventType==='chain.transaction.observed').length,1);
+  }finally{j.close();fs.rmSync(dir,{recursive:true,force:true});}
+});
+
+test('dynamic CounterSign opt-in avoids deadlocking unenrolled local dev while enforcing enrolled keys',async()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'phishnet-dyn-consent-')),j=new Journal(dir);
+  try{
+    const g=createGateway({journal:j,reader,allowDynamicConsent:true,requireUnenrolledAgentConsent:false});
+    const issued=g.issueAgent(wallet),agent=g.agent(issued.token),chat=g.chat(wallet,{text:'Draft 0.02'});
+    g.jobs(agent);
+    const p1=await g.tool(agent,{tool:'payment.propose',arguments:{chatId:chat.chatId,to,amount:'0.02'}});
+    assert.equal(p1.requiresConsent,false);
+    const enrolled=g.enrollConsent(wallet,{generate:true});
+    assert.equal(enrolled.config.configured,true);
+    const p2=await g.tool(agent,{tool:'payment.propose',arguments:{chatId:chat.chatId,to,amount:'0.02'}});
+    assert.equal(p2.requiresConsent,true);
+    g.clearConsent();
+    assert.equal(g.consent.config().configured,false);
+  }finally{j.close();fs.rmSync(dir,{recursive:true,force:true});}
+});
